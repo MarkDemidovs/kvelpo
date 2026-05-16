@@ -191,32 +191,32 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
 
           {isLoading && !projectDetails ? (
             <div className="rounded-3xl bg-slate-50 p-6 text-sm text-slate-600">Loading project details...</div>
-          ) : currentProject ? (
+          ) : projectDetails ? (
             <>
               <div className="flex flex-wrap items-center justify-between gap-4 min-w-0">
                 <div className="min-w-0">
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Project</p>
-                  <h3 className="mt-2 max-w-full truncate text-xl font-semibold text-slate-900">{currentProject.name}</h3>
+                  <h3 className="mt-2 max-w-full truncate text-xl font-semibold text-slate-900">{projectDetails.name}</h3>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${currentProject.isPublic ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700"}`}>
-                  {currentProject.isPublic ? "Public" : "Private"}
+                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${projectDetails.isPublic ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700"}`}>
+                  {projectDetails.isPublic ? "Public" : "Private"}
                 </span>
               </div>
 
-              {currentProject.description ? (
+              {projectDetails.description ? (
                 <div>
                   <p className="text-sm font-medium text-slate-700 mb-2">Description</p>
-                  <p className="text-sm leading-7 text-slate-600 whitespace-pre-wrap">{currentProject.description}</p>
+                  <p className="text-sm leading-7 text-slate-600 whitespace-pre-wrap">{projectDetails.description}</p>
                 </div>
               ) : (
                 <p className="text-sm leading-7 text-slate-500">No description provided.</p>
               )}
 
-              {currentProject.tags && currentProject.tags.length > 0 && (
+              {projectDetails.tags && projectDetails.tags.length > 0 && (
                 <div>
                   <p className="text-sm font-medium text-slate-700 mb-2">Tags</p>
                   <div className="flex flex-wrap gap-2">
-                    {currentProject.tags.map((tag, index) => (
+                    {projectDetails.tags.map((tag, index) => (
                       <span
                         key={index}
                         className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
@@ -230,14 +230,14 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
 
               <div className="grid gap-3 text-sm text-slate-500 sm:grid-cols-1 md:grid-cols-2">
                 <div className="flex min-w-0 flex-wrap items-center gap-3">
-                  <span className="truncate">Created: {new Date(currentProject.createdAt).toLocaleDateString()}</span>
+                  <span className="truncate">Created: {new Date(projectDetails.createdAt).toLocaleDateString()}</span>
                   <span className="h-1 w-1 rounded-full bg-slate-300" />
-                  <span className="truncate">By: {currentProject.userFullName ?? currentProject.clerkUserId}</span>
+                  <span className="truncate">By: {projectDetails.userFullName ?? projectDetails.clerkUserId}</span>
                 </div>
-                {currentProject.rolesNeededCount ? (
+                {projectDetails.rolesNeededCount ? (
                   <div className="flex items-center justify-start sm:justify-end">
                     <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
-                      {currentProject.rolesNeededCount} slot{currentProject.rolesNeededCount > 1 ? "s" : ""} needed
+                      {projectDetails.rolesNeededCount} slot{projectDetails.rolesNeededCount > 1 ? "s" : ""} needed
                     </span>
                   </div>
                 ) : null}
@@ -246,11 +246,11 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
               <div className="rounded-3xl bg-slate-50 p-4">
                 <div className="flex items-center justify-between gap-4">
                   <p className="text-sm font-semibold text-slate-900">Roles needed</p>
-                  <span className="text-xs text-slate-500">{currentProject.rolesNeeded?.length ?? 0} positions</span>
+                  <span className="text-xs text-slate-500">{projectDetails.rolesNeeded?.length ?? 0} positions</span>
                 </div>
-                {currentProject.rolesNeeded && currentProject.rolesNeeded.length > 0 ? (
+                {projectDetails.rolesNeeded && projectDetails.rolesNeeded.length > 0 ? (
                   <div className="mt-4 space-y-4">
-                    {currentProject.rolesNeeded.map((role) => (
+                    {projectDetails.rolesNeeded.map((role) => (
                       <div key={role.id} className="rounded-2xl border border-slate-200 bg-white p-4">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div className="min-w-0">
@@ -261,7 +261,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                               {role.slotsNeeded} slot{role.slotsNeeded !== 1 ? "s" : ""}
                             </span>
-                            {!currentProject.isOwner && role.slotsNeeded > 0 ? (
+                            {!projectDetails.isOwner && role.slotsNeeded > 0 ? (
                               <button
                                 type="button"
                                 onClick={() => setSelectedRoleId(role.id)}
@@ -273,7 +273,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
                           </div>
                         </div>
 
-                        {selectedRoleId === role.id && !currentProject.isOwner ? (
+                        {selectedRoleId === role.id && !projectDetails.isOwner ? (
                           <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
                             <label className="block text-sm font-medium text-slate-700">Message</label>
                             <textarea
@@ -313,7 +313,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
                 )}
               </div>
 
-              {currentProject.isOwner && projectDetails?.applications && projectDetails.applications.length > 0 ? (
+              {projectDetails.isOwner && projectDetails.applications && projectDetails.applications.length > 0 ? (
                 <div className="rounded-3xl bg-white p-4 shadow-sm">
                   <div className="flex items-center justify-between gap-4">
                     <p className="text-sm font-semibold text-slate-900">Applications</p>
