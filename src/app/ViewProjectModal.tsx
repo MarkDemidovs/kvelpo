@@ -84,8 +84,6 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
     void loadDetails();
   }, [project, isOpen]);
 
-  const currentProject = projectDetails ?? project;
-
   const refreshDetails = async () => {
     if (!project) return;
     setIsLoading(true);
