@@ -191,7 +191,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
 
           {isLoading && !projectDetails ? (
             <div className="rounded-3xl bg-slate-50 p-6 text-sm text-slate-600">Loading project details...</div>
-          ) : (
+          ) : currentProject ? (
             <>
               <div className="flex flex-wrap items-center justify-between gap-4 min-w-0">
                 <div className="min-w-0">
@@ -364,7 +364,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
                 </div>
               ) : null}
             </>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
