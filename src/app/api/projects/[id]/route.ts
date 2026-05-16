@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
+import { applications, projects, profiles, projectMembers, projectRolesNeeded } from "~/server/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export async function GET(
@@ -29,7 +29,7 @@ export async function GET(
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
-        rolesNeededCount: sql<number>`count(${projectRolesNeeded.id})`,
+        rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
       })
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
@@ -55,7 +55,54 @@ export async function GET(
       return Response.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    return Response.json(project);
+    const isOwner = projectOwnerId === userId;
+
+    const rolesNeeded = await db
+      .select({
+        id: projectRolesNeeded.id,
+        title: projectRolesNeeded.title,
+        description: projectRolesNeeded.description,
+        slotsNeeded: projectRolesNeeded.slotsNeeded,
+      })
+      .from(projectRolesNeeded)
+      .where(eq(projectRolesNeeded.projectId, projectId));
+
+    let applicationsList: Array<{
+      id: number;
+      clerkUserId: string;
+      message: string | null;
+      status: string;
+      projectRoleNeededId: number;
+      roleTitle: string | null;
+      applicantFullName: string | null;
+      createdAt: Date;
+      updatedAt: Date | null;
+    }> = [];
+    if (isOwner) {
+      applicationsList = await db
+        .select({
+          id: applications.id,
+          clerkUserId: applications.clerkUserId,
+          message: applications.message,
+          status: applications.status,
+          projectRoleNeededId: applications.projectRoleNeededId,
+          roleTitle: projectRolesNeeded.title,
+          applicantFullName: profiles.fullName,
+          createdAt: applications.createdAt,
+          updatedAt: applications.updatedAt,
+        })
+        .from(applications)
+        .leftJoin(projectRolesNeeded, eq(applications.projectRoleNeededId, projectRolesNeeded.id))
+        .leftJoin(profiles, eq(applications.clerkUserId, profiles.clerkUserId))
+        .where(eq(projectRolesNeeded.projectId, projectId));
+    }
+
+    return Response.json({
+      ...project,
+      rolesNeeded,
+      isOwner,
+      applications: isOwner ? applicationsList : undefined,
+    });
   } catch (error) {
     console.error("Error fetching project:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });

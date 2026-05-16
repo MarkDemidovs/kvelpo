@@ -29,7 +29,7 @@ export async function GET(request: Request) {
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
-        rolesNeededCount: sql<number>`count(${projectRolesNeeded.id})`,
+        rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
       })
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
@@ -128,10 +128,15 @@ export async function POST(request: Request) {
       .from(profiles)
       .where(eq(profiles.clerkUserId, userId));
 
+    const totalSlots = filteredRoles.reduce(
+      (sum, role) => sum + Math.max(1, Number(role.slotsNeeded) || 1),
+      0,
+    );
+
     return Response.json({
       ...newProject,
       userFullName: profile?.fullName ?? null,
-      rolesNeededCount: filteredRoles.length,
+      rolesNeededCount: totalSlots,
     }, { status: 201 });
   } catch (error) {
     console.error("Full error:", error);
