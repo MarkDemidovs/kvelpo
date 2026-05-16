@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { applications, projectRolesNeeded, projects, profiles } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export async function POST(
   request: Request,
@@ -67,8 +67,10 @@ export async function POST(
       .select({ id: applications.id, status: applications.status })
       .from(applications)
       .where(
-        eq(applications.clerkUserId, userId),
-        eq(applications.projectRoleNeededId, projectRoleNeededId),
+        and(
+          eq(applications.clerkUserId, userId),
+          eq(applications.projectRoleNeededId, projectRoleNeededId)
+        )
       )
       .then((rows) => rows[0]);
 
