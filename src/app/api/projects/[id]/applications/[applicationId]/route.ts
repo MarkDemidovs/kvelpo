@@ -20,7 +20,7 @@ export async function PATCH(
       return Response.json({ error: "Invalid project or application ID" }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as { status?: string };
     const status = body.status === "accepted" ? "accepted" : body.status === "rejected" ? "rejected" : undefined;
     if (!status) {
       return Response.json({ error: "Status must be accepted or rejected" }, { status: 400 });
@@ -42,7 +42,7 @@ export async function PATCH(
       .where(eq(projectRolesNeeded.id, application.projectRoleNeededId))
       .then((rows) => rows[0]);
 
-    if (!role || role.projectId !== projectId) {
+    if (role?.projectId !== projectId) {
       return Response.json({ error: "Application does not belong to this project" }, { status: 400 });
     }
 

@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { applications, projectRolesNeeded, projects, profiles } from "~/server/db/schema";
+import { applications, projectRolesNeeded, projects } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function POST(
@@ -19,7 +19,7 @@ export async function POST(
       return Response.json({ error: "Invalid project ID" }, { status: 400 });
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as { projectRoleNeededId?: number; message?: string };
     const projectRoleNeededId = typeof body.projectRoleNeededId === "number" ? body.projectRoleNeededId : undefined;
     const message = typeof body.message === "string" ? body.message.trim() : null;
 
@@ -37,7 +37,7 @@ export async function POST(
       .where(eq(projectRolesNeeded.id, projectRoleNeededId))
       .then((rows) => rows[0]);
 
-    if (!role || role.projectId !== projectId) {
+    if (role?.projectId !== projectId) {
       return Response.json({ error: "Role not found for this project" }, { status: 404 });
     }
 

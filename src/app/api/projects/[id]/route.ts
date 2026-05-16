@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { applications, projects, profiles, projectMembers, projectRolesNeeded } from "~/server/db/schema";
+import { applications, projects, profiles, projectRolesNeeded } from "~/server/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export async function GET(
@@ -10,7 +10,6 @@ export async function GET(
   const { userId } = await auth();
 
   try {
-    // Next.js 15: params must be awaited
     const { id } = await params;
     const projectId = parseInt(id);
 
@@ -37,20 +36,14 @@ export async function GET(
       .where(eq(projects.id, projectId))
       .groupBy(projects.id, profiles.fullName);
 
-    // 1. Check if the array is empty
     if (!projectData || projectData.length === 0) {
       return Response.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // 2. Grab the first result
     const project = projectData[0];
-
-    // 3. Destructure specifically to handle potential nulls from the Join
-    // This tells TypeScript: "If these are null, we handle them here"
     const isPublic = project?.isPublic;
     const projectOwnerId = project?.clerkUserId;
 
-    // 4. Perform the authorization check safely
     if (!isPublic && projectOwnerId !== userId) {
       return Response.json({ error: "Unauthorized" }, { status: 403 });
     }
@@ -78,6 +71,7 @@ export async function GET(
       createdAt: Date;
       updatedAt: Date | null;
     }> = [];
+    
     if (isOwner) {
       applicationsList = await db
         .select({

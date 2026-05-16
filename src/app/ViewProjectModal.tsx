@@ -46,6 +46,12 @@ interface ProjectDetails extends Project {
   applications?: Application[];
 }
 
+// Added this interface to fix the "any" type errors on API responses
+interface ApiErrorResponse {
+  error?: string;
+  message?: string;
+}
+
 export default function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalProps) {
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,14 +74,14 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
       try {
         const response = await fetch(`/api/projects/${project.id}`);
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || data.message || "Unable to load project details");
+          const data = (await response.json()) as ApiErrorResponse;
+          throw new Error(data.error ?? data.message ?? "Unable to load project details");
         }
 
         const data = (await response.json()) as ProjectDetails;
         setProjectDetails(data);
       } catch (err) {
-        setError(String(err));
+        setError(err instanceof Error ? err.message : String(err));
       } finally {
         setIsLoading(false);
       }
@@ -92,13 +98,13 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
     try {
       const response = await fetch(`/api/projects/${project.id}`);
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || data.message || "Unable to refresh project details");
+        const data = (await response.json()) as ApiErrorResponse;
+        throw new Error(data.error ?? data.message ?? "Unable to refresh project details");
       }
       const data = (await response.json()) as ProjectDetails;
       setProjectDetails(data);
     } catch (err) {
-      setError(String(err));
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsLoading(false);
     }
@@ -119,15 +125,15 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || data.message || "Failed to submit application");
+        const data = (await response.json()) as ApiErrorResponse;
+        throw new Error(data.error ?? data.message ?? "Failed to submit application");
       }
 
       setSelectedRoleId(null);
       setApplicationMessage("");
       await refreshDetails();
     } catch (err) {
-      setError(String(err));
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setIsSubmittingApplication(false);
     }
@@ -148,13 +154,13 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || data.message || "Unable to update application");
+        const data = (await response.json()) as ApiErrorResponse;
+        throw new Error(data.error ?? data.message ?? "Unable to update application");
       }
 
       await refreshDetails();
     } catch (err) {
-      setError(String(err));
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setActionLoading(null);
     }
@@ -163,12 +169,12 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
   if (!isOpen || !project) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div
-        className="flex flex-col w-full max-w-full sm:max-w-2xl max-h-[90vh] rounded-xl border border-slate-200 bg-white shadow-xl overflow-hidden"
+        className="flex max-h-[90vh] w-full max-w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl sm:max-w-2xl"
         style={{ maxWidth: "calc(100vw - 2rem)" }}
       >
-        <div className="flex flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100">
+        <div className="flex flex-col gap-4 border-b border-slate-100 px-4 py-5 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="max-w-full truncate text-xl font-semibold text-slate-900">{project.name}</h2>
           <button
             onClick={onClose}
@@ -180,7 +186,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 space-y-6 overflow-y-auto p-6">
           {error && (
             <div className="rounded-3xl bg-red-50 p-4 text-sm text-red-700">
               {error}
@@ -191,7 +197,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
             <div className="rounded-3xl bg-slate-50 p-6 text-sm text-slate-600">Loading project details...</div>
           ) : projectDetails ? (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-4 min-w-0">
+              <div className="flex min-w-0 flex-wrap items-center justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Project</p>
                   <h3 className="mt-2 max-w-full truncate text-xl font-semibold text-slate-900">{projectDetails.name}</h3>
@@ -203,8 +209,8 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
 
               {projectDetails.description ? (
                 <div>
-                  <p className="text-sm font-medium text-slate-700 mb-2">Description</p>
-                  <p className="text-sm leading-7 text-slate-600 whitespace-pre-wrap">{projectDetails.description}</p>
+                  <p className="mb-2 text-sm font-medium text-slate-700">Description</p>
+                  <p className="whitespace-pre-wrap text-sm leading-7 text-slate-600">{projectDetails.description}</p>
                 </div>
               ) : (
                 <p className="text-sm leading-7 text-slate-500">No description provided.</p>
@@ -212,7 +218,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
 
               {projectDetails.tags && projectDetails.tags.length > 0 && (
                 <div>
-                  <p className="text-sm font-medium text-slate-700 mb-2">Tags</p>
+                  <p className="mb-2 text-sm font-medium text-slate-700">Tags</p>
                   <div className="flex flex-wrap gap-2">
                     {projectDetails.tags.map((tag, index) => (
                       <span
@@ -354,7 +360,7 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
                           </div>
                         </div>
                         {app.message ? (
-                          <p className="mt-3 text-sm text-slate-600 whitespace-pre-wrap">{app.message}</p>
+                          <p className="mt-3 whitespace-pre-wrap text-sm text-slate-600">{app.message}</p>
                         ) : null}
                       </div>
                     ))}
