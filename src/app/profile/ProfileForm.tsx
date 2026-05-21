@@ -81,7 +81,8 @@ export default function ProfileForm() {
       });
 
       if (!res.ok) {
-        throw new Error(`Save failed: ${res.status}`);
+        const bodyText = await res.text();
+        throw new Error(`Save failed: ${res.status}${bodyText ? ` — ${bodyText}` : ""}`);
       }
 
       await res.json() as ProfileData;

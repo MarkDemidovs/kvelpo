@@ -73,9 +73,9 @@ export async function PATCH(req: Request) {
 
   const rawSkills = Array.isArray(body.skills) ? body.skills : undefined;
   const parsedSkills = rawSkills?.filter((skill): skill is string => typeof skill === "string");
-  const uniqueSkills = parsedSkills?.length ? [...new Set(parsedSkills)] : undefined;
+  const uniqueSkills = rawSkills ? [...new Set(parsedSkills ?? [])] : undefined;
 
-  if (uniqueSkills?.length ?? 0 > 15) {
+  if (uniqueSkills && uniqueSkills.length > 15) {
     return new NextResponse("A profile may include at most 15 skills", { status: 400 });
   }
 
