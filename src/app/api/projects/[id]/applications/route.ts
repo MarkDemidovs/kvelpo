@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { applications, projectRolesNeeded, projects } from "~/server/db/schema";
+import { applications, notifications, profiles, projectRolesNeeded, projects } from "~/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function POST(
@@ -31,6 +31,7 @@ export async function POST(
       .select({
         id: projectRolesNeeded.id,
         projectId: projectRolesNeeded.projectId,
+        title: projectRolesNeeded.title,
         slotsNeeded: projectRolesNeeded.slotsNeeded,
       })
       .from(projectRolesNeeded)
@@ -78,12 +79,28 @@ export async function POST(
       return Response.json({ error: "You already have an active application for this role" }, { status: 400 });
     }
 
+    const applicantProfile = await db
+      .select({ fullName: profiles.fullName })
+      .from(profiles)
+      .where(eq(profiles.clerkUserId, userId))
+      .then((rows) => rows[0]);
+
+    const applicantName = applicantProfile?.fullName ?? "Someone";
+
     const [newApplication] = await db.insert(applications).values({
       clerkUserId: userId,
       projectRoleNeededId,
       status: "pending",
       message,
     }).returning();
+
+    await db.insert(notifications).values({
+      clerkUserId: project.clerkUserId,
+      projectId,
+      type: "application",
+      message: `${applicantName} applied for ${role.title}`,
+      isRead: false,
+    });
 
     return Response.json(newApplication, { status: 201 });
   } catch (error) {
