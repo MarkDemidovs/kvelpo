@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import TopNav from "./_components/topnav";
+import ChatPopup from "./_components/ChatPopup";
 
 export const metadata: Metadata = {
   title: "notiontab",
@@ -25,6 +26,7 @@ export default function RootLayout({
         <body>
           <TopNav />
           {children}
+          <ChatPopup />
         </body>
       </html>
     </ClerkProvider>

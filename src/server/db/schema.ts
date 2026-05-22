@@ -132,3 +132,22 @@ export const notifications = createTable(
     index("is_read_idx").on(t.isRead),
   ],
 );
+
+export const messages = createTable(
+  "message",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    projectId: d.integer().notNull().references(() => projects.id, { onDelete: "cascade" }),
+    clerkUserId: d.varchar({ length: 256 }).notNull(),
+    message: d.text().notNull(),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .$defaultFn(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  }),
+  (t) => [
+    index("messages_project_id_idx").on(t.projectId),
+    index("messages_clerk_user_id_idx").on(t.clerkUserId),
+    index("messages_created_at_idx").on(t.createdAt),
+  ],
+);
