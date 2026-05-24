@@ -38,8 +38,9 @@ export default function ChatPopup() {
         const data = (await res.json()) as Conversation[];
         setConversations(data);
         // Auto-select first conversation
-        if (data.length > 0) {
-          setSelectedProjectId(data[0].id);
+        const firstConversation = data[0];
+        if (firstConversation) {
+          setSelectedProjectId(firstConversation.id);
         }
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
