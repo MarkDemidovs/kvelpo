@@ -37,11 +37,9 @@ export default function ChatPopup() {
         if (!res.ok) throw new Error(await res.text());
         const data = (await res.json()) as Conversation[];
         setConversations(data);
-        if (data.length > 0 && !selectedProjectId) {
-          const firstConversation = data[0];
-          if (firstConversation) {
-            setSelectedProjectId(firstConversation.id);
-          }
+        // Auto-select first conversation
+        if (data.length > 0) {
+          setSelectedProjectId(data[0].id);
         }
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
@@ -52,7 +50,7 @@ export default function ChatPopup() {
 
     void fetchConversations();
     return () => controller.abort();
-  }, [isSignedIn, isOpen, selectedProjectId]);
+  }, [isSignedIn, isOpen]);
 
   useEffect(() => {
     if (!selectedProjectId) return;
@@ -170,7 +168,7 @@ export default function ChatPopup() {
             </div>
 
             <div className="flex-1 flex flex-col bg-white">
-              {selectedProjectId && messages.length > 0 ? (
+              {selectedProjectId ? (
                 <>
                   <div className="flex-1 overflow-y-auto p-3 space-y-2">
                     {messages.map((msg) => (
