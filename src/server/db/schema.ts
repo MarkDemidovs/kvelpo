@@ -9,7 +9,7 @@ import { index, pgTableCreator } from "drizzle-orm/pg-core";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `wegotit_${name}`);
+export const createTable = pgTableCreator((name) => `kvelpo_${name}`);
 
 export const profiles = createTable(
   "profile",

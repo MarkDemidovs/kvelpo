@@ -102,7 +102,7 @@ export default function ProfileForm() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Profile Settings</h1>
-          <p className="text-sm text-slate-600">Editable profile fields stored in your Notiontab profile.</p>
+          <p className="text-sm text-slate-600">Editable profile fields stored in your kvelpo profile.</p>
         </div>
         <UserButton />
       </div>

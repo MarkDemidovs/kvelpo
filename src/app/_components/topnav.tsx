@@ -99,7 +99,7 @@ export default function TopNav() {
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800 text-sm font-black uppercase text-slate-100">
             N
           </span>
-          <span>notiontab</span>
+          <span>kvelpo</span>
         </Link>
 
         <div className="flex items-center gap-3">

@@ -7,7 +7,7 @@ import TopNav from "./_components/topnav";
 import ChatPopup from "./_components/ChatPopup";
 
 export const metadata: Metadata = {
-  title: "notiontab",
+  title: "kvelpo",
   description: "Created by Mark Demidovs",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };

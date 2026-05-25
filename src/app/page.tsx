@@ -153,7 +153,7 @@ function HomePageContent() {
               <div className="flex items-center gap-4">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-xl font-bold text-white">N</div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">notiontab</p>
+                  <p className="text-sm font-semibold text-slate-900">kvelpo</p>
                   <p className="text-sm text-slate-500">Discovery simple</p>
                 </div>
               </div>
