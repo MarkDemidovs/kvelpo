@@ -1,2 +1,2 @@
-ALTER TABLE "wegotit_project"
+ALTER TABLE "kvelpo_project"
 ADD COLUMN "tags" jsonb NOT NULL DEFAULT '[]';
