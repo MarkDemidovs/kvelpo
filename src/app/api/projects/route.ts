@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { eq, or, sql } from "drizzle-orm";
+import { eq, or, sql, inArray } from "drizzle-orm";
 
 type RolePayload = {
   title: string;
@@ -46,7 +46,59 @@ export async function GET(request: Request) {
     } else {
       projectsData = await baseQuery.where(() => eq(projects.isPublic, true)).groupBy(projects.id, profiles.fullName);
     }
-    
+    // If user is signed in and requesting public feed, compute match scores
+    if (userId && mode === "public") {
+      // fetch profile skills
+      const [profile] = await db.select({ skills: profiles.skills }).from(profiles).where(eq(profiles.clerkUserId, userId));
+      const userSkills: string[] = Array.isArray(profile?.skills) ? profile.skills.map((s: any) => String(s).toLowerCase()) : [];
+
+      // fetch roles for returned projects
+      if (!projectsData || projectsData.length === 0) {
+        return Response.json(projectsData);
+      }
+      const projectIds = projectsData.map((p: any) => p.id);
+      let rolesByProject: Record<number, string[]> = {};
+      if (projectIds.length > 0) {
+        const roles = await db.select({ projectId: projectRolesNeeded.projectId, title: projectRolesNeeded.title }).from(projectRolesNeeded).where(inArray(projectRolesNeeded.projectId, projectIds));
+        for (const r of roles) {
+          rolesByProject[r.projectId] = rolesByProject[r.projectId] ?? [];
+          rolesByProject[r.projectId].push(String(r.title).toLowerCase());
+        }
+      }
+
+      // compute recency bounds
+      const now = Date.now();
+      const createdAts = projectsData.map((p: any) => new Date(p.createdAt).getTime());
+      const maxCreated = Math.max(...createdAts);
+      const minCreated = Math.min(...createdAts);
+      const createdRange = Math.max(1, maxCreated - minCreated);
+
+      const scored = projectsData.map((p: any) => {
+        const roles = rolesByProject[p.id] ?? [];
+        const tags = Array.isArray(p.tags) ? p.tags.map((t: any) => String(t).toLowerCase()) : [];
+
+        // match count: count of userSkills that appear in role titles or tags
+        let matchCount = 0;
+        for (const skill of userSkills) {
+          const inRoles = roles.some((r) => r.includes(skill));
+          const inTags = tags.some((t: string) => t.includes(skill));
+          if (inRoles || inTags) matchCount += 1;
+        }
+
+        // recency normalized 0..1
+        const created = new Date(p.createdAt).getTime();
+        const recency = (created - minCreated) / createdRange;
+
+        // score weights: match heavy
+        const score = matchCount * 2 + recency;
+        return { project: p, score };
+      });
+
+      scored.sort((a, b) => b.score - a.score);
+      const sorted = scored.map((s) => s.project);
+      return Response.json(sorted);
+    }
+
     return Response.json(projectsData);
   } catch (error) {
     console.error("Full error:", error);
