@@ -80,8 +80,9 @@ export async function POST(
     }
 
     const activeApplications = await db
-      .select({ projectId: applications.projectId, status: applications.status })
+      .select({ projectId: projectRolesNeeded.projectId, status: applications.status })
       .from(applications)
+      .leftJoin(projectRolesNeeded, eq(applications.projectRoleNeededId, projectRolesNeeded.id))
       .where(
         and(
           eq(applications.clerkUserId, userId),
@@ -89,7 +90,11 @@ export async function POST(
         )
       );
 
-    const activeProjectIds = new Set(activeApplications.map((app) => app.projectId));
+    const activeProjectIds = new Set(
+      activeApplications
+        .map((app) => app.projectId)
+        .filter((id): id is number => typeof id === "number")
+    );
     if (activeProjectIds.size >= 3 && !activeProjectIds.has(projectId)) {
       return Response.json({ error: "You can only apply to 3 active projects. Withdraw or resolve an existing application before applying to another." }, { status: 400 });
     }
