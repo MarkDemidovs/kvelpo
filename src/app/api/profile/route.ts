@@ -10,6 +10,7 @@ const defaultProfileValues = {
   bio: null,
   avatarUrl: null,
   isPublic: true,
+  membership: "free" as const,
   link1: null,
   link2: null,
   link3: null,
@@ -45,11 +46,14 @@ export async function GET() {
   return NextResponse.json(profile);
 }
 
+type MembershipType = "free" | "pro" | "team";
+
 type ProfileUpdateRequest = {
   fullName?: string | null;
   bio?: string | null;
   avatarUrl?: string | null;
   isPublic?: boolean;
+  membership?: MembershipType;
   link1?: string | null;
   link2?: string | null;
   link3?: string | null;
@@ -88,6 +92,7 @@ export async function PATCH(req: Request) {
     bio: typeof body.bio === "string" ? body.bio : null,
     avatarUrl: typeof body.avatarUrl === "string" ? body.avatarUrl : null,
     isPublic: typeof body.isPublic === "boolean" ? body.isPublic : true,
+    membership: typeof body.membership === "string" && ["free", "pro", "team"].includes(body.membership) ? body.membership as MembershipType : undefined,
     link1: typeof body.link1 === "string" ? body.link1 : null,
     link2: typeof body.link2 === "string" ? body.link2 : null,
     link3: typeof body.link3 === "string" ? body.link3 : null,
@@ -103,6 +108,10 @@ export async function PATCH(req: Request) {
     link2: parsedBody.link2,
     link3: parsedBody.link3,
   };
+
+  if (parsedBody.membership !== undefined) {
+    updateData.membership = parsedBody.membership;
+  }
 
   if (parsedBody.skills !== undefined) {
     updateData.skills = parsedBody.skills;

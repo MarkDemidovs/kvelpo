@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { applications, notifications, profiles, projectRolesNeeded, projects } from "~/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 
 export async function POST(
   request: Request,
@@ -77,6 +77,21 @@ export async function POST(
 
     if (existingApplication && existingApplication.status !== "rejected") {
       return Response.json({ error: "You already have an active application for this role" }, { status: 400 });
+    }
+
+    const activeApplications = await db
+      .select({ projectId: applications.projectId, status: applications.status })
+      .from(applications)
+      .where(
+        and(
+          eq(applications.clerkUserId, userId),
+          inArray(applications.status, ["pending", "accepted"])
+        )
+      );
+
+    const activeProjectIds = new Set(activeApplications.map((app) => app.projectId));
+    if (activeProjectIds.size >= 3 && !activeProjectIds.has(projectId)) {
+      return Response.json({ error: "You can only apply to 3 active projects. Withdraw or resolve an existing application before applying to another." }, { status: 400 });
     }
 
     const applicantProfile = await db

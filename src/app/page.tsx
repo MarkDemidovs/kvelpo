@@ -25,19 +25,42 @@ function HomePageContent() {
   const searchParams = useSearchParams();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [projectsError, setProjectsError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPublicMode, setIsPublicMode] = useState(true);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
+  const handleProjectDeleted = (projectId: number) => {
+    setProjects((prev) => prev.filter((project) => project.id !== projectId));
+    setIsViewModalOpen(false);
+    setSelectedProject(null);
+  };
+
   // Fetch projects list
   useEffect(() => {
     setLoading(true);
+    setProjectsError(null);
+
     void fetch(`/api/projects?mode=${isPublicMode ? "public" : "own"}`)
-      .then((res) => res.json())
+      .then(async (res) => {
+        const data = await res.json().catch(() => null);
+        if (!res.ok) {
+          const errorMessage = data?.error ?? data?.message ?? `Failed to fetch projects (${res.status})`;
+          throw new Error(errorMessage);
+        }
+        if (!Array.isArray(data)) {
+          throw new Error("Unexpected response format from project API");
+        }
+        return data;
+      })
       .then((data: Project[]) => setProjects(data))
-      .catch((err) => console.error("Failed to fetch projects:", err))
+      .catch((err) => {
+        console.error("Failed to fetch projects:", err);
+        setProjects([]);
+        setProjectsError(err instanceof Error ? err.message : String(err));
+      })
       .finally(() => setLoading(false));
   }, [isPublicMode]);
 
@@ -200,6 +223,10 @@ function HomePageContent() {
               <div className="rounded-3xl bg-white p-10 text-center text-slate-500 shadow-sm shadow-slate-200/40">
                 Loading projects...
               </div>
+            ) : projectsError ? (
+              <div className="rounded-3xl bg-white p-10 text-center text-rose-600 shadow-sm shadow-slate-200/40">
+                {projectsError}
+              </div>
             ) : projects.length === 0 ? (
               <div className="rounded-3xl bg-white p-10 text-center text-slate-500 shadow-sm shadow-slate-200/40">
                 No projects found.
@@ -281,7 +308,12 @@ function HomePageContent() {
       )}
 
       <CreateProjectModal isOpen={isModalOpen} onClose={handleModalClose} onProjectCreated={handleProjectCreated} />
-      <ViewProjectModal isOpen={isViewModalOpen} onClose={handleViewModalClose} project={selectedProject} />
+      <ViewProjectModal
+        isOpen={isViewModalOpen}
+        onClose={handleViewModalClose}
+        project={selectedProject}
+        onProjectDeleted={handleProjectDeleted}
+      />
     </main>
   );
 }

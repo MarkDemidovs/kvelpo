@@ -4,6 +4,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { UserButton } from "@clerk/nextjs";
 import skillsConfig from "~/data/skills.json";
 
+type MembershipType = "free" | "pro" | "team";
+
 interface ProfileData {
   id: number;
   clerkUserId: string;
@@ -11,6 +13,7 @@ interface ProfileData {
   bio: string | null;
   avatarUrl: string | null;
   isPublic: boolean;
+  membership: MembershipType;
   skills: string[];
   link1: string | null;
   link2: string | null;
@@ -26,6 +29,7 @@ export default function ProfileForm() {
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [isPublic, setIsPublic] = useState(true);
+  const [membership, setMembership] = useState<MembershipType>("free");
   const [skills, setSkills] = useState<string[]>([]);
   const [expanded, setExpanded] = useState(false);
   const [link1, setLink1] = useState("");
@@ -45,6 +49,7 @@ export default function ProfileForm() {
         setBio(data.bio ?? "");
         setAvatarUrl(data.avatarUrl ?? "");
         setIsPublic(data.isPublic ?? true);
+        setMembership(data.membership ?? "free");
         setSkills(Array.isArray(data.skills) ? data.skills.filter((skill): skill is string => typeof skill === "string").slice(0, 15) : []);
         setLink1(data.link1 ?? "");
         setLink2(data.link2 ?? "");
@@ -73,6 +78,7 @@ export default function ProfileForm() {
           bio,
           avatarUrl,
           isPublic,
+          membership,
           skills,
           link1,
           link2,
@@ -154,6 +160,29 @@ export default function ProfileForm() {
             Public profile
           </label>
         </fieldset>
+
+        <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Membership</p>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {(["free", "pro", "team"] as MembershipType[]).map((level) => (
+                <button
+                  key={level}
+                  type="button"
+                  onClick={() => setMembership(level)}
+                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
+                    membership === level
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+                  }`}
+                >
+                  {level.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-slate-500">Membership level is stored on your profile for future limits and upgrades.</p>
+          </div>
+        </div>
 
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <div className="flex items-center justify-between gap-3">

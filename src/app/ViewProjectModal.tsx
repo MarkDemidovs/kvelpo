@@ -6,6 +6,7 @@ interface ViewProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   project: Project | null;
+  onProjectDeleted?: (projectId: number) => void;
 }
 
 interface Project {
@@ -166,6 +167,33 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
     }
   };
 
+  const handleDeleteProject = async () => {
+    if (!project) return;
+    const confirmed = window.confirm("Delete this project? This action cannot be undone.");
+    if (!confirmed) return;
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`/api/projects/${project.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const data = (await response.json()) as ApiErrorResponse;
+        throw new Error(data.error ?? data.message ?? "Unable to delete project");
+      }
+
+      onProjectDeleted?.(project.id);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (!isOpen || !project) return null;
 
   return (
@@ -175,7 +203,18 @@ export default function ViewProjectModal({ isOpen, onClose, project }: ViewProje
         style={{ maxWidth: "calc(100vw - 2rem)" }}
       >
         <div className="flex flex-col gap-4 border-b border-slate-100 px-4 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="max-w-full truncate text-xl font-semibold text-slate-900">{project.name}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="max-w-full truncate text-xl font-semibold text-slate-900">{project.name}</h2>
+            {projectDetails?.isOwner ? (
+              <button
+                type="button"
+                onClick={handleDeleteProject}
+                className="rounded-full bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-200"
+              >
+                Delete
+              </button>
+            ) : null}
+          </div>
           <button
             onClick={onClose}
             className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"

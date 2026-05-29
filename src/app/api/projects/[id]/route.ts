@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { applications, projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 
 export async function GET(
   request: Request,
@@ -99,6 +99,44 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error fetching project:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { userId } = await auth();
+  if (!userId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { id } = await params;
+    const projectId = parseInt(id);
+    if (isNaN(projectId)) {
+      return Response.json({ error: "Invalid project ID" }, { status: 400 });
+    }
+
+    const projectOwner = await db
+      .select({ clerkUserId: projects.clerkUserId })
+      .from(projects)
+      .where(eq(projects.id, projectId))
+      .then((rows) => rows[0]);
+
+    if (!projectOwner) {
+      return Response.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    if (projectOwner.clerkUserId !== userId) {
+      return Response.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    await db.delete(projects).where(and(eq(projects.id, projectId), eq(projects.clerkUserId, userId)));
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    console.error("Error deleting project:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

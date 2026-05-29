@@ -138,6 +138,11 @@ export async function POST(request: Request) {
       return Response.json({ error: "Name is required" }, { status: 400 });
     }
 
+    const existingProjects = await db.select({ id: projects.id }).from(projects).where(eq(projects.clerkUserId, userId));
+    if (existingProjects.length >= 1) {
+      return Response.json({ error: "Only one active project is allowed. Delete an existing project before creating another." }, { status: 400 });
+    }
+
     const [newProject] = await db.insert(projects).values({
       clerkUserId: userId,
       name,
