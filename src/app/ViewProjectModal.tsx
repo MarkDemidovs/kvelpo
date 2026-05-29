@@ -53,7 +53,7 @@ interface ApiErrorResponse {
   message?: string;
 }
 
-export default function ViewProjectModal({ isOpen, onClose, project }: ViewProjectModalProps) {
+export default function ViewProjectModal({ isOpen, onClose, project, onProjectDeleted }: ViewProjectModalProps) {
   const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

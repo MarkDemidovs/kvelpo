@@ -61,8 +61,9 @@ export async function GET(request: Request) {
       if (projectIds.length > 0) {
         const roles = await db.select({ projectId: projectRolesNeeded.projectId, title: projectRolesNeeded.title }).from(projectRolesNeeded).where(inArray(projectRolesNeeded.projectId, projectIds));
         for (const r of roles) {
-          rolesByProject[r.projectId] = rolesByProject[r.projectId] ?? [];
-          rolesByProject[r.projectId].push(String(r.title).toLowerCase());
+          const projectRoles = rolesByProject[r.projectId] ?? [];
+          projectRoles.push(String(r.title).toLowerCase());
+          rolesByProject[r.projectId] = projectRoles;
         }
       }
 
