@@ -19,6 +19,19 @@ interface Project {
   rolesNeededCount?: number;
 }
 
+type ApiError = {
+  error?: string;
+  message?: string;
+};
+
+function isApiError(value: unknown): value is ApiError {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    (typeof (value as ApiError).error === "string" || typeof (value as ApiError).message === "string")
+  );
+}
+
 // Separate component to handle search params safely within Suspense
 function HomePageContent() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -45,17 +58,17 @@ function HomePageContent() {
 
     void fetch(`/api/projects?mode=${isPublicMode ? "public" : "own"}`)
       .then(async (res) => {
-        const data = await res.json().catch(() => null);
+        const data = (await res.json().catch(() => null)) as unknown;
         if (!res.ok) {
-          const errorMessage = data?.error ?? data?.message ?? `Failed to fetch projects (${res.status})`;
+          const errorMessage = isApiError(data) ? data.error ?? data.message : `Failed to fetch projects (${res.status})`;
           throw new Error(errorMessage);
         }
         if (!Array.isArray(data)) {
           throw new Error("Unexpected response format from project API");
         }
-        return data;
+        return data as Project[];
       })
-      .then((data: Project[]) => setProjects(data))
+      .then((data) => setProjects(data))
       .catch((err) => {
         console.error("Failed to fetch projects:", err);
         setProjects([]);

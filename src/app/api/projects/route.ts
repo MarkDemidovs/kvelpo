@@ -9,6 +9,23 @@ type RolePayload = {
   slotsNeeded?: number | string;
 };
 
+type ProjectListItem = {
+  id: number;
+  clerkUserId: string;
+  name: string;
+  description: string | null;
+  isPublic: boolean;
+  tags: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+  userFullName: string | null;
+  rolesNeededCount: number;
+};
+
+function normalizeStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.map((item) => String(item).toLowerCase()) : [];
+}
+
 export async function GET(request: Request) {
   const { userId } = await auth();
 
@@ -35,28 +52,28 @@ export async function GET(request: Request) {
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
       .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId));
 
-    let projectsData;
+    let projectsData: ProjectListItem[] = [];
     if (mode === "own") {
       if (!userId) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
       }
-      projectsData = await baseQuery.where(() => eq(projects.clerkUserId, userId)).groupBy(projects.id, profiles.fullName);
+      projectsData = await baseQuery.where(() => eq(projects.clerkUserId, userId)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     } else if (userId) {
-      projectsData = await baseQuery.where(() => or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId))).groupBy(projects.id, profiles.fullName);
+      projectsData = await baseQuery.where(() => or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId))).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     } else {
-      projectsData = await baseQuery.where(() => eq(projects.isPublic, true)).groupBy(projects.id, profiles.fullName);
+      projectsData = await baseQuery.where(() => eq(projects.isPublic, true)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     }
     // If user is signed in and requesting public feed, compute match scores
     if (userId && mode === "public") {
       // fetch profile skills
       const [profile] = await db.select({ skills: profiles.skills }).from(profiles).where(eq(profiles.clerkUserId, userId));
-      const userSkills: string[] = Array.isArray(profile?.skills) ? profile.skills.map((s: any) => String(s).toLowerCase()) : [];
+      const userSkills: string[] = normalizeStringArray(profile?.skills);
 
       // fetch roles for returned projects
       if (!projectsData || projectsData.length === 0) {
         return Response.json(projectsData);
       }
-      const projectIds = projectsData.map((p: any) => p.id);
+      const projectIds = projectsData.map((p) => p.id);
       let rolesByProject: Record<number, string[]> = {};
       if (projectIds.length > 0) {
         const roles = await db.select({ projectId: projectRolesNeeded.projectId, title: projectRolesNeeded.title }).from(projectRolesNeeded).where(inArray(projectRolesNeeded.projectId, projectIds));
@@ -68,15 +85,14 @@ export async function GET(request: Request) {
       }
 
       // compute recency bounds
-      const now = Date.now();
-      const createdAts = projectsData.map((p: any) => new Date(p.createdAt).getTime());
+      const createdAts = projectsData.map((p) => new Date(p.createdAt).getTime());
       const maxCreated = Math.max(...createdAts);
       const minCreated = Math.min(...createdAts);
       const createdRange = Math.max(1, maxCreated - minCreated);
 
-      const scored = projectsData.map((p: any) => {
+      const scored = projectsData.map((p) => {
         const roles = rolesByProject[p.id] ?? [];
-        const tags = Array.isArray(p.tags) ? p.tags.map((t: any) => String(t).toLowerCase()) : [];
+        const tags = normalizeStringArray(p.tags);
 
         // match count: count of userSkills that appear in role titles or tags
         let matchCount = 0;
