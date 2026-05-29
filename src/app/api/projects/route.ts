@@ -74,7 +74,7 @@ export async function GET(request: Request) {
         return Response.json(projectsData);
       }
       const projectIds = projectsData.map((p) => p.id);
-      let rolesByProject: Record<number, string[]> = {};
+      const rolesByProject: Record<number, string[]> = {};
       if (projectIds.length > 0) {
         const roles = await db.select({ projectId: projectRolesNeeded.projectId, title: projectRolesNeeded.title }).from(projectRolesNeeded).where(inArray(projectRolesNeeded.projectId, projectIds));
         for (const r of roles) {
