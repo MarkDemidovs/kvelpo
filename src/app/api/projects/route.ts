@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     const mode = url.searchParams.get("mode") ?? "public";
 
     console.log("DATABASE_URL:", process.env.DATABASE_URL ? "set" : "not set");
-    
+
     const baseQuery = db
       .select({
         id: projects.id,
@@ -120,7 +120,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Full error:", error);
     return Response.json(
-      { 
+      {
         error: String(error),
         message: error instanceof Error ? error.message : "Unknown error"
       },
@@ -156,8 +156,19 @@ export async function POST(request: Request) {
     }
 
     const existingProjects = await db.select({ id: projects.id }).from(projects).where(eq(projects.clerkUserId, userId));
-    if (existingProjects.length >= 1) {
-      return Response.json({ error: "Only one active project is allowed. Delete an existing project before creating another." }, { status: 400 });
+
+    const membership = (await db.select({ status: profiles.membership }).from(profiles).where(eq(profiles.clerkUserId, userId)).limit(1))?.[0]?.status as MembershipStatus ?? "free";
+
+    type MembershipStatus = "free" | "pro" | "team";
+
+    const membershipProjectLimits: Record<MembershipStatus, number> = {
+      free: 1,
+      pro: 3,
+      team: 10,
+    };
+
+    if (existingProjects.length >= membershipProjectLimits[membership]) {
+      return Response.json({ error: `Your membership status is ${membership}, which means that you can make a maximum of ${membershipProjectLimits[membership]} projects` }, { status: 400 });
     }
 
     const [newProject] = await db.insert(projects).values({
@@ -174,16 +185,16 @@ export async function POST(request: Request) {
 
     const filteredRoles = Array.isArray(rolesNeeded)
       ? rolesNeeded.filter((role): role is RolePayload => {
-          if (typeof role !== "object" || role === null) {
-            return false;
-          }
+        if (typeof role !== "object" || role === null) {
+          return false;
+        }
 
-          const maybeRole = role as Record<string, unknown>;
-          return (
-            typeof maybeRole.title === "string" &&
-            maybeRole.title.trim().length > 0
-          );
-        })
+        const maybeRole = role as Record<string, unknown>;
+        return (
+          typeof maybeRole.title === "string" &&
+          maybeRole.title.trim().length > 0
+        );
+      })
       : [];
 
     if (filteredRoles.length > 0) {
@@ -215,7 +226,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Full error:", error);
     return Response.json(
-      { 
+      {
         error: String(error),
         message: error instanceof Error ? error.message : "Unknown error"
       },
