@@ -5,14 +5,14 @@ import { eq } from "drizzle-orm";
 import Link from "next/link";
 
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ProfileDetailPage({ params }: ProfilePageProps) {
   const { userId } = await auth();
-  const profileId = params.id;
+  const { id: profileId } = await params;
 
   const profile = await db.query.profiles.findFirst({
     where: (p, { eq }) => eq(p.clerkUserId, profileId),
