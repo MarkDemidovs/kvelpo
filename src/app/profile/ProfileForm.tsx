@@ -78,7 +78,7 @@ export default function ProfileForm() {
           bio,
           avatarUrl,
           isPublic,
-          membership,
+          // membership is managed via Stripe subscriptions — handled separately
           skills,
           link1,
           link2,
@@ -162,26 +162,16 @@ export default function ProfileForm() {
         </fieldset>
 
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Membership</p>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {(["free", "pro", "team"] as MembershipType[]).map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  onClick={() => setMembership(level)}
-                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                    membership === level
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
-                  }`}
-                >
-                  {level.toUpperCase()}
-                </button>
-              ))}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Membership</p>
+              <p className="text-xs text-slate-500">Current: {membership?.toUpperCase()}</p>
             </div>
-            <p className="text-xs text-slate-500">Membership level is stored on your profile for future limits and upgrades.</p>
+            <div className="flex items-center gap-2">
+              <a href="/profile/subscription" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Manage subscription</a>
+            </div>
           </div>
+          <p className="text-xs text-slate-500">To change membership, use the subscription manager. Payments are processed via Stripe.</p>
         </div>
 
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
