@@ -4,19 +4,32 @@ import { profiles } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 
-interface ProfilePageProps {
+type ProfilePageProps = {
   params: Promise<{
     id: string;
   }>;
-}
+};
+
+type PublicProfile = {
+  clerkUserId: string;
+  fullName: string | null;
+  bio: string | null;
+  avatarUrl: string | null;
+  isPublic: boolean;
+  membership: "free" | "pro" | "team" | string;
+  link1: string | null;
+  link2: string | null;
+  link3: string | null;
+  skills: string[];
+};
 
 export default async function ProfileDetailPage({ params }: ProfilePageProps) {
   const { userId } = await auth();
   const { id: profileId } = await params;
 
-  const profile = await db.query.profiles.findFirst({
+  const profile = (await db.query.profiles.findFirst({
     where: (p, { eq }) => eq(p.clerkUserId, profileId),
-  });
+  })) as PublicProfile | null;
 
   const isOwner = userId === profileId;
   const canView = profile && (profile.isPublic || isOwner);
