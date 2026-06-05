@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Missing priceId" }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
 
-    const stripe = new Stripe(secret, { apiVersion: "2022-11-15" });
+    const stripe = new Stripe(secret, { apiVersion: "2026-05-27.dahlia" });
 
     const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
