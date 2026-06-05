@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import skillsConfig from "~/data/skills.json";
 
