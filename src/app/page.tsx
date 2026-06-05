@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useAuth, SignInButton } from "@clerk/nextjs";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import CreateProjectModal from "./CreateProjectModal";
 import ViewProjectModal from "./ViewProjectModal";
@@ -295,7 +296,13 @@ function HomePageContent() {
                     <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
                       <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                       <span className="h-1 w-1 rounded-full bg-slate-300" />
-                      <span>{project.userFullName ?? project.clerkUserId}</span>
+                      <Link
+                        href={`/profile/${encodeURIComponent(project.clerkUserId)}`}
+                        className="text-slate-500 hover:text-slate-700"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {project.userFullName ?? project.clerkUserId}
+                      </Link>
                     </div>
                   </article>
                 ))}

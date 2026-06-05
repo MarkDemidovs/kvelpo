@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface ViewProjectModalProps {
   isOpen: boolean;
@@ -275,7 +276,11 @@ export default function ViewProjectModal({ isOpen, onClose, project, onProjectDe
                 <div className="flex min-w-0 flex-wrap items-center gap-3">
                   <span className="truncate">Created: {new Date(projectDetails.createdAt).toLocaleDateString()}</span>
                   <span className="h-1 w-1 rounded-full bg-slate-300" />
-                  <span className="truncate">By: {projectDetails.userFullName ?? projectDetails.clerkUserId}</span>
+                  <span className="truncate">
+                    By: <Link href={`/profile/${encodeURIComponent(projectDetails.clerkUserId)}`} className="font-semibold text-slate-900 hover:text-slate-700">
+                      {projectDetails.userFullName ?? projectDetails.clerkUserId}
+                    </Link>
+                  </span>
                 </div>
                 {projectDetails.rolesNeededCount ? (
                   <div className="flex items-center justify-start sm:justify-end">
@@ -367,7 +372,11 @@ export default function ViewProjectModal({ isOpen, onClose, project, onProjectDe
                       <div key={app.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-semibold text-slate-900">{app.applicantFullName ?? app.clerkUserId}</p>
+                            <p className="truncate text-sm font-semibold text-slate-900">
+                              <Link href={`/profile/${encodeURIComponent(app.clerkUserId)}`} className="hover:text-slate-700">
+                                {app.applicantFullName ?? app.clerkUserId}
+                              </Link>
+                            </p>
                             <p className="text-xs text-slate-500">
                               {app.roleTitle ?? "Role"} • {new Date(app.createdAt).toLocaleDateString()}
                             </p>
