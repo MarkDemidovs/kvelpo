@@ -14,6 +14,11 @@ export default function SubscriptionPage() {
     { key: "team", name: "Team", price: "$30/month", priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM },
   ];
 
+  type CheckoutResponse = {
+    url?: string;
+    error?: string;
+  };
+
   const createCheckout = async (priceId?: string) => {
     setError(null);
     if (!priceId) {
@@ -34,15 +39,16 @@ export default function SubscriptionPage() {
         throw new Error(text || `Checkout creation failed: ${res.status}`);
       }
 
-      const data = await res.json();
+      const data = (await res.json()) as CheckoutResponse;
       if (data.url) {
         window.location.href = data.url;
         return;
       }
 
-      throw new Error("No checkout URL returned from server.");
-    } catch (err: any) {
-      setError(String(err?.message ?? err));
+      throw new Error(data.error ?? "No checkout URL returned from server.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
     } finally {
       setLoading(false);
     }

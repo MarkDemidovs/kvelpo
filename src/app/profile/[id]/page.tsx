@@ -1,7 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { profiles } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
 import Link from "next/link";
 
 type ProfilePageProps = {
@@ -16,7 +14,7 @@ type PublicProfile = {
   bio: string | null;
   avatarUrl: string | null;
   isPublic: boolean;
-  membership: "free" | "pro" | "team" | string;
+  membership: string;
   link1: string | null;
   link2: string | null;
   link3: string | null;
