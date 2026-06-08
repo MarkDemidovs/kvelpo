@@ -25,7 +25,9 @@ export default function RootLayout({
       <html lang="en" className={`${geist.variable}`}>
         <body>
           <TopNav />
-          {children}
+          <main className="pt-16">
+            {children}
+          </main>
           <ChatPopup />
         </body>
       </html>
