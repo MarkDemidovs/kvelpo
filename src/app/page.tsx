@@ -301,7 +301,7 @@ function HomePageContent() {
                         className="text-slate-500 hover:text-slate-700"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {project.userFullName ?? project.clerkUserId}
+                        {project.userFullName?.trim() || project.clerkUserId}
                       </Link>
                     </div>
                   </article>
