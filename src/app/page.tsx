@@ -301,6 +301,7 @@ function HomePageContent() {
                         className="text-slate-500 hover:text-slate-700"
                         onClick={(e) => e.stopPropagation()}
                       >
+                        {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
                         {project.userFullName?.trim() || project.clerkUserId}
                       </Link>
                     </div>
