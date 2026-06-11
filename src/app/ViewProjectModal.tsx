@@ -278,7 +278,6 @@ export default function ViewProjectModal({ isOpen, onClose, project, onProjectDe
                   <span className="h-1 w-1 rounded-full bg-slate-300" />
                   <span className="truncate">
                     By: <Link href={`/profile/${encodeURIComponent(projectDetails.clerkUserId)}`} className="font-semibold text-slate-900 hover:text-slate-700">
-                      {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
                       {projectDetails.userFullName?.trim() || projectDetails.clerkUserId}
                     </Link>
                   </span>
@@ -375,7 +374,6 @@ export default function ViewProjectModal({ isOpen, onClose, project, onProjectDe
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-slate-900">
                               <Link href={`/profile/${encodeURIComponent(app.clerkUserId)}`} className="hover:text-slate-700">
-                                {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
                                 {app.applicantFullName?.trim() || app.clerkUserId}
                               </Link>
                             </p>
