@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import Link from "next/link";
 
@@ -12,7 +12,6 @@ type PublicProfile = {
   clerkUserId: string;
   fullName: string | null;
   bio: string | null;
-  avatarUrl: string | null;
   isPublic: boolean;
   membership: string;
   link1: string | null;
@@ -28,6 +27,17 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
   const profile = (await db.query.profiles.findFirst({
     where: (p, { eq }) => eq(p.clerkUserId, profileId),
   })) as PublicProfile | null;
+
+  let avatarUrl: string | null = null;
+  if (profile) {
+    try {
+      const clerk = await clerkClient();
+      const clerkUser = await clerk.users.getUser(profileId) as { imageUrl?: string | null };
+      avatarUrl = clerkUser.imageUrl ?? null;
+    } catch (error) {
+      console.error("Failed to fetch Clerk avatar for profile page:", error);
+    }
+  }
 
   const isOwner = userId === profileId;
   const canView = profile && (profile.isPublic || isOwner);
@@ -49,9 +59,9 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
                   <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full bg-slate-100">
-                    {profile.avatarUrl ? (
+                    {avatarUrl ? (
                       <img
-                        src={profile.avatarUrl}
+                        src={avatarUrl}
                         alt={`${displayName} avatar`}
                         className="h-full w-full object-cover"
                       />

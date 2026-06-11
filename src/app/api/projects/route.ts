@@ -1,7 +1,12 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
 import { eq, or, sql, inArray } from "drizzle-orm";
+
+type ClerkAvatarUser = {
+  id: string;
+  imageUrl?: string | null;
+};
 
 type RolePayload = {
   title: string;
@@ -27,6 +32,24 @@ function normalizeStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.map((item) => String(item).toLowerCase()) : [];
 }
 
+async function attachClerkAvatars(projects: ProjectListItem[]): Promise<ProjectListItem[]> {
+  if (projects.length === 0) {
+    return projects.map((project) => ({ ...project, avatarUrl: null }));
+  }
+
+  const ownerIds = Array.from(new Set(projects.map((project) => project.clerkUserId)));
+  try {
+    const clerk = await clerkClient();
+    const userListResponse = await clerk.users.getUserList({ userId: ownerIds });
+    const users = (userListResponse as unknown as { data: ClerkAvatarUser[] }).data ?? [];
+    const avatarById = new Map(users.map((user) => [user.id, user.imageUrl ?? null]));
+    return projects.map((project) => ({ ...project, avatarUrl: avatarById.get(project.clerkUserId) ?? null }));
+  } catch (error) {
+    console.error("Failed to fetch Clerk user avatars:", error);
+    return projects.map((project) => ({ ...project, avatarUrl: null }));
+  }
+}
+
 export async function GET(request: Request) {
   const { userId } = await auth();
 
@@ -47,7 +70,6 @@ export async function GET(request: Request) {
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
-        avatarUrl: profiles.avatarUrl,
         rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
       })
       .from(projects)
@@ -59,9 +81,9 @@ export async function GET(request: Request) {
       if (!userId) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
       }
-      projectsData = await baseQuery.where(() => eq(projects.clerkUserId, userId)).groupBy(projects.id, profiles.fullName, profiles.avatarUrl) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => eq(projects.clerkUserId, userId)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     } else if (userId) {
-      projectsData = await baseQuery.where(() => or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId))).groupBy(projects.id, profiles.fullName, profiles.avatarUrl) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId))).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     } else {
       projectsData = await baseQuery.where(() => eq(projects.isPublic, true)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     }
@@ -115,10 +137,10 @@ export async function GET(request: Request) {
 
       scored.sort((a, b) => b.score - a.score);
       const sorted = scored.map((s) => s.project);
-      return Response.json(sorted);
+      return Response.json(await attachClerkAvatars(sorted));
     }
 
-    return Response.json(projectsData);
+    return Response.json(await attachClerkAvatars(projectsData));
   } catch (error) {
     console.error("Full error:", error);
     return Response.json(
@@ -211,9 +233,18 @@ export async function POST(request: Request) {
     }
 
     const [profile] = await db
-      .select({ fullName: profiles.fullName, avatarUrl: profiles.avatarUrl })
+      .select({ fullName: profiles.fullName })
       .from(profiles)
       .where(eq(profiles.clerkUserId, userId));
+
+    let avatarUrl: string | null = null;
+    try {
+      const clerk = await clerkClient();
+      const clerkUser = await clerk.users.getUser(userId) as ClerkAvatarUser;
+      avatarUrl = clerkUser.imageUrl ?? null;
+    } catch (error) {
+      console.error("Failed to fetch Clerk avatar for new project:", error);
+    }
 
     const totalSlots = filteredRoles.reduce(
       (sum, role) => sum + Math.max(1, Number(role.slotsNeeded) || 1),
@@ -223,7 +254,7 @@ export async function POST(request: Request) {
     return Response.json({
       ...newProject,
       userFullName: profile?.fullName ?? null,
-      avatarUrl: profile?.avatarUrl ?? null,
+      avatarUrl,
       rolesNeededCount: totalSlots,
     }, { status: 201 });
   } catch (error) {

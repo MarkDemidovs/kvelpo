@@ -49,7 +49,6 @@ export async function POST(req: Request) {
         clerkUserId,
         fullName: null,
         bio: null,
-        avatarUrl: null,
         isPublic: true,
         skills: [],
       }).onConflictDoNothing({

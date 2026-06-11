@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { applications, projects, profiles, projectRolesNeeded } from "~/server/db/schema";
 import { eq, sql, and } from "drizzle-orm";
@@ -28,14 +28,13 @@ export async function GET(
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
-        avatarUrl: profiles.avatarUrl,
         rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
       })
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
       .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId))
       .where(eq(projects.id, projectId))
-      .groupBy(projects.id, profiles.fullName, profiles.avatarUrl);
+      .groupBy(projects.id, profiles.fullName);
 
     if (!projectData || projectData.length === 0) {
       return Response.json({ error: "Project not found" }, { status: 404 });
@@ -44,6 +43,16 @@ export async function GET(
     const project = projectData[0];
     const isPublic = project?.isPublic;
     const projectOwnerId = project?.clerkUserId;
+    let avatarUrl: string | null = null;
+    if (projectOwnerId) {
+      try {
+        const clerk = await clerkClient();
+        const clerkUser = await clerk.users.getUser(projectOwnerId) as { imageUrl?: string | null };
+        avatarUrl = clerkUser.imageUrl ?? null;
+      } catch (error) {
+        console.error("Failed to fetch Clerk avatar for project owner:", error);
+      }
+    }
 
     if (!isPublic && projectOwnerId !== userId) {
       return Response.json({ error: "Unauthorized" }, { status: 403 });
@@ -94,6 +103,7 @@ export async function GET(
 
     return Response.json({
       ...project,
+      avatarUrl,
       rolesNeeded,
       isOwner,
       applications: isOwner ? applicationsList : undefined,

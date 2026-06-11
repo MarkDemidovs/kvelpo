@@ -12,7 +12,6 @@ interface ProfileData {
   clerkUserId: string;
   fullName: string | null;
   bio: string | null;
-  avatarUrl: string | null;
   isPublic: boolean;
   membership: MembershipType;
   skills: string[];
@@ -28,7 +27,6 @@ export default function ProfileForm() {
 
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [membership, setMembership] = useState<MembershipType>("free");
   const [skills, setSkills] = useState<string[]>([]);
@@ -48,7 +46,6 @@ export default function ProfileForm() {
         const data = (await res.json()) as ProfileData;
         setFullName(data.fullName ?? "");
         setBio(data.bio ?? "");
-        setAvatarUrl(data.avatarUrl ?? "");
         setIsPublic(data.isPublic ?? true);
         setMembership(data.membership ?? "free");
         setSkills(Array.isArray(data.skills) ? data.skills.filter((skill): skill is string => typeof skill === "string").slice(0, 15) : []);
@@ -77,7 +74,6 @@ export default function ProfileForm() {
         body: JSON.stringify({
           fullName,
           bio,
-          avatarUrl,
           isPublic,
           // membership is managed via Stripe subscriptions — handled separately
           skills,
@@ -128,15 +124,6 @@ export default function ProfileForm() {
             />
           </label>
 
-          <label className="block">
-            <span className="text-sm font-medium">Avatar URL</span>
-            <input
-              className="mt-1 block w-full rounded-lg border px-3 py-2"
-              value={avatarUrl}
-              onChange={(event) => setAvatarUrl(event.target.value)}
-              placeholder="https://..."
-            />
-          </label>
         </div>
 
         <label className="block">
