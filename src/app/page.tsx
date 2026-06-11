@@ -11,6 +11,7 @@ interface Project {
   id: number;
   clerkUserId: string;
   userFullName: string | null;
+  avatarUrl?: string | null;
   name: string;
   description: string | null;
   isPublic: boolean;
@@ -296,13 +297,31 @@ function HomePageContent() {
                     <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
                       <span>{new Date(project.createdAt).toLocaleDateString()}</span>
                       <span className="h-1 w-1 rounded-full bg-slate-300" />
-                      <Link
-                        href={`/profile/${encodeURIComponent(project.clerkUserId)}`}
-                        className="text-slate-500 hover:text-slate-700"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {project.userFullName?.trim() || project.clerkUserId}
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-slate-100">
+                          {project.avatarUrl ? (
+                            <>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={project.avatarUrl}
+                                alt={`${project.userFullName ?? project.clerkUserId} avatar`}
+                                className="h-full w-full object-cover"
+                              />
+                            </>
+                          ) : (
+                            <span className="flex h-full w-full items-center justify-center bg-slate-300 text-xs font-semibold uppercase text-slate-700">
+                              {(project.userFullName ?? project.clerkUserId).slice(0, 2)}
+                            </span>
+                          )}
+                        </div>
+                        <Link
+                          href={`/profile/${encodeURIComponent(project.clerkUserId)}`}
+                          className="text-slate-500 hover:text-slate-700"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId}
+                        </Link>
+                      </div>
                     </div>
                   </article>
                 ))}

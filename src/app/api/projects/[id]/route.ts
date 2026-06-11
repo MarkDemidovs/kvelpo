@@ -28,13 +28,14 @@ export async function GET(
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
+        avatarUrl: profiles.avatarUrl,
         rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
       })
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
       .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId))
       .where(eq(projects.id, projectId))
-      .groupBy(projects.id, profiles.fullName);
+      .groupBy(projects.id, profiles.fullName, profiles.avatarUrl);
 
     if (!projectData || projectData.length === 0) {
       return Response.json({ error: "Project not found" }, { status: 404 });

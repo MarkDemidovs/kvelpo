@@ -19,6 +19,7 @@ type ProjectListItem = {
   createdAt: Date;
   updatedAt: Date;
   userFullName: string | null;
+  avatarUrl: string | null;
   rolesNeededCount: number;
 };
 
@@ -46,6 +47,7 @@ export async function GET(request: Request) {
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
+        avatarUrl: profiles.avatarUrl,
         rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
       })
       .from(projects)
@@ -57,9 +59,9 @@ export async function GET(request: Request) {
       if (!userId) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
       }
-      projectsData = await baseQuery.where(() => eq(projects.clerkUserId, userId)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => eq(projects.clerkUserId, userId)).groupBy(projects.id, profiles.fullName, profiles.avatarUrl) as ProjectListItem[];
     } else if (userId) {
-      projectsData = await baseQuery.where(() => or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId))).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId))).groupBy(projects.id, profiles.fullName, profiles.avatarUrl) as ProjectListItem[];
     } else {
       projectsData = await baseQuery.where(() => eq(projects.isPublic, true)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     }
@@ -209,7 +211,7 @@ export async function POST(request: Request) {
     }
 
     const [profile] = await db
-      .select({ fullName: profiles.fullName })
+      .select({ fullName: profiles.fullName, avatarUrl: profiles.avatarUrl })
       .from(profiles)
       .where(eq(profiles.clerkUserId, userId));
 
@@ -221,6 +223,7 @@ export async function POST(request: Request) {
     return Response.json({
       ...newProject,
       userFullName: profile?.fullName ?? null,
+      avatarUrl: profile?.avatarUrl ?? null,
       rolesNeededCount: totalSlots,
     }, { status: 201 });
   } catch (error) {

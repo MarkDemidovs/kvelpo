@@ -43,6 +43,7 @@ interface Application {
 }
 
 interface ProjectDetails extends Project {
+  avatarUrl: string | null;
   rolesNeeded: RoleNeeded[];
   isOwner: boolean;
   applications?: Application[];
@@ -272,23 +273,35 @@ export default function ViewProjectModal({ isOpen, onClose, project, onProjectDe
                 </div>
               )}
 
-              <div className="grid gap-3 text-sm text-slate-500 sm:grid-cols-1 md:grid-cols-2">
-                <div className="flex min-w-0 flex-wrap items-center gap-3">
-                  <span className="truncate">Created: {new Date(projectDetails.createdAt).toLocaleDateString()}</span>
-                  <span className="h-1 w-1 rounded-full bg-slate-300" />
-                  <span className="truncate">
-                    By: <Link href={`/profile/${encodeURIComponent(projectDetails.clerkUserId)}`} className="font-semibold text-slate-900 hover:text-slate-700">
-                      {projectDetails.userFullName?.trim() || projectDetails.clerkUserId}
-                    </Link>
-                  </span>
-                </div>
-                {projectDetails.rolesNeededCount ? (
-                  <div className="flex items-center justify-start sm:justify-end">
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
-                      {projectDetails.rolesNeededCount} slot{projectDetails.rolesNeededCount > 1 ? "s" : ""} needed
-                    </span>
+              <div className="mt-6 flex flex-col gap-4 rounded-3xl bg-slate-50 p-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-slate-200">
+                    {projectDetails.avatarUrl ? (
+                      <img
+                        src={projectDetails.avatarUrl}
+                        alt={`${projectDetails.userFullName ?? projectDetails.clerkUserId} avatar`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center bg-slate-300 text-sm font-semibold uppercase text-slate-700">
+                        {(projectDetails.userFullName ?? projectDetails.clerkUserId).slice(0, 2)}
+                      </span>
+                    )}
                   </div>
-                ) : null}
+                  <div>
+                    <p className="text-xs text-slate-500">Project owner</p>
+                    <Link
+                      href={`/profile/${encodeURIComponent(projectDetails.clerkUserId)}`}
+                      className="font-semibold text-slate-900 hover:text-slate-700"
+                    >
+                      {projectDetails.userFullName?.trim() ? projectDetails.userFullName.trim() : projectDetails.clerkUserId}
+                    </Link>
+                  </div>
+                </div>
+                <div className="text-sm text-slate-500">
+                  Created: {new Date(projectDetails.createdAt).toLocaleDateString()}
+                  {projectDetails.rolesNeededCount ? ` · ${projectDetails.rolesNeededCount} slot${projectDetails.rolesNeededCount > 1 ? "s" : ""} needed` : ""}
+                </div>
               </div>
 
               <div className="rounded-3xl bg-slate-50 p-4">

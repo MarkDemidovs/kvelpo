@@ -31,6 +31,14 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
 
   const isOwner = userId === profileId;
   const canView = profile && (profile.isPublic || isOwner);
+  const displayName = profile?.fullName ?? "Anonymous";
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
@@ -38,11 +46,26 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
         {profile ? (
           canView ? (
             <>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Public profile</p>
-                  <h1 className="mt-2 text-3xl font-semibold text-slate-900">{profile.fullName ?? "Anonymous"}</h1>
-                  <p className="mt-1 text-sm text-slate-500">{profile.membership === "pro" ? "Pro member" : profile.membership === "team" ? "Team member" : "Free member"}</p>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full bg-slate-100">
+                    {profile.avatarUrl ? (
+                      <img
+                        src={profile.avatarUrl}
+                        alt={`${displayName} avatar`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center bg-slate-300 text-2xl font-semibold uppercase text-slate-700">
+                        {initials}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Public profile</p>
+                    <h1 className="mt-2 text-3xl font-semibold text-slate-900">{displayName}</h1>
+                    <p className="mt-1 text-sm text-slate-500">{profile.membership === "pro" ? "Pro member" : profile.membership === "team" ? "Team member" : "Free member"}</p>
+                  </div>
                 </div>
                 {isOwner ? (
                   <Link
