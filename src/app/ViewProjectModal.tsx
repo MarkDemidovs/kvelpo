@@ -387,7 +387,7 @@ export default function ViewProjectModal({ isOpen, onClose, project, onProjectDe
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-slate-900">
                               <Link href={`/profile/${encodeURIComponent(app.clerkUserId)}`} className="hover:text-slate-700">
-                                {app.applicantFullName?.trim() || app.clerkUserId}
+                                {app.applicantFullName?.trim() ? app.applicantFullName.trim() : app.clerkUserId}
                               </Link>
                             </p>
                             <p className="text-xs text-slate-500">
