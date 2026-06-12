@@ -31,6 +31,8 @@ export default function TopNav() {
   const [isStatusPanelOpen, setIsStatusPanelOpen] = useState(false);
   const statusMenuRef = useRef<HTMLDivElement | null>(null);
 
+  const unreadNotifications = notifications.filter((n) => !n.isRead);
+
   const handleCreateClick = () => {
     if (window.location.pathname === "/") {
       window.dispatchEvent(new Event("openCreateProjectModal"));
@@ -126,9 +128,9 @@ export default function TopNav() {
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 8h18V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8z" />
                 </svg>
-                {notifications.length + applications.length > 0 ? (
+                {unreadNotifications.length + applications.length > 0 ? (
                   <span className="absolute -top-1 -right-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[0.65rem] font-semibold text-white">
-                    {notifications.length + applications.length}
+                    {unreadNotifications.length + applications.length}
                   </span>
                 ) : null}
               </button>
@@ -141,24 +143,38 @@ export default function TopNav() {
                       <p className="text-xs text-slate-500">Notifications and sent request updates</p>
                     </div>
                     <span className="rounded-full bg-slate-800 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-300">
-                      {notifications.length + applications.length}
+                      {unreadNotifications.length + applications.length}
                     </span>
                   </div>
 
                   <div className="space-y-4 max-h-80 overflow-y-auto pb-1">
                     <div>
                       <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Project notifications</p>
-                      {notifications.length === 0 ? (
+                      {unreadNotifications.length === 0 ? (
                         <div className="mt-3 rounded-3xl bg-slate-900 p-3 text-sm text-slate-400">
                           No new project notifications yet.
                         </div>
                       ) : (
                         <div className="mt-3 space-y-3">
-                          {notifications.map((notification) => (
+                          {unreadNotifications.map((notification) => (
                             <button
                               key={notification.id}
                               type="button"
-                              onClick={() => {
+                              onClick={async () => {
+                                try {
+                                  // Mark notification read on the server
+                                  await fetch("/api/notifications", {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ id: notification.id }),
+                                  });
+                                } catch (err) {
+                                  console.error("Failed to mark notification read:", err);
+                                }
+
+                                // Optimistically update UI
+                                setNotifications((prev) => prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n)));
+
                                 if (notification.projectId) {
                                   setIsStatusPanelOpen(false);
                                   router.push(`/?project=${notification.projectId}`);

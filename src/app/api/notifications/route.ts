@@ -34,3 +34,25 @@ export async function GET() {
     return new Response("Internal server error", { status: 500 });
   }
 }
+
+export async function PATCH(req: Request) {
+  const { userId } = await auth();
+  if (!userId) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  try {
+    const body = (await req.json()) as { id?: number };
+    const id = Number(body?.id);
+    if (!id || isNaN(id)) {
+      return new Response("Invalid notification id", { status: 400 });
+    }
+
+    await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    console.error("Error marking notification read:", error);
+    return new Response("Internal server error", { status: 500 });
+  }
+}
