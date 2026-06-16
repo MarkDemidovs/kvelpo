@@ -1,4 +1,4 @@
-import Stripe from "stripe";
+import { getStripe } from "../../../../../src/server/stripe";
 
 export async function POST(req: Request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Missing priceId" }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
 
-    const stripe = new Stripe(secret, { apiVersion: "2026-05-27.dahlia" });
+    const stripe = getStripe();
 
     const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
