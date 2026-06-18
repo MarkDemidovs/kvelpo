@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { UserButton } from "@clerk/nextjs";
 import skillsConfig from "~/data/skills.json";
@@ -168,7 +169,7 @@ export default function ProfileForm() {
               <p className="text-xs text-slate-500">Current: {membership?.toUpperCase()}</p>
             </div>
             <div className="flex items-center gap-2">
-              <a href="/profile/subscription" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Manage subscription</a>
+              <Link href="/profile/subscription" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Manage subscription</Link>
             </div>
           </div>
           <p className="text-xs text-slate-500">To change membership, use the subscription manager. Payments are processed via Stripe.</p>
