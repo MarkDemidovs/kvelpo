@@ -5,7 +5,7 @@ export function getStripe() {
   if (!secret) {
     throw new Error("Missing STRIPE_SECRET_KEY environment variable");
   }
-  return new Stripe(secret, { apiVersion: "2022-11-15" });
+  return new Stripe(secret, { apiVersion: "2026-05-27.dahlia" });
 }
 
 export default getStripe;
