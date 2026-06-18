@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import getStripe from "../../../../server/stripe";
 
 export async function POST(req: Request) {
-  const sig = req.headers.get("stripe-signature") || "";
+  const sig = req.headers.get("stripe-signature") ?? "";
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
     console.error("Missing STRIPE_WEBHOOK_SECRET");
