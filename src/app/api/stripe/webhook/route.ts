@@ -1,5 +1,9 @@
+import type Stripe from "stripe";
 import { NextResponse } from "next/server";
-import getStripe from "../../../../server/stripe";
+import getStripe from "~/server/stripe";
+import { db } from "~/server/db";
+import { profiles } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature") ?? "";
@@ -14,17 +18,27 @@ export async function POST(req: Request) {
 
   try {
     const event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-    // Handle relevant events
     switch (event.type) {
-      case "checkout.session.completed":
-        // TODO: fulfill subscription — update DB, send welcome email, etc.
-        console.log("Checkout session completed", event.data.object);
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const membership = session.metadata?.membership as "pro" | "team" | undefined;
+        const userId = session.metadata?.userId;
+
+        if (membership && userId) {
+          await db.update(profiles).set({ membership }).where(eq(profiles.clerkUserId, userId));
+          console.log(`Updated membership for ${userId} to ${membership}`);
+        } else {
+          console.log("Checkout session completed without user metadata", session.id);
+        }
         break;
-      case "invoice.payment_failed":
+      }
+      case "invoice.payment_failed": {
         console.log("Invoice payment failed", event.data.object);
         break;
-      default:
+      }
+      default: {
         console.log(`Unhandled event type ${event.type}`);
+      }
     }
     return new NextResponse("Received", { status: 200 });
   } catch (err: unknown) {
