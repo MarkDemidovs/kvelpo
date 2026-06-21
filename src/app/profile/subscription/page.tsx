@@ -17,7 +17,12 @@ type Plan = {
 type SessionData = {
   status: string;
   payment_status: string | null;
-  subscription: { id: string; status: string; current_period_end: number } | null;
+  subscription: {
+    id: string;
+    status: string;
+    current_period_start: number;
+    current_period_end: number;
+  } | null;
   amount_total: number | null;
   currency: string | null;
   customer_email: string | null;
@@ -26,6 +31,9 @@ type SessionData = {
 
 type ProfileResponse = {
   membership?: MembershipType;
+  stripeSubscriptionId?: string | null;
+  subscriptionStartDate?: string | null;
+  subscriptionEndDate?: string | null;
 };
 
 export default function SubscriptionPage() {
@@ -35,6 +43,8 @@ export default function SubscriptionPage() {
   const [error, setError] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<SessionData | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
+  const [subscriptionStart, setSubscriptionStart] = useState<Date | null>(null);
+  const [subscriptionEnd, setSubscriptionEnd] = useState<Date | null>(null);
 
   const plans = useMemo<Plan[]>(
     () => [
@@ -67,6 +77,23 @@ export default function SubscriptionPage() {
 
   const selectedPlan = useMemo(() => plans.find((plan) => plan.key === membership), [membership, plans]);
 
+  const daysUntilRenewal = useMemo(() => {
+    if (!subscriptionEnd) return null;
+    const now = new Date();
+    const diff = subscriptionEnd.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return days > 0 ? days : null;
+  }, [subscriptionEnd]);
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return null;
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -75,6 +102,12 @@ export default function SubscriptionPage() {
         const data = (await res.json()) as ProfileResponse;
         if (data.membership === "free" || data.membership === "pro" || data.membership === "team") {
           setMembership(data.membership);
+        }
+        if (data.subscriptionStartDate) {
+          setSubscriptionStart(new Date(data.subscriptionStartDate));
+        }
+        if (data.subscriptionEndDate) {
+          setSubscriptionEnd(new Date(data.subscriptionEndDate));
         }
       } catch (err: unknown) {
         console.error(err);
@@ -192,6 +225,38 @@ export default function SubscriptionPage() {
           <div className="mt-6 rounded-3xl bg-rose-50 p-4 text-rose-900 shadow-inner">
             <p className="font-semibold">Unable to verify checkout session</p>
             <p className="mt-2 text-sm text-rose-700">{sessionError}</p>
+          </div>
+        ) : null}
+
+        {membership !== "free" && (subscriptionStart || subscriptionEnd) ? (
+          <div className="mt-6 rounded-3xl bg-blue-50 p-4 text-slate-900 shadow-inner">
+            <p className="text-sm font-semibold">Subscription details</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {subscriptionStart ? (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Start date</p>
+                  <p className="mt-1 font-medium">{formatDate(subscriptionStart)}</p>
+                </div>
+              ) : null}
+              {subscriptionEnd ? (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Renewal date</p>
+                  <p className="mt-1 font-medium">{formatDate(subscriptionEnd)}</p>
+                </div>
+              ) : null}
+              {daysUntilRenewal !== null ? (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Days remaining</p>
+                  <p className="mt-1 font-medium text-lg">{daysUntilRenewal}</p>
+                </div>
+              ) : null}
+              {subscriptionEnd && daysUntilRenewal !== null && daysUntilRenewal <= 7 ? (
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-rose-600">⚠ Renews soon</p>
+                  <p className="mt-1 font-medium text-rose-700">Update payment method</p>
+                </div>
+              ) : null}
+            </div>
           </div>
         ) : null}
       </section>

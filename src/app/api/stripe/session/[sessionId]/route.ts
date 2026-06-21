@@ -13,15 +13,17 @@ export async function GET(req: Request, { params }: { params: { sessionId: strin
       expand: ["subscription", "customer_details"],
     });
 
+    const subscription = session.subscription as Stripe.Subscription | undefined;
     return NextResponse.json({
       id: session.id,
       status: session.status,
       payment_status: session.payment_status,
-      subscription: session.subscription
+      subscription: subscription
         ? {
-            id: (session.subscription as any).id,
-            status: (session.subscription as any).status,
-            current_period_end: (session.subscription as any).current_period_end,
+            id: subscription.id,
+            status: subscription.status,
+            current_period_start: subscription.current_period_start,
+            current_period_end: subscription.current_period_end,
           }
         : null,
       amount_total: session.amount_total,

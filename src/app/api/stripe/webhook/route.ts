@@ -23,10 +23,20 @@ export async function POST(req: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         const membership = session.metadata?.membership as "pro" | "team" | undefined;
         const userId = session.metadata?.userId;
+        const subscription = session.subscription as Stripe.Subscription | undefined;
 
         if (membership && userId) {
-          await db.update(profiles).set({ membership }).where(eq(profiles.clerkUserId, userId));
-          console.log(`Updated membership for ${userId} to ${membership}`);
+          const updateData: Record<string, unknown> = { membership };
+          if (session.customer) {
+            updateData.stripeCustomerId = typeof session.customer === 'string' ? session.customer : session.customer.id;
+          }
+          if (subscription) {
+            updateData.stripeSubscriptionId = subscription.id;
+            updateData.subscriptionStartDate = new Date(subscription.current_period_start * 1000);
+            updateData.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
+          }
+          await db.update(profiles).set(updateData).where(eq(profiles.clerkUserId, userId));
+          console.log(`Updated membership for ${userId} to ${membership}`, updateData);
         } else {
           console.log("Checkout session completed without user metadata", session.id);
         }
