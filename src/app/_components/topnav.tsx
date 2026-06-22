@@ -4,6 +4,7 @@ import { SignInButton, Show, UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import Image from 'next/image';
 
 interface ApplicationStatus {
   id: number;
@@ -98,10 +99,15 @@ export default function TopNav() {
     <nav className="fixed top-0 z-50 w-full border-b border-slate-800 bg-slate-950/90 px-4 py-3 shadow-lg shadow-slate-950/20 backdrop-blur-md">
       <div className="mx-auto flex flex-wrap items-center justify-between gap-3 max-w-6xl text-slate-100">
         <Link href="/" className="flex items-center gap-3 text-lg font-semibold tracking-tight text-white hover:text-slate-200">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-800 text-sm font-black uppercase text-slate-100">
-            K
-          </span>
-          <span>kvelpo</span>
+
+          <Image
+            src="/White.svg"
+            alt="Kollaborate logo"
+            width={90} 
+            height={22} 
+            className="h-5 w-auto" 
+            priority
+          />
         </Link>
 
         <div className="flex items-center gap-3">
@@ -210,13 +216,12 @@ export default function TopNav() {
                                   </p>
                                 </div>
                                 <span
-                                  className={`rounded-full px-2 py-1 text-[11px] font-semibold ${
-                                    application.status === "pending"
+                                  className={`rounded-full px-2 py-1 text-[11px] font-semibold ${application.status === "pending"
                                       ? "bg-yellow-100 text-yellow-700"
                                       : application.status === "accepted"
-                                      ? "bg-emerald-100 text-emerald-700"
-                                      : "bg-slate-100 text-slate-700"
-                                  }`}
+                                        ? "bg-emerald-100 text-emerald-700"
+                                        : "bg-slate-100 text-slate-700"
+                                    }`}
                                 >
                                   {application.status}
                                 </span>
