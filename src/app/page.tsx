@@ -107,7 +107,9 @@ function HomePageContent() {
               setIsViewModalOpen(true);
             }
           })
-          .catch(() => {});
+          .catch((err) => {
+            console.debug("Project not found or deep-link failed:", err);
+          });
       }
     }
   }, [searchParams, projects]);
@@ -212,14 +214,12 @@ function HomePageContent() {
                 <div className="flex items-center gap-3 rounded-full bg-slate-100 p-2">
                   <button
                     onClick={handleToggleMode}
-                    className={`relative inline-flex h-10 w-20 items-center rounded-full p-1 transition ${
-                      isPublicMode ? "bg-slate-200" : "bg-blue-600"
-                    }`}
+                    className={`relative inline-flex h-10 w-20 items-center rounded-full p-1 transition ${isPublicMode ? "bg-slate-200" : "bg-blue-600"
+                      }`}
                   >
                     <span
-                      className={`inline-block h-8 w-8 rounded-full bg-white shadow transition-transform ${
-                        isPublicMode ? "translate-x-0" : "translate-x-10"
-                      }`}
+                      className={`inline-block h-8 w-8 rounded-full bg-white shadow transition-transform ${isPublicMode ? "translate-x-0" : "translate-x-10"
+                        }`}
                     />
                   </button>
                   <span className={isPublicMode ? "text-slate-900" : "text-slate-400"}>Public</span>
