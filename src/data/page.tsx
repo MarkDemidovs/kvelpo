@@ -4,8 +4,8 @@ import { useEffect, useState, Suspense } from "react";
 import { useAuth, SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import CreateProjectModal from "./CreateProjectModal";
-import ViewProjectModal from "./ViewProjectModal";
+import CreateProjectModal from "../app/CreateProjectModal";
+import ViewProjectModal from "../app/ViewProjectModal";
 
 interface Project {
   id: number;
