@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import getStripe from "~/server/stripe";
+import type Stripe from "stripe"; // Ensure Stripe type is imported
 
-export async function GET(req: Request, { params }: { params: { sessionId: string } }) {
-  const sessionId = params.sessionId;
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ sessionId: string }> } // 1. Typed as a Promise
+) {
+  // 2. Await the params before using them
+  const { sessionId } = await params;
+
   if (!sessionId) {
     return new NextResponse("Missing sessionId", { status: 400 });
   }
@@ -20,11 +26,12 @@ export async function GET(req: Request, { params }: { params: { sessionId: strin
       payment_status: session.payment_status,
       subscription: subscription
         ? {
-            id: subscription.id,
-            status: subscription.status,
-            current_period_start: subscription.current_period_start,
-            current_period_end: subscription.current_period_end,
-          }
+          id: subscription.id,
+          status: subscription.status,
+          // Accessing them from the items data array:
+          current_period_start: subscription.items.data[0]?.current_period_start ?? null,
+          current_period_end: subscription.items.data[0]?.current_period_end ?? null,
+        }
         : null,
       amount_total: session.amount_total,
       currency: session.currency,
