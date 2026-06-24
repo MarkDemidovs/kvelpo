@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 type MembershipType = "free" | "pro" | "team";
@@ -36,7 +36,7 @@ type ProfileResponse = {
   subscriptionEndDate?: string | null;
 };
 
-export default function SubscriptionPage() {
+function SubscriptionPageContent() {
   const searchParams = useSearchParams();
   const [membership, setMembership] = useState<MembershipType>("free");
   const [loading, setLoading] = useState(false);
@@ -320,5 +320,13 @@ export default function SubscriptionPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function SubscriptionPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center">Loading Subscription Details...</div>}>
+      <SubscriptionPageContent />
+    </Suspense>
   );
 }
