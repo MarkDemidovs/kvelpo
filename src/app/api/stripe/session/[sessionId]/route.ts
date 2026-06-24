@@ -6,7 +6,6 @@ export async function GET(
   req: Request, 
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
-  // Await the params before using them (Next.js requirement)
   const { sessionId } = await params;
 
   if (!sessionId) {
@@ -21,7 +20,6 @@ export async function GET(
 
     const subscription = session.subscription as Stripe.Subscription | undefined;
     
-    // Access the first line item to get the period timestamps
     const subscriptionItem = subscription?.items?.data[0];
 
     return NextResponse.json({
@@ -32,7 +30,6 @@ export async function GET(
         ? {
             id: subscription.id,
             status: subscription.status,
-            // Accessing them safely from the items data array due to newer Stripe API updates
             current_period_start: subscriptionItem?.current_period_start ?? null,
             current_period_end: subscriptionItem?.current_period_end ?? null,
           }

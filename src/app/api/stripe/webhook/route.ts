@@ -20,9 +20,9 @@ export async function POST(req: Request) {
     const event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const membership = session.metadata?.membership as "pro" | "team" | undefined;
+        const session = event.data.object; const membership = session.metadata?.membership as "pro" | "team" | undefined;
         const userId = session.metadata?.userId;
+
         const subscription = session.subscription as Stripe.Subscription | undefined;
 
         if (membership && userId) {
@@ -30,11 +30,21 @@ export async function POST(req: Request) {
           if (session.customer) {
             updateData.stripeCustomerId = typeof session.customer === 'string' ? session.customer : session.customer.id;
           }
+
           if (subscription) {
             updateData.stripeSubscriptionId = subscription.id;
-            updateData.subscriptionStartDate = new Date(subscription.current_period_start * 1000);
-            updateData.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
+
+            const subscriptionItem = subscription.items?.data[0];
+
+            updateData.subscriptionStartDate = subscriptionItem?.current_period_start
+              ? new Date(subscriptionItem.current_period_start * 1000)
+              : new Date();
+
+            updateData.subscriptionEndDate = subscriptionItem?.current_period_end
+              ? new Date(subscriptionItem.current_period_end * 1000)
+              : new Date();
           }
+
           await db.update(profiles).set(updateData).where(eq(profiles.clerkUserId, userId));
           console.log(`Updated membership for ${userId} to ${membership}`, updateData);
         } else {
