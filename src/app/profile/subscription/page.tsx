@@ -165,8 +165,18 @@ function SubscriptionPageContent() {
       });
 
       if (!res.ok) {
+        if (res.status === 401) {
+          throw new Error("Please sign in to upgrade your plan.");
+        }
         const text = await res.text();
-        throw new Error(text || `Checkout creation failed: ${res.status}`);
+        let message = text;
+        try {
+          const parsed = JSON.parse(text) as { error?: string };
+          if (parsed?.error) message = parsed.error;
+        } catch {
+          // not JSON, keep raw text
+        }
+        throw new Error(message || `Checkout creation failed: ${res.status}`);
       }
 
       const data = (await res.json()) as { url?: string };
