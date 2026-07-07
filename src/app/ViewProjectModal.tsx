@@ -243,9 +243,6 @@ export default function ViewProjectModal({ isOpen, onClose, project, onProjectDe
                   <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Project</p>
                   <h3 className="mt-2 max-w-full truncate text-xl font-semibold text-slate-900">{projectDetails.name}</h3>
                 </div>
-                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${projectDetails.isPublic ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700"}`}>
-                  {projectDetails.isPublic ? "Public" : "Private"}
-                </span>
               </div>
 
               {projectDetails.description ? (

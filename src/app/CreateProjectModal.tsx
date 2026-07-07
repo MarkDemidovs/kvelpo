@@ -31,7 +31,6 @@ interface Project {
 export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProjectModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
   const [tags, setTags] = useState<string[]>([]);
   const [expanded, setExpanded] = useState(false);
   const [rolesNeeded, setRolesNeeded] = useState<RoleNeed[]>([
@@ -54,7 +53,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         body: JSON.stringify({
           name: name.trim(),
           description: description.trim() || null,
-          isPublic,
+          isPublic: true,
           tags,
           rolesNeeded: rolesNeeded
             .filter((role) => role.title.trim().length > 0)
@@ -84,7 +83,6 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
   const handleClose = () => {
     setName("");
     setDescription("");
-    setIsPublic(true);
     setTags([]);
     setExpanded(false);
     setRolesNeeded([{ title: "", description: "", slotsNeeded: 1 }]);
@@ -204,34 +202,9 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
             )}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <p className="block text-sm font-medium text-slate-700">Visibility</p>
-              <div className="mt-2 flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsPublic(true)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    isPublic ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
-                  }`}
-                >
-                  Public
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsPublic(false)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    !isPublic ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
-                  }`}
-                >
-                  Private
-                </button>
-              </div>
-            </div>
-            <div>
-              <p className="block text-sm font-medium text-slate-700">Roles</p>
-              <p className="mt-1 text-xs text-slate-500">Define what you need.</p>
-            </div>
+          <div>
+            <p className="block text-sm font-medium text-slate-700">Roles</p>
+            <p className="mt-1 text-xs text-slate-500">Define what you need.</p>
           </div>
 
           <div className="space-y-4">

@@ -27,7 +27,7 @@ export const profiles = createTable("profile", (d) => ({
   stripeSubscriptionId: d.varchar({ length: 256 }),
   subscriptionStartDate: d.timestamp({ withTimezone: true }),
   subscriptionEndDate: d.timestamp({ withTimezone: true }),
-  skills: d.json("jsonb").notNull().default([]),
+  skills: d.jsonb().notNull().default([]),
   createdAt: d
     .timestamp({ withTimezone: true })
     .$defaultFn(() => new Date())
@@ -46,7 +46,7 @@ export const projects = createTable("project", (d) => ({
   name: d.varchar({ length: 256 }).notNull(),
   description: d.text(),
   isPublic: d.boolean().notNull().default(true),
-  tags: d.json("jsonb").notNull().default([]),
+  tags: d.jsonb().notNull().default([]),
   createdAt: d
     .timestamp({ withTimezone: true })
     .$defaultFn(() => new Date())

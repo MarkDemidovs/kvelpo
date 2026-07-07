@@ -28,7 +28,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     // Neon provisions POSTGRES_URL; fall back to it when DATABASE_URL is unset.
-    DATABASE_URL: process.env.DATABASE_URL ?? process.env.POSTGRES_URL,
+    DATABASE_URL: process.env.DATABASE_URL ?? process.env.POSTGRES_URL_NON_POOLING ?? process.env.POSTGRES_URL,
     NODE_ENV: process.env.NODE_ENV,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
