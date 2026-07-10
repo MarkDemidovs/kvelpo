@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Image from 'next/image';
+import Sidebar from "./Sidebar";
 
 interface ApplicationStatus {
   id: number;
@@ -30,6 +31,7 @@ export default function TopNav() {
   const [applications, setApplications] = useState<ApplicationStatus[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isStatusPanelOpen, setIsStatusPanelOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const statusMenuRef = useRef<HTMLDivElement | null>(null);
 
   const unreadNotifications = notifications.filter((n) => !n.isRead);
@@ -122,6 +124,15 @@ export default function TopNav() {
               </svg>
             </button>
           </Show>
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(true)}
+            className="rounded-full border border-slate-700 bg-slate-900/80 p-2 text-slate-100 transition hover:border-slate-500 hover:bg-slate-800"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
 
           <Show when="signed-in">
             <div className="relative" ref={statusMenuRef}>
@@ -256,6 +267,7 @@ export default function TopNav() {
           </Show>
         </div>
       </div>
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
     </nav>
   );
 }
