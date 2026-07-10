@@ -156,7 +156,7 @@ function HomePageContent() {
     <main className="min-h-screen bg-slate-100 text-slate-900 overflow-x-hidden pt-24">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header Section */}
-        <header className="mb-8 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm shadow-slate-200/40 sm:flex-row sm:items-center sm:justify-between">
+        <header className="mb-8 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm shadow-slate-200/40">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
               Feed
@@ -168,28 +168,6 @@ function HomePageContent() {
               Browse public projects and collaborate with others.
             </p>
           </div>
-
-          {isSignedIn && (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 shadow-lg shadow-blue-600/20"
-            >
-              <svg
-                className="h-5 w-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Create Project
-            </button>
-          )}
         </header>
 
         {loading ? (
@@ -210,29 +188,49 @@ function HomePageContent() {
                     My Projects
                   </h2>
                 </div>
-                {myProjects.length === 0 ? (
-                  <div className="rounded-3xl bg-white p-10 text-center text-slate-500 shadow-sm shadow-slate-200/40">
-                    You haven&#39;t created any projects yet.
-                  </div>
-                ) : (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {myProjects.map((project) => (
-                      <ProjectCard
-                        key={project.id}
-                        project={project}
-                        onClick={() => {
-                          setSelectedProject(project);
-                          setIsViewModalOpen(true);
-                          if (typeof window !== 'undefined') {
-                            const url = new URL(window.location.href);
-                            url.searchParams.set('project', project.id.toString());
-                            window.history.pushState({}, '', url.toString());
-                          }
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {/* Create New Project Card */}
+                  <article
+                    onClick={() => setIsModalOpen(true)}
+                    className="cursor-pointer min-h-[200px] flex items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 shadow-sm hover:border-blue-500 hover:bg-blue-50 transition"
+                  >
+                    <div className="text-center">
+                      <svg
+                        className="h-12 w-12 mx-auto text-slate-400 hover:text-blue-600 transition"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <p className="mt-2 text-sm font-medium text-slate-500 hover:text-blue-600 transition">
+                        New Project
+                      </p>
+                    </div>
+                  </article>
+
+                  {/* Existing Projects */}
+                  {myProjects.map((project) => (
+                    <ProjectCard
+                      key={project.id}
+                      project={project}
+                      onClick={() => {
+                        setSelectedProject(project);
+                        setIsViewModalOpen(true);
+                        if (typeof window !== 'undefined') {
+                          const url = new URL(window.location.href);
+                          url.searchParams.set('project', project.id.toString());
+                          window.history.pushState({}, '', url.toString());
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
               </section>
             )}
 
