@@ -1,6 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -8,7 +10,15 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const content = (
     <>
       {/* Overlay */}
       {isOpen && (
@@ -21,7 +31,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <div
         className={`fixed top-0 right-0 z-50 h-full w-80 transform bg-slate-50 shadow-2xl transition-transform duration-300 ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full">
@@ -98,4 +108,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       </div>
     </>
   );
+
+  return createPortal(content, document.body);
 }
