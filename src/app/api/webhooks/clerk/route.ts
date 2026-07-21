@@ -1,8 +1,9 @@
 import { db } from "~/server/db";
-import { profiles } from "~/server/db/schema";
+import { profiles, projects } from "~/server/db/schema";
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -58,6 +59,18 @@ export async function POST(req: Request) {
     } catch (error) {
       console.error("Failed to create profile:", error);
       return new NextResponse("Failed to create profile", { status: 500 });
+    }
+  }
+
+  if (eventType === "user.deleted") {
+    const clerkUserId = evt.data.id;
+
+    try {
+      await db.delete(projects).where(eq(projects.clerkUserId, clerkUserId));
+      console.log(`Deleted project records for user: ${clerkUserId}`);
+    } catch (error) {
+      console.error("Failed to delete project records:", error);
+      return new NextResponse("Failed to delete project records", { status: 500 });
     }
   }
 

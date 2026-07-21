@@ -62,11 +62,17 @@ export default function TopNav() {
           fetch("/api/notifications", { signal: controller.signal }),
         ]);
 
-        if (!applicationsRes.ok) {
-          throw new Error(await applicationsRes.text());
+        if (!applicationsRes.ok || !notificationsRes.ok) {
+          const errorText = await Promise.all([
+            applicationsRes.text().catch(() => ""),
+            notificationsRes.text().catch(() => ""),
+          ]);
+          throw new Error(errorText.filter(Boolean).join(" | "));
         }
-        if (!notificationsRes.ok) {
-          throw new Error(await notificationsRes.text());
+
+        const contentType = applicationsRes.headers.get("content-type") ?? "";
+        if (!contentType.includes("application/json")) {
+          throw new Error("Unexpected response format");
         }
 
         const applicationData = (await applicationsRes.json()) as ApplicationStatus[];

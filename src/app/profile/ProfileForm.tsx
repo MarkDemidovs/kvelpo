@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { UserButton } from "@clerk/nextjs";
+import { deleteAccountAction } from "~/app/actions/delete-account";
+import { saveConsentAction } from "~/app/actions/consent";
 import skillsConfig from "~/data/skills.json";
 
 type MembershipType = "free" | "pro" | "team";
@@ -36,6 +38,8 @@ export default function ProfileForm() {
   const [link1, setLink1] = useState("");
   const [link2, setLink2] = useState("");
   const [link3, setLink3] = useState("");
+  const [consentPending, setConsentPending] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -97,6 +101,39 @@ export default function ProfileForm() {
       setError(String(err));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleConsent = async () => {
+    setConsentPending(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.set("termsVersion", "1");
+      formData.set("privacyVersion", "1");
+      await saveConsentAction(formData);
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setConsentPending(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("This will delete your account and associated project data. Continue?")) {
+      return;
+    }
+
+    setDeletePending(true);
+    setError(null);
+
+    try {
+      await deleteAccountAction();
+    } catch (err) {
+      setError(String(err));
+    } finally {
+      setDeletePending(false);
     }
   };
 
@@ -274,6 +311,43 @@ export default function ProfileForm() {
           {saving ? "Saving..." : "Save changes"}
         </button>
       </form>
+
+      <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div>
+          <p className="text-sm font-medium">Privacy & legal</p>
+          <p className="text-xs text-slate-500">Manage your consent and review the policies that apply to your account.</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Link href="/consent" className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+            Consent center
+          </Link>
+          <Link href="/terms" className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+            Terms of service
+          </Link>
+          <Link href="/privacy" className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+            Privacy policy
+          </Link>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleConsent}
+          disabled={consentPending}
+          className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-emerald-400"
+        >
+          {consentPending ? "Saving consent..." : "Accept consent"}
+        </button>
+
+        <button
+          type="button"
+          onClick={handleDeleteAccount}
+          disabled={deletePending}
+          className="inline-flex items-center justify-center rounded-lg border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:bg-rose-100"
+        >
+          {deletePending ? "Deleting account..." : "Delete account"}
+        </button>
+      </div>
     </div>
   );
 }

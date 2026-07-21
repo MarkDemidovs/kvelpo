@@ -40,6 +40,16 @@ export const profiles = createTable("profile", (d) => ({
   index("is_public_idx").on(t.isPublic),
 ]);
 
+export const userConsent = createTable("user_consent", (d) => ({
+  userId: d.varchar({ length: 256 }).primaryKey(),
+  termsVersion: d.integer().notNull().default(1),
+  privacyVersion: d.integer().notNull().default(1),
+  acceptedAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+}));
+
 export const projects = createTable("project", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   clerkUserId: d.varchar({ length: 256 }).notNull(),
