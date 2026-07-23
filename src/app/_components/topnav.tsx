@@ -36,15 +36,6 @@ export default function TopNav() {
 
   const unreadNotifications = notifications.filter((n) => !n.isRead);
 
-  const handleCreateClick = () => {
-    if (window.location.pathname === "/") {
-      window.dispatchEvent(new Event("openCreateProjectModal"));
-      window.history.pushState({}, "", "/?create=true");
-    } else {
-      router.push("/?create=true");
-    }
-  };
-
   useEffect(() => {
     if (!isSignedIn) {
       setApplications([]);
@@ -119,17 +110,6 @@ export default function TopNav() {
         </Link>
 
         <div className="flex items-center gap-3">
-          <Show when="signed-in">
-            <button
-              type="button"
-              onClick={handleCreateClick}
-              className="rounded-full border border-slate-700 bg-slate-900/80 p-2 text-slate-100 transition hover:border-slate-500 hover:bg-slate-800"
-            >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </Show>
           <button
             type="button"
             onClick={() => setIsSidebarOpen(true)}
