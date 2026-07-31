@@ -7,11 +7,12 @@ const euCountries = new Set([
 
 export default async function ConsentBanner() {
   const cookieStore = await cookies();
-  const consentGranted = cookieStore.get("app-consent-granted")?.value === "true";
+  const consentStatus = cookieStore.get("app-consent-status")?.value;
   const country = (await headers()).get("x-vercel-ip-country")?.toUpperCase() ?? "";
   const isEuResident = euCountries.has(country);
+  const hasConsented = consentStatus === "accepted" || consentStatus === "rejected";
 
-  if (!isEuResident || consentGranted) {
+  if (!isEuResident || hasConsented) {
     return null;
   }
 
@@ -26,9 +27,19 @@ export default async function ConsentBanner() {
           <input type="hidden" name="privacyVersion" value="1" />
           <button
             type="submit"
+            name="consentAction"
+            value="accept"
             className="rounded-lg bg-amber-700 px-3 py-2 font-semibold text-white hover:bg-amber-800"
           >
-            Accept consent
+            Accept cookies
+          </button>
+          <button
+            type="submit"
+            name="consentAction"
+            value="reject"
+            className="rounded-lg border border-amber-700 bg-white px-3 py-2 font-semibold text-amber-900 hover:bg-amber-100"
+          >
+            Reject cookies
           </button>
           <a href="/consent" className="text-sm font-medium underline">
             Learn more

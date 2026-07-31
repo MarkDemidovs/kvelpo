@@ -20,9 +20,10 @@ export default clerkMiddleware(async (_auth, req) => {
     return NextResponse.next();
   }
 
-  const consentCookie = req.cookies.get('app-consent-granted')?.value === 'true';
+  const consentStatus = req.cookies.get('app-consent-status')?.value;
+  const hasConsentDecision = consentStatus === 'accepted' || consentStatus === 'rejected';
 
-  if (!consentCookie) {
+  if (!hasConsentDecision) {
     return NextResponse.redirect(new URL('/consent', req.url));
   }
 

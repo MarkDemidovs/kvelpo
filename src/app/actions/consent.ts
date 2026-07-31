@@ -8,27 +8,26 @@ import { userConsent } from "~/server/db/schema";
 
 export async function saveConsentAction(formData: FormData) {
   const { userId } = await auth();
-
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
-
+  const consentAction = String(formData.get("consentAction") ?? "accept");
   const termsVersion = Number(formData.get("termsVersion") ?? 1);
   const privacyVersion = Number(formData.get("privacyVersion") ?? 1);
+  const status = consentAction === "reject" ? "rejected" : "accepted";
 
-  try {
-    await db.insert(userConsent).values({
-      userId,
-      termsVersion,
-      privacyVersion,
-      acceptedAt: new Date(),
-    });
-  } catch {
-    // Ignore database write failures for now so the consent flow remains usable.
+  if (status === "accepted" && userId) {
+    try {
+      await db.insert(userConsent).values({
+        userId,
+        termsVersion,
+        privacyVersion,
+        acceptedAt: new Date(),
+      });
+    } catch {
+      // Ignore database write failures for now so the consent flow remains usable.
+    }
   }
 
   const cookieStore = await cookies();
-  cookieStore.set("app-consent-granted", "true", {
+  cookieStore.set("app-consent-status", status, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
