@@ -8,7 +8,8 @@ import { userConsent } from "~/server/db/schema";
 
 export async function saveConsentAction(formData: FormData) {
   const { userId } = await auth();
-  const consentAction = String(formData.get("consentAction") ?? "accept");
+  const consentActionRaw = formData.get("consentAction");
+  const consentAction = typeof consentActionRaw === "string" ? consentActionRaw : "accept";
   const termsVersion = Number(formData.get("termsVersion") ?? 1);
   const privacyVersion = Number(formData.get("privacyVersion") ?? 1);
   const status = consentAction === "reject" ? "rejected" : "accepted";

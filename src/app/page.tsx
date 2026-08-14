@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import CreateProjectModal from './CreateProjectModal';
 import ViewProjectModal from './ViewProjectModal';
 
@@ -354,9 +355,11 @@ function ProjectCard({
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-dark-tertiary">
             {project.avatarUrl ? (
-              <img
+              <Image
                 src={project.avatarUrl}
                 alt={`${project.userFullName ?? project.clerkUserId} avatar`}
+                width={32}
+                height={32}
                 className="h-full w-full object-cover"
               />
             ) : (

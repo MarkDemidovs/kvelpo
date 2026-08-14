@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import Link from "next/link";
+import Image from "next/image";
 
 type ProfilePageProps = {
   params: Promise<{
@@ -58,29 +59,31 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
             <>
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full bg-slate-100">
+                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full bg-dark-tertiary">
                     {avatarUrl ? (
-                      <img
+                      <Image
                         src={avatarUrl}
                         alt={`${displayName} avatar`}
+                        width={96}
+                        height={96}
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="flex h-full w-full items-center justify-center bg-slate-300 text-2xl font-semibold uppercase text-slate-700">
+                      <span className="flex h-full w-full items-center justify-center bg-dark-subtle text-2xl font-semibold uppercase text-dark-primary">
                         {initials}
                       </span>
                     )}
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Public profile</p>
-                    <h1 className="mt-2 text-3xl font-semibold text-slate-900">{displayName}</h1>
-                    <p className="mt-1 text-sm text-slate-500">{profile.membership === "pro" ? "Pro member" : profile.membership === "team" ? "Team member" : "Free member"}</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-dark-muted">Public profile</p>
+                    <h1 className="mt-2 text-3xl font-semibold text-dark-primary">{displayName}</h1>
+                    <p className="mt-1 text-sm text-dark-secondary">{profile.membership === "pro" ? "Pro member" : profile.membership === "team" ? "Team member" : "Free member"}</p>
                   </div>
                 </div>
                 {isOwner ? (
                   <Link
                     href="/profile"
-                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-100"
+                    className="rounded-full border border-dark-subtle bg-dark-tertiary px-4 py-2 text-sm font-semibold text-dark-primary hover:bg-dark-card"
                   >
                     Edit your profile
                   </Link>
@@ -88,59 +91,59 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
               </div>
 
               <div className="mt-8 grid gap-6 sm:grid-cols-2">
-                <div className="space-y-4 rounded-3xl bg-slate-50 p-6">
-                  <p className="text-sm font-semibold text-slate-900">Bio</p>
-                  <p className="text-sm leading-7 text-slate-600">{profile.bio ?? "No bio provided."}</p>
+                <div className="space-y-4 rounded-3xl bg-dark-tertiary p-6">
+                  <p className="text-sm font-semibold text-dark-primary">Bio</p>
+                  <p className="text-sm leading-7 text-dark-secondary">{profile.bio ?? "No bio provided."}</p>
                 </div>
-                <div className="space-y-4 rounded-3xl bg-slate-50 p-6">
-                  <p className="text-sm font-semibold text-slate-900">Links</p>
+                <div className="space-y-4 rounded-3xl bg-dark-tertiary p-6">
+                  <p className="text-sm font-semibold text-dark-primary">Links</p>
                   <div className="space-y-2">
                     {profile.link1 ? (
-                      <a href={profile.link1} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline">
+                      <a href={profile.link1} target="_blank" rel="noreferrer" className="text-sm text-accent-blue hover:underline">
                         {profile.link1}
                       </a>
                     ) : null}
                     {profile.link2 ? (
-                      <a href={profile.link2} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline">
+                      <a href={profile.link2} target="_blank" rel="noreferrer" className="text-sm text-accent-blue hover:underline">
                         {profile.link2}
                       </a>
                     ) : null}
                     {profile.link3 ? (
-                      <a href={profile.link3} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline">
+                      <a href={profile.link3} target="_blank" rel="noreferrer" className="text-sm text-accent-blue hover:underline">
                         {profile.link3}
                       </a>
                     ) : null}
                     {!profile.link1 && !profile.link2 && !profile.link3 ? (
-                      <p className="text-sm text-slate-500">No links added.</p>
+                      <p className="text-sm text-dark-secondary">No links added.</p>
                     ) : null}
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 rounded-3xl bg-slate-50 p-6">
-                <p className="text-sm font-semibold text-slate-900">Skills</p>
+              <div className="mt-6 rounded-3xl bg-dark-tertiary p-6">
+                <p className="text-sm font-semibold text-dark-primary">Skills</p>
                 {profile.skills && profile.skills.length > 0 ? (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {profile.skills.map((skill) => (
-                      <span key={skill} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                      <span key={skill} className="rounded-full bg-dark-card px-3 py-1 text-xs font-medium text-dark-secondary">
                         {skill}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-3 text-sm text-slate-500">No skills added.</p>
+                  <p className="mt-3 text-sm text-dark-secondary">No skills added.</p>
                 )}
               </div>
             </>
           ) : (
             <div>
-              <p className="text-xl font-semibold text-slate-900">Profile unavailable</p>
-              <p className="mt-3 text-sm leading-7 text-slate-600">This profile is private and can only be viewed by the owner.</p>
+              <p className="text-xl font-semibold text-dark-primary">Profile unavailable</p>
+              <p className="mt-3 text-sm leading-7 text-dark-secondary">This profile is private and can only be viewed by the owner.</p>
             </div>
           )
         ) : (
           <div>
-            <p className="text-xl font-semibold text-slate-900">Profile not found</p>
+            <p className="text-xl font-semibold text-dark-primary">Profile not found</p>
             <p className="mt-3 text-sm leading-7 text-slate-600">We couldn’t find a profile for this user.</p>
           </div>
         )}

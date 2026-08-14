@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ViewProjectModalProps {
   isOpen: boolean;
@@ -274,9 +275,11 @@ export default function ViewProjectModal({ isOpen, onClose, project, onProjectDe
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-dark-subtle">
                     {projectDetails.avatarUrl ? (
-                      <img
+                      <Image
                         src={projectDetails.avatarUrl}
                         alt={`${projectDetails.userFullName ?? projectDetails.clerkUserId} avatar`}
+                        width={48}
+                        height={48}
                         className="h-full w-full object-cover"
                       />
                     ) : (
