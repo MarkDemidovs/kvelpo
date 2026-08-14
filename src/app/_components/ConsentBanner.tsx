@@ -17,7 +17,7 @@ export default async function ConsentBanner() {
   }
 
   return (
-    <div className="border-b border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+    <div className="border-b border-dark-subtle bg-dark-tertiary px-4 py-3 text-sm text-dark-primary">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p>
           We use cookies and account data to provide this service. For EU visitors, we need your consent to continue.
@@ -29,7 +29,7 @@ export default async function ConsentBanner() {
             type="submit"
             name="consentAction"
             value="accept"
-            className="rounded-lg bg-amber-700 px-3 py-2 font-semibold text-white hover:bg-amber-800"
+            className="rounded-lg bg-accent-blue px-3 py-2 font-semibold text-dark-primary hover:bg-blue-500"
           >
             Accept cookies
           </button>
@@ -37,11 +37,11 @@ export default async function ConsentBanner() {
             type="submit"
             name="consentAction"
             value="reject"
-            className="rounded-lg border border-amber-700 bg-white px-3 py-2 font-semibold text-amber-900 hover:bg-amber-100"
+            className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 font-semibold text-dark-secondary hover:bg-dark-tertiary"
           >
             Reject cookies
           </button>
-          <a href="/consent" className="text-sm font-medium underline">
+          <a href="/consent" className="text-sm font-medium text-accent-blue underline">
             Learn more
           </a>
         </form>

@@ -195,75 +195,75 @@ function SubscriptionPageContent() {
 
   return (
     <div className="space-y-8 p-4">
-      <section className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
+      <section className="rounded-3xl border border-dark-subtle bg-dark-card p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Subscription</p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">Manage your membership</h1>
-            <p className="max-w-2xl text-sm text-slate-600">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-dark-muted">Subscription</p>
+            <h1 className="mt-2 text-3xl font-semibold text-dark-primary">Manage your membership</h1>
+            <p className="max-w-2xl text-sm text-dark-secondary">
               Pick a plan that matches your workflow, then complete checkout securely with Stripe.
             </p>
           </div>
 
-          <div className="rounded-3xl bg-slate-50 p-4 text-sm text-slate-700 shadow-sm">
-            <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Current plan</p>
-            <p className="mt-2 text-xl font-semibold text-slate-900">{membership.toUpperCase()}</p>
-            <p className="text-xs text-slate-500">{selectedPlan?.description}</p>
+          <div className="rounded-3xl bg-dark-tertiary p-4 text-sm text-dark-secondary">
+            <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Current plan</p>
+            <p className="mt-2 text-xl font-semibold text-dark-primary">{membership.toUpperCase()}</p>
+            <p className="text-xs text-dark-secondary">{selectedPlan?.description}</p>
           </div>
         </div>
 
         {sessionStatus ? (
-          <div className="mt-6 rounded-3xl bg-emerald-50 p-4 text-slate-900 shadow-inner">
+          <div className="mt-6 rounded-3xl bg-emerald-900/30 p-4 text-dark-primary">
             <p className="text-sm font-semibold">Checkout completed</p>
-            <p className="mt-2 text-sm text-slate-600">Your Stripe checkout was processed successfully.</p>
+            <p className="mt-2 text-sm text-dark-secondary">Your Stripe checkout was processed successfully.</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Payment status</p>
+                <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Payment status</p>
                 <p className="mt-1 font-medium">{sessionStatus.payment_status ?? "unknown"}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Subscription status</p>
+                <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Subscription status</p>
                 <p className="mt-1 font-medium">{sessionStatus.subscription?.status ?? "pending"}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Email</p>
+                <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Email</p>
                 <p className="mt-1 font-medium">{sessionStatus.customer_email ?? "unknown"}</p>
               </div>
             </div>
           </div>
         ) : sessionError ? (
-          <div className="mt-6 rounded-3xl bg-rose-50 p-4 text-rose-900 shadow-inner">
+          <div className="mt-6 rounded-3xl bg-red-900/30 p-4 text-red-400">
             <p className="font-semibold">Unable to verify checkout session</p>
-            <p className="mt-2 text-sm text-rose-700">{sessionError}</p>
+            <p className="mt-2 text-sm text-red-300">{sessionError}</p>
           </div>
         ) : null}
 
         {membership !== "free" && (subscriptionStart || subscriptionEnd) ? (
-          <div className="mt-6 rounded-3xl bg-blue-50 p-4 text-slate-900 shadow-inner">
+          <div className="mt-6 rounded-3xl bg-blue-900/30 p-4 text-dark-primary">
             <p className="text-sm font-semibold">Subscription details</p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {subscriptionStart ? (
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Start date</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Start date</p>
                   <p className="mt-1 font-medium">{formatDate(subscriptionStart)}</p>
                 </div>
               ) : null}
               {subscriptionEnd ? (
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Renewal date</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Renewal date</p>
                   <p className="mt-1 font-medium">{formatDate(subscriptionEnd)}</p>
                 </div>
               ) : null}
               {daysUntilRenewal !== null ? (
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Days remaining</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Days remaining</p>
                   <p className="mt-1 font-medium text-lg">{daysUntilRenewal}</p>
                 </div>
               ) : null}
               {subscriptionEnd && daysUntilRenewal !== null && daysUntilRenewal <= 7 ? (
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-rose-600">⚠ Renews soon</p>
-                  <p className="mt-1 font-medium text-rose-700">Update payment method</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-red-400">⚠ Renews soon</p>
+                  <p className="mt-1 font-medium text-red-400">Update payment method</p>
                 </div>
               ) : null}
             </div>
@@ -272,34 +272,34 @@ function SubscriptionPageContent() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
-        <div className="space-y-4 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-          {error ? <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
+        <div className="space-y-4 rounded-3xl border border-dark-subtle bg-dark-card p-6">
+          {error ? <div className="rounded-2xl bg-red-900/30 p-4 text-sm text-red-400">{error}</div> : null}
 
           <div className="grid gap-4 sm:grid-cols-3">
             {plans.map((plan) => {
               const isCurrent = plan.key === membership;
               return (
-                <div key={plan.key} className="rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+                <div key={plan.key} className="rounded-3xl border border-dark-subtle bg-dark-tertiary p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <h2 className="text-lg font-semibold text-slate-900">{plan.name}</h2>
-                      <p className="mt-1 text-sm text-slate-500">{plan.price}</p>
+                      <h2 className="text-lg font-semibold text-dark-primary">{plan.name}</h2>
+                      <p className="mt-1 text-sm text-dark-secondary">{plan.price}</p>
                     </div>
                     {isCurrent ? (
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Current</span>
+                      <span className="rounded-full bg-emerald-900/50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">Current</span>
                     ) : null}
                   </div>
-                  <p className="mt-4 text-sm text-slate-600">{plan.description}</p>
-                  <ul className="mt-4 space-y-3 text-sm text-slate-600">
+                  <p className="mt-4 text-sm text-dark-secondary">{plan.description}</p>
+                  <ul className="mt-4 space-y-3 text-sm text-dark-secondary">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2">
-                        <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-xs text-white">✓</span>
+                        <span className="mt-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent-blue text-xs text-dark-primary">✓</span>
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
                   <button
-                    className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-accent-blue px-4 py-3 text-sm font-semibold text-dark-primary transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={() => void createCheckout(plan.priceId)}
                     disabled={loading || isCurrent || !plan.priceId}
                   >
@@ -311,19 +311,19 @@ function SubscriptionPageContent() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">Why upgrade?</p>
-          <div className="mt-5 space-y-5 text-sm text-slate-600">
+        <div className="rounded-3xl border border-dark-subtle bg-dark-card p-6">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-dark-muted">Why upgrade?</p>
+          <div className="mt-5 space-y-5 text-sm text-dark-secondary">
             <div>
-              <p className="font-semibold text-slate-900">More projects, more control</p>
+              <p className="font-semibold text-dark-primary">More projects, more control</p>
               <p className="mt-2">Pro and Team plans increase your project limits and let you keep multiple active listings.</p>
             </div>
             <div>
-              <p className="font-semibold text-slate-900">Professional presentation</p>
+              <p className="font-semibold text-dark-primary">Professional presentation</p>
               <p className="mt-2">Upgrade to remove basic restrictions and get access to advanced profile and sharing features.</p>
             </div>
             <div>
-              <p className="font-semibold text-slate-900">Secure Stripe billing</p>
+              <p className="font-semibold text-dark-primary">Secure Stripe billing</p>
               <p className="mt-2">Checkout is handled by Stripe, and your card information is never stored on this app.</p>
             </div>
           </div>
@@ -335,8 +335,10 @@ function SubscriptionPageContent() {
 
 export default function SubscriptionPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center">Loading Subscription Details...</div>}>
-      <SubscriptionPageContent />
-    </Suspense>
+    <main className="mx-auto max-w-7xl px-4 py-8 bg-dark-primary">
+      <Suspense fallback={<div className="p-10 text-center text-dark-primary">Loading Subscription Details...</div>}>
+        <SubscriptionPageContent />
+      </Suspense>
+    </main>
   );
 }

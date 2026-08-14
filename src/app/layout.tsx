@@ -31,13 +31,13 @@ export default function RootLayout({
           <main className="pt-16">
             {children}
           </main>
-          <footer className="border-t border-slate-200 bg-white/80 px-6 py-6 text-sm text-slate-600">
+          <footer className="border-t border-dark-subtle bg-dark-tertiary px-6 py-6 text-sm text-dark-secondary">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
               <p>© 2026 kvelpo</p>
               <div className="flex flex-wrap gap-4">
-                <Link href="/terms" className="hover:text-slate-900">Terms</Link>
-                <Link href="/privacy" className="hover:text-slate-900">Privacy</Link>
-                <Link href="/consent" className="hover:text-slate-900">Consent</Link>
+                <Link href="/terms" className="hover:text-dark-primary">Terms</Link>
+                <Link href="/privacy" className="hover:text-dark-primary">Privacy</Link>
+                <Link href="/consent" className="hover:text-dark-primary">Consent</Link>
               </div>
             </div>
           </footer>

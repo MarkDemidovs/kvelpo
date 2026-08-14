@@ -153,29 +153,29 @@ function HomePageContent() {
     : allProjects;
 
   return (
-    <main className="min-h-screen bg-slate-100 text-slate-900 overflow-x-hidden pt-24">
+    <main className="min-h-screen bg-dark-primary text-dark-primary overflow-x-hidden pt-24">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header Section */}
-        <header className="mb-8 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm shadow-slate-200/40">
+        <header className="mb-8 rounded-3xl border border-dark-subtle bg-dark-card p-6">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-dark-muted">
               Feed
             </p>
-            <h1 className="text-3xl font-semibold text-slate-900">
+            <h1 className="text-3xl font-semibold text-dark-primary">
               Discover Projects
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-slate-500">
+            <p className="mt-2 max-w-2xl text-sm text-dark-secondary">
               Browse public projects and collaborate with others.
             </p>
           </div>
         </header>
 
         {loading ? (
-          <div className="rounded-3xl bg-white p-10 text-center text-slate-500 shadow-sm shadow-slate-200/40">
+          <div className="rounded-3xl bg-dark-card p-10 text-center text-dark-secondary">
             Loading projects...
           </div>
         ) : projectsError ? (
-          <div className="rounded-3xl bg-white p-10 text-center text-rose-600 shadow-sm shadow-slate-200/40">
+          <div className="rounded-3xl bg-dark-card p-10 text-center text-red-500">
             {projectsError}
           </div>
         ) : (
@@ -184,7 +184,7 @@ function HomePageContent() {
             {isSignedIn && (
               <section>
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-slate-900">
+                  <h2 className="text-xl font-semibold text-dark-primary">
                     My Projects
                   </h2>
                 </div>
@@ -192,11 +192,11 @@ function HomePageContent() {
                   {/* Create New Project Card */}
                   <article
                     onClick={() => setIsModalOpen(true)}
-                    className="cursor-pointer min-h-[200px] flex items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 shadow-sm hover:border-blue-500 hover:bg-blue-50 transition"
+                    className="cursor-pointer min-h-[200px] flex items-center justify-center rounded-3xl border border-dashed border-dark-subtle bg-dark-tertiary p-6 hover:border-accent-blue hover:bg-dark-secondary transition"
                   >
                     <div className="text-center">
                       <svg
-                        className="h-12 w-12 mx-auto text-slate-400 hover:text-blue-600 transition"
+                        className="h-12 w-12 mx-auto text-dark-muted hover:text-accent-blue transition"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -208,7 +208,7 @@ function HomePageContent() {
                           d="M12 4v16m8-8H4"
                         />
                       </svg>
-                      <p className="mt-2 text-sm font-medium text-slate-500 hover:text-blue-600 transition">
+                      <p className="mt-2 text-sm font-medium text-dark-secondary hover:text-accent-blue transition">
                         New Project
                       </p>
                     </div>
@@ -237,15 +237,15 @@ function HomePageContent() {
             {/* Recommended Section */}
             <section>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-slate-900">
+                <h2 className="text-xl font-semibold text-dark-primary">
                   Recommended
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-dark-secondary">
                   Based on your profile tags
                 </p>
               </div>
               {otherProjects.length === 0 ? (
-                <div className="rounded-3xl bg-white p-10 text-center text-slate-500 shadow-sm shadow-slate-200/40">
+                <div className="rounded-3xl bg-dark-card p-10 text-center text-dark-secondary">
                   No recommended projects yet.
                 </div>
               ) : (
@@ -273,7 +273,7 @@ function HomePageContent() {
             {otherProjects.length > 6 && (
               <section>
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-slate-900">
+                  <h2 className="text-xl font-semibold text-dark-primary">
                     Other Projects
                   </h2>
                 </div>
@@ -325,34 +325,34 @@ function ProjectCard({
   return (
     <article
       onClick={onClick}
-      className="cursor-pointer min-h-[200px] overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/40 transition hover:border-slate-300 hover:shadow-md"
+      className="cursor-pointer min-h-[200px] overflow-hidden rounded-3xl border border-dark-subtle bg-dark-card p-6 transition hover:border-dark hover:bg-dark-tertiary"
     >
       <div className="flex flex-wrap items-center justify-between gap-3 min-w-0">
         <div className="min-w-0">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+          <p className="text-xs uppercase tracking-[0.2em] text-dark-muted">
             Project
           </p>
-          <h3 className="mt-1 max-w-full truncate text-lg font-semibold text-slate-900">
+          <h3 className="mt-1 max-w-full truncate text-lg font-semibold text-dark-primary">
             {project.name}
           </h3>
         </div>
       </div>
       {project.description ? (
-        <p className="mt-3 text-sm leading-6 text-slate-600 line-clamp-3 break-words">
+        <p className="mt-3 text-sm leading-6 text-dark-secondary line-clamp-3 break-words">
           {project.description}
         </p>
       ) : (
-        <p className="mt-3 text-sm leading-6 text-slate-500">
+        <p className="mt-3 text-sm leading-6 text-dark-muted">
           No description provided.
         </p>
       )}
-      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-dark-secondary">
         <span>
           {new Date(project.createdAt).toLocaleDateString()}
         </span>
-        <span className="h-1 w-1 rounded-full bg-slate-300" />
+        <span className="h-1 w-1 rounded-full bg-dark-subtle" />
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-slate-100">
+          <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-dark-tertiary">
             {project.avatarUrl ? (
               <img
                 src={project.avatarUrl}
@@ -360,14 +360,14 @@ function ProjectCard({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <span className="flex h-full w-full items-center justify-center bg-slate-300 text-xs font-semibold uppercase text-slate-700">
+              <span className="flex h-full w-full items-center justify-center bg-dark-subtle text-xs font-semibold uppercase text-dark-primary">
                 {(project.userFullName ?? project.clerkUserId).slice(0, 2)}
               </span>
             )}
           </div>
           <Link
             href={`/profile/${encodeURIComponent(project.clerkUserId)}`}
-            className="text-slate-500 hover:text-slate-700"
+            className="text-dark-secondary hover:text-accent-blue"
             onClick={(e) => e.stopPropagation()}
           >
             {project.userFullName?.trim()

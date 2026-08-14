@@ -23,24 +23,24 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm"
+          className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-80 transform bg-slate-50 shadow-2xl transition-transform duration-300 ${
+        className={`fixed top-0 right-0 z-50 h-full w-80 transform bg-dark-card shadow-2xl transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-200">
-            <h2 className="text-xl font-semibold text-slate-900">Settings</h2>
+          <div className="flex items-center justify-between p-4 border-b border-dark-subtle">
+            <h2 className="text-xl font-semibold text-dark-primary">Settings</h2>
             <button
               onClick={onClose}
-              className="rounded-full p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+              className="rounded-full p-2 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
             >
               <svg
                 className="h-6 w-6"
@@ -63,7 +63,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="space-y-2">
               <Link
                 href="/profile"
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-700 hover:bg-slate-100"
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
                 onClick={onClose}
               >
                 <svg
@@ -84,7 +84,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               <Link
                 href="/profile/subscription"
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-slate-700 hover:bg-slate-100"
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
                 onClick={onClose}
               >
                 <svg

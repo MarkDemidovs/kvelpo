@@ -7,4 +7,59 @@
 
 html, body {
   overflow-x: hidden;
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Dark theme utility classes */
+.bg-dark-primary {
+  background-color: #000000;
+}
+
+.bg-dark-secondary {
+  background-color: #111111;
+}
+
+.bg-dark-tertiary {
+  background-color: #1a1a1a;
+}
+
+.bg-dark-card {
+  background-color: #0a0a0a;
+}
+
+.border-dark {
+  border-color: #333333;
+}
+
+.border-dark-subtle {
+  border-color: #222222;
+}
+
+.text-dark-primary {
+  color: #ffffff;
+}
+
+.text-dark-secondary {
+  color: #aaaaaa;
+}
+
+.text-dark-muted {
+  color: #666666;
+}
+
+.text-accent-blue {
+  color: #3b82f6;
+}
+
+.bg-accent-blue {
+  background-color: #3b82f6;
+}
+
+.border-accent-blue {
+  border-color: #3b82f6;
+}
+
+.hover-bg-accent-blue:hover {
+  background-color: #3b82f6;
 }
