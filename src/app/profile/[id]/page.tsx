@@ -144,7 +144,7 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
         ) : (
           <div>
             <p className="text-xl font-semibold text-dark-primary">Profile not found</p>
-            <p className="mt-3 text-sm leading-7 text-slate-600">We couldn’t find a profile for this user.</p>
+            <p className="mt-3 text-sm leading-7 text-dark-secondary">We couldn’t find a profile for this user.</p>
           </div>
         )}
       </div>

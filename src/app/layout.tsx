@@ -37,6 +37,7 @@ export default function RootLayout({
               <div className="flex flex-wrap gap-4">
                 <Link href="/terms" className="hover:text-dark-primary">Terms</Link>
                 <Link href="/privacy" className="hover:text-dark-primary">Privacy</Link>
+                <Link href="/cookies" className="hover:text-dark-primary">Cookies</Link>
                 <Link href="/consent" className="hover:text-dark-primary">Consent</Link>
               </div>
             </div>

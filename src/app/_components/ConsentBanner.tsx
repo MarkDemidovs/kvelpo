@@ -17,32 +17,38 @@ export default async function ConsentBanner() {
   }
 
   return (
-    <div className="border-b border-dark-subtle bg-dark-tertiary px-4 py-3 text-sm text-dark-primary">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <p>
-          We use cookies and account data to provide this service. For EU visitors, we need your consent to continue.
-        </p>
-        <form action={saveConsentAction} className="flex flex-wrap items-center gap-2">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-dark-subtle bg-dark-card px-4 py-4 text-sm text-dark-primary shadow-lg">
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex-1">
+          <p className="font-semibold text-dark-primary mb-1">Privacy & Cookie Consent</p>
+          <p className="text-dark-secondary">
+            We use cookies and process your data to provide our services and improve your experience. 
+            By clicking "Accept All", you consent to our use of cookies as described in our 
+            <a href="/cookies" className="text-accent-blue hover:underline">Cookie Policy</a> and 
+            <a href="/privacy" className="text-accent-blue hover:underline">Privacy Policy</a>.
+          </p>
+        </div>
+        <form action={saveConsentAction} className="flex flex-wrap items-center gap-3">
           <input type="hidden" name="termsVersion" value="1" />
           <input type="hidden" name="privacyVersion" value="1" />
           <button
             type="submit"
             name="consentAction"
             value="accept"
-            className="rounded-lg bg-accent-blue px-3 py-2 font-semibold text-dark-primary hover:bg-blue-500"
+            className="rounded-lg bg-accent-blue px-4 py-2 font-semibold text-dark-primary hover:bg-blue-500 transition"
           >
-            Accept cookies
+            Accept All
           </button>
           <button
             type="submit"
             name="consentAction"
             value="reject"
-            className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 font-semibold text-dark-secondary hover:bg-dark-tertiary"
+            className="rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 font-semibold text-dark-secondary hover:bg-dark-card transition"
           >
-            Reject cookies
+            Essential Only
           </button>
-          <a href="/consent" className="text-sm font-medium text-accent-blue underline">
-            Learn more
+          <a href="/consent" className="rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 font-medium text-dark-secondary hover:bg-dark-card transition">
+            Manage Preferences
           </a>
         </form>
       </div>

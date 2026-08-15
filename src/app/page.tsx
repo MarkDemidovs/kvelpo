@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useRef, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -40,11 +40,16 @@ function HomePageContent() {
   const { isSignedIn, userId } = useAuth();
   const searchParams = useSearchParams();
   const [allProjects, setAllProjects] = useState<Project[]>([]);
+  const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
   const [projectsError, setProjectsError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
   const handleProjectDeleted = (projectId: number) => {
     setAllProjects((prev) => prev.filter((project) => project.id !== projectId));
@@ -52,38 +57,81 @@ function HomePageContent() {
     setSelectedProject(null);
   };
 
-  useEffect(() => {
-    const fetchProjects = async () => {
+  const fetchProjects = useCallback(async (pageNum: number, isLoadMore = false) => {
+    if (isLoadMore) {
+      setLoadingMore(true);
+    } else {
       setLoading(true);
-      setProjectsError(null);
+    }
+    setProjectsError(null);
 
-      try {
-        const res = await fetch('/api/projects?mode=public');
-        const data = (await res.json().catch(() => null)) as unknown;
+    try {
+      const res = await fetch(`/api/projects?mode=public&page=${pageNum}&limit=12`);
+      const data = (await res.json().catch(() => null)) as unknown;
 
-        if (!res.ok) {
-          const errorMessage = isApiError(data)
-            ? data.error ?? data.message
-            : `Failed to fetch projects (${res.status})`;
-          throw new Error(errorMessage);
-        }
+      if (!res.ok) {
+        const errorMessage = isApiError(data)
+          ? data.error ?? data.message
+          : `Failed to fetch projects (${res.status})`;
+        throw new Error(errorMessage);
+      }
 
-        if (!Array.isArray(data)) {
-          throw new Error('Unexpected response format from project API');
-        }
+      if (!Array.isArray(data)) {
+        throw new Error('Unexpected response format from project API');
+      }
 
-        setAllProjects(data as Project[]);
-      } catch (err) {
-        console.error('Failed to fetch projects:', err);
+      const newProjects = data as Project[];
+      
+      if (isLoadMore) {
+        setDisplayedProjects(prev => [...prev, ...newProjects]);
+        setAllProjects(prev => [...prev, ...newProjects]);
+      } else {
+        setAllProjects(newProjects);
+        setDisplayedProjects(newProjects);
+      }
+
+      setHasMore(newProjects.length === 12);
+    } catch (err) {
+      console.error('Failed to fetch projects:', err);
+      if (!isLoadMore) {
         setAllProjects([]);
-        setProjectsError(err instanceof Error ? err.message : String(err));
-      } finally {
-        setLoading(false);
+        setDisplayedProjects([]);
+      }
+      setProjectsError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchProjects(1, false);
+  }, [fetchProjects]);
+
+  // Infinite scroll with Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasMore && !loading && !loadingMore) {
+          const nextPage = page + 1;
+          setPage(nextPage);
+          void fetchProjects(nextPage, true);
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
       }
     };
-
-    void fetchProjects();
-  }, []);
+  }, [hasMore, loading, loadingMore, page, fetchProjects]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -147,11 +195,11 @@ function HomePageContent() {
 
   // Split projects into groups
   const myProjects = isSignedIn
-    ? allProjects.filter((p) => p.clerkUserId === userId)
+    ? displayedProjects.filter((p) => p.clerkUserId === userId)
     : [];
   const otherProjects = isSignedIn
-    ? allProjects.filter((p) => p.clerkUserId !== userId)
-    : allProjects;
+    ? displayedProjects.filter((p) => p.clerkUserId !== userId)
+    : displayedProjects;
 
   return (
     <main className="min-h-screen bg-dark-primary text-dark-primary overflow-x-hidden pt-24">
@@ -189,7 +237,7 @@ function HomePageContent() {
                     My Projects
                   </h2>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {/* Create New Project Card */}
                   <article
                     onClick={() => setIsModalOpen(true)}
@@ -250,7 +298,7 @@ function HomePageContent() {
                   No recommended projects yet.
                 </div>
               ) : (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {otherProjects.slice(0, 6).map((project) => (
                     <ProjectCard
                       key={project.id}
@@ -278,7 +326,7 @@ function HomePageContent() {
                     Other Projects
                   </h2>
                 </div>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {otherProjects.slice(6).map((project) => (
                     <ProjectCard
                       key={project.id}
@@ -296,6 +344,15 @@ function HomePageContent() {
                   ))}
                 </div>
               </section>
+            )}
+            
+            {/* Infinite scroll sentinel */}
+            {hasMore && !loading && (
+              <div ref={observerTarget} className="py-8">
+                {loadingMore && (
+                  <div className="text-center text-dark-secondary">Loading more projects...</div>
+                )}
+              </div>
             )}
           </div>
         )}

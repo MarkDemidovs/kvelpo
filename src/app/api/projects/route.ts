@@ -1,7 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { eq, or, sql, inArray } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 
 type ClerkAvatarUser = {
   id: string;
@@ -28,10 +28,6 @@ type ProjectListItem = {
   rolesNeededCount: number;
 };
 
-function normalizeStringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.map((item) => String(item).toLowerCase()) : [];
-}
-
 async function attachClerkAvatars(projects: ProjectListItem[]): Promise<ProjectListItem[]> {
   if (projects.length === 0) {
     return projects.map((project) => ({ ...project, avatarUrl: null }));
@@ -56,6 +52,9 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const mode = url.searchParams.get("mode") ?? "public";
+    const page = parseInt(url.searchParams.get("page") ?? "1", 10);
+    const limit = parseInt(url.searchParams.get("limit") ?? "12", 10);
+    const offset = (page - 1) * limit;
 
     console.log("DATABASE_URL:", process.env.DATABASE_URL ? "set" : "not set");
 
@@ -74,7 +73,9 @@ export async function GET(request: Request) {
       })
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
-      .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId));
+      .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId))
+      .limit(limit)
+      .offset(offset);
 
     let projectsData: ProjectListItem[] = [];
     if (mode === "own") {
@@ -87,58 +88,9 @@ export async function GET(request: Request) {
     } else {
       projectsData = await baseQuery.where(() => eq(projects.isPublic, true)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     }
-    // If user is signed in and requesting public feed, compute match scores
-    if (userId && mode === "public") {
-      // fetch profile skills
-      const [profile] = await db.select({ skills: profiles.skills }).from(profiles).where(eq(profiles.clerkUserId, userId));
-      const userSkills: string[] = normalizeStringArray(profile?.skills);
 
-      // fetch roles for returned projects
-      if (!projectsData || projectsData.length === 0) {
-        return Response.json(projectsData);
-      }
-      const projectIds = projectsData.map((p) => p.id);
-      const rolesByProject: Record<number, string[]> = {};
-      if (projectIds.length > 0) {
-        const roles = await db.select({ projectId: projectRolesNeeded.projectId, title: projectRolesNeeded.title }).from(projectRolesNeeded).where(inArray(projectRolesNeeded.projectId, projectIds));
-        for (const r of roles) {
-          const projectRoles = rolesByProject[r.projectId] ?? [];
-          projectRoles.push(String(r.title).toLowerCase());
-          rolesByProject[r.projectId] = projectRoles;
-        }
-      }
-
-      // compute recency bounds
-      const createdAts = projectsData.map((p) => new Date(p.createdAt).getTime());
-      const maxCreated = Math.max(...createdAts);
-      const minCreated = Math.min(...createdAts);
-      const createdRange = Math.max(1, maxCreated - minCreated);
-
-      const scored = projectsData.map((p) => {
-        const roles = rolesByProject[p.id] ?? [];
-        const tags = normalizeStringArray(p.tags);
-
-        // match count: count of userSkills that appear in role titles or tags
-        let matchCount = 0;
-        for (const skill of userSkills) {
-          const inRoles = roles.some((r) => r.includes(skill));
-          const inTags = tags.some((t: string) => t.includes(skill));
-          if (inRoles || inTags) matchCount += 1;
-        }
-
-        // recency normalized 0..1
-        const created = new Date(p.createdAt).getTime();
-        const recency = (created - minCreated) / createdRange;
-
-        // score weights: match heavy
-        const score = matchCount * 2 + recency;
-        return { project: p, score };
-      });
-
-      scored.sort((a, b) => b.score - a.score);
-      const sorted = scored.map((s) => s.project);
-      return Response.json(await attachClerkAvatars(sorted));
-    }
+    // Sort by creation date in memory
+    projectsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return Response.json(await attachClerkAvatars(projectsData));
   } catch (error) {

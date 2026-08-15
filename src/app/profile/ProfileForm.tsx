@@ -321,6 +321,9 @@ export default function ProfileForm() {
           <Link href="/consent" className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-tertiary">
             Consent center
           </Link>
+          <Link href="/cookies" className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-tertiary">
+            Cookie policy
+          </Link>
           <Link href="/terms" className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-tertiary">
             Terms of service
           </Link>
