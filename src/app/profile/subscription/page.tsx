@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 type MembershipType = "free" | "pro" | "team";
 
@@ -37,6 +38,7 @@ type ProfileResponse = {
 };
 
 function SubscriptionPageContent() {
+  const { isSignedIn } = useAuth();
   const searchParams = useSearchParams();
   const [membership, setMembership] = useState<MembershipType>("free");
   const [loading, setLoading] = useState(false);
@@ -192,6 +194,17 @@ function SubscriptionPageContent() {
       setLoading(false);
     }
   };
+
+  if (!isSignedIn) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <div className="rounded-3xl border border-dark-subtle bg-dark-card p-10 text-center">
+          <h1 className="text-2xl font-semibold text-dark-primary mb-4">Sign in to manage subscription</h1>
+          <p className="text-dark-secondary">You need to be signed in to view your subscription details.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 p-4">
