@@ -27,9 +27,9 @@ export async function GET(
       expand: ["subscription", "customer_details"],
     });
 
-    const subscription = session.subscription as Stripe.Subscription | undefined;
+    const subscription = session.subscription as string | Stripe.Subscription | null | undefined;
     
-    const subscriptionItem = subscription?.items?.data[0];
+    const subscriptionItem = subscription && typeof subscription !== 'string' ? subscription.items?.data[0] : undefined;
 
     const membership = session.metadata?.membership as "pro" | "team" | undefined;
     const sessionUserId = session.metadata?.userId;
@@ -50,7 +50,7 @@ export async function GET(
           typeof session.customer === "string" ? session.customer : session.customer.id;
       }
 
-      if (subscription) {
+      if (subscription && typeof subscription !== 'string') {
         updateData.stripeSubscriptionId = subscription.id;
         updateData.subscriptionStartDate = subscriptionItem?.current_period_start
           ? new Date(subscriptionItem.current_period_start * 1000)
@@ -63,18 +63,21 @@ export async function GET(
       await db.update(profiles).set(updateData).where(eq(profiles.clerkUserId, userId));
     }
 
+    let subscriptionData = null;
+    if (subscription && typeof subscription !== 'string') {
+      subscriptionData = {
+        id: subscription.id,
+        status: subscription.status,
+        current_period_start: subscriptionItem?.current_period_start ?? null,
+        current_period_end: subscriptionItem?.current_period_end ?? null,
+      };
+    }
+
     return NextResponse.json({
       id: session.id,
       status: session.status,
       payment_status: session.payment_status,
-      subscription: subscription
-        ? {
-            id: subscription.id,
-            status: subscription.status,
-            current_period_start: subscriptionItem?.current_period_start ?? null,
-            current_period_end: subscriptionItem?.current_period_end ?? null,
-          }
-        : null,
+      subscription: subscriptionData,
       amount_total: session.amount_total,
       currency: session.currency,
       customer_email: session.customer_details?.email ?? null,
