@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { messages, profiles } from "~/server/db/schema";
 import { eq, desc } from "drizzle-orm";
+import { canAccessProjectChat } from "~/server/queries";
 
 export async function GET(req: Request) {
   const { userId } = await auth();
@@ -18,6 +19,14 @@ export async function GET(req: Request) {
     }
 
     const projectIdNum = parseInt(projectId);
+    if (isNaN(projectIdNum)) {
+      return new Response("Invalid project ID", { status: 400 });
+    }
+
+    if (!(await canAccessProjectChat(projectIdNum, userId))) {
+      return new Response("Unauthorized", { status: 403 });
+    }
+
     const messageList = await db
       .select({
         id: messages.id,
@@ -60,6 +69,10 @@ export async function POST(req: Request) {
 
     if (!projectId || !messageText?.trim()) {
       return new Response("Project ID and message required", { status: 400 });
+    }
+
+    if (!(await canAccessProjectChat(projectId, userId))) {
+      return new Response("Unauthorized", { status: 403 });
     }
 
     await db.insert(messages).values({

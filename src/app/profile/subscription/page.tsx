@@ -42,6 +42,7 @@ function SubscriptionPageContent() {
   const searchParams = useSearchParams();
   const [membership, setMembership] = useState<MembershipType>("free");
   const [loading, setLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<SessionData | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
@@ -195,6 +196,31 @@ function SubscriptionPageContent() {
     }
   };
 
+  const openBillingPortal = async () => {
+    setError(null);
+    try {
+      setPortalLoading(true);
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? `Unable to open billing portal: ${res.status}`);
+      }
+
+      const data = (await res.json()) as { url?: string };
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      throw new Error("No billing portal URL returned from server.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
   if (!isSignedIn) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8">
@@ -222,6 +248,16 @@ function SubscriptionPageContent() {
             <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Current plan</p>
             <p className="mt-2 text-xl font-semibold text-dark-primary">{membership.toUpperCase()}</p>
             <p className="text-xs text-dark-secondary">{selectedPlan?.description}</p>
+            {membership !== "free" ? (
+              <button
+                type="button"
+                onClick={() => void openBillingPortal()}
+                disabled={portalLoading}
+                className="mt-3 inline-flex items-center justify-center rounded-full border border-dark-subtle bg-dark-card px-4 py-2 text-xs font-semibold text-dark-primary transition hover:bg-dark-tertiary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {portalLoading ? "Opening..." : "Manage billing"}
+              </button>
+            ) : null}
           </div>
         </div>
 

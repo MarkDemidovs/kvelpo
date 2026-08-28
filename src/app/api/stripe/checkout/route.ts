@@ -1,22 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { getStripe } from "~/server/stripe";
-
-type PaidMembership = "pro" | "team";
-
-/**
- * Maps a Stripe price ID to the membership tier it grants. Built from the
- * public price env vars so the client and server stay in sync. The membership
- * is derived on the server so the client can never tamper with which tier a
- * checkout grants.
- */
-function getPriceMembershipMap(): Record<string, PaidMembership> {
-  const map: Record<string, PaidMembership> = {};
-  const proPrice = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO;
-  const teamPrice = process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM;
-  if (proPrice) map[proPrice] = "pro";
-  if (teamPrice) map[teamPrice] = "team";
-  return map;
-}
+import { getStripe, getPriceMembershipMap, resolveOrigin } from "~/server/stripe";
 
 export async function POST(req: Request) {
   try {
@@ -43,7 +26,7 @@ export async function POST(req: Request) {
     }
 
     const stripe = getStripe();
-    const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const origin = resolveOrigin();
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",

@@ -16,14 +16,20 @@ export async function saveConsentAction(formData: FormData) {
 
   if (status === "accepted" && userId) {
     try {
-      await db.insert(userConsent).values({
-        userId,
-        termsVersion,
-        privacyVersion,
-        acceptedAt: new Date(),
-      });
-    } catch {
-      // Ignore database write failures for now so the consent flow remains usable.
+      await db
+        .insert(userConsent)
+        .values({
+          userId,
+          termsVersion,
+          privacyVersion,
+          acceptedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: userConsent.userId,
+          set: { termsVersion, privacyVersion, acceptedAt: new Date() },
+        });
+    } catch (error) {
+      console.error("Failed to record consent:", error);
     }
   }
 

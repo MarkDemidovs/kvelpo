@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import getStripe from "~/server/stripe";
-import { db } from "~/server/db";
-import { profiles } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import getStripe, { syncMembershipFromSubscription } from "~/server/stripe";
 import type Stripe from "stripe";
 
 export async function GET(
@@ -28,39 +25,22 @@ export async function GET(
     });
 
     const subscription = session.subscription as string | Stripe.Subscription | null | undefined;
-    
+
     const subscriptionItem = subscription && typeof subscription !== 'string' ? subscription.items?.data[0] : undefined;
 
-    const membership = session.metadata?.membership as "pro" | "team" | undefined;
     const sessionUserId = session.metadata?.userId;
 
     // Persist the membership on the success redirect. This makes the upgrade
-    // durable even when the Stripe webhook isn't configured. We only trust the
+    // durable even when the Stripe webhook is delayed. We only trust the
     // session if it's paid and its metadata belongs to the signed-in user.
     if (
       session.payment_status === "paid" &&
-      membership &&
+      subscription &&
+      typeof subscription !== "string" &&
       sessionUserId &&
       sessionUserId === userId
     ) {
-      const updateData: Record<string, unknown> = { membership };
-
-      if (session.customer) {
-        updateData.stripeCustomerId =
-          typeof session.customer === "string" ? session.customer : session.customer.id;
-      }
-
-      if (subscription && typeof subscription !== 'string') {
-        updateData.stripeSubscriptionId = subscription.id;
-        updateData.subscriptionStartDate = subscriptionItem?.current_period_start
-          ? new Date(subscriptionItem.current_period_start * 1000)
-          : new Date();
-        updateData.subscriptionEndDate = subscriptionItem?.current_period_end
-          ? new Date(subscriptionItem.current_period_end * 1000)
-          : null;
-      }
-
-      await db.update(profiles).set(updateData).where(eq(profiles.clerkUserId, userId));
+      await syncMembershipFromSubscription(subscription, userId);
     }
 
     let subscriptionData = null;

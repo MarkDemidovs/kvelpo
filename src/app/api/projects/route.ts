@@ -3,6 +3,14 @@ import { db } from "~/server/db";
 import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
 import { eq, or, sql } from "drizzle-orm";
 
+type MembershipStatus = "free" | "pro" | "team";
+
+const membershipProjectLimits: Record<MembershipStatus, number> = {
+  free: 1,
+  pro: 3,
+  team: 10,
+};
+
 type ClerkAvatarUser = {
   id: string;
   imageUrl?: string | null;
@@ -55,8 +63,6 @@ export async function GET(request: Request) {
     const page = parseInt(url.searchParams.get("page") ?? "1", 10);
     const limit = parseInt(url.searchParams.get("limit") ?? "12", 10);
     const offset = (page - 1) * limit;
-
-    console.log("DATABASE_URL:", process.env.DATABASE_URL ? "set" : "not set");
 
     const baseQuery = db
       .select({
@@ -131,29 +137,36 @@ export async function POST(request: Request) {
       return Response.json({ error: "Name is required" }, { status: 400 });
     }
 
-    const existingProjects = await db.select({ id: projects.id }).from(projects).where(eq(projects.clerkUserId, userId));
+    let limitError: string | null = null;
 
-    const membership = (await db.select({ status: profiles.membership }).from(profiles).where(eq(profiles.clerkUserId, userId)).limit(1))?.[0]?.status as MembershipStatus ?? "free";
+    const newProject = await db.transaction(async (tx) => {
+      // Serialize project-creation checks per user so two concurrent requests
+      // can't both pass the count check before either insert commits.
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${userId}))`);
 
-    type MembershipStatus = "free" | "pro" | "team";
+      const existingProjects = await tx.select({ id: projects.id }).from(projects).where(eq(projects.clerkUserId, userId));
 
-    const membershipProjectLimits: Record<MembershipStatus, number> = {
-      free: 1,
-      pro: 3,
-      team: 10,
-    };
+      const membership = (await tx.select({ status: profiles.membership }).from(profiles).where(eq(profiles.clerkUserId, userId)).limit(1))?.[0]?.status as MembershipStatus ?? "free";
 
-    if (existingProjects.length >= membershipProjectLimits[membership]) {
-      return Response.json({ error: `Your membership status is ${membership}, which means that you can make a maximum of ${membershipProjectLimits[membership]} projects` }, { status: 400 });
+      if (existingProjects.length >= membershipProjectLimits[membership]) {
+        limitError = `Your membership status is ${membership}, which means that you can make a maximum of ${membershipProjectLimits[membership]} projects`;
+        return undefined;
+      }
+
+      const [created] = await tx.insert(projects).values({
+        clerkUserId: userId,
+        name,
+        description,
+        isPublic,
+        tags,
+      }).returning();
+
+      return created;
+    });
+
+    if (limitError) {
+      return Response.json({ error: limitError }, { status: 400 });
     }
-
-    const [newProject] = await db.insert(projects).values({
-      clerkUserId: userId,
-      name,
-      description,
-      isPublic,
-      tags,
-    }).returning();
 
     if (!newProject) {
       return Response.json({ error: "Failed to create project" }, { status: 500 });

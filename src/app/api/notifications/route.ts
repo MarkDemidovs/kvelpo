@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { notifications } from "~/server/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export async function GET() {
   const { userId } = await auth();
@@ -48,7 +48,15 @@ export async function PATCH(req: Request) {
       return new Response("Invalid notification id", { status: 400 });
     }
 
-    await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
+    const [updated] = await db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(and(eq(notifications.id, id), eq(notifications.clerkUserId, userId)))
+      .returning({ id: notifications.id });
+
+    if (!updated) {
+      return new Response("Notification not found", { status: 404 });
+    }
 
     return new Response(null, { status: 204 });
   } catch (error) {

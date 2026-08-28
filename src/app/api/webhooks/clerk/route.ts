@@ -1,9 +1,9 @@
 import { db } from "~/server/db";
-import { profiles, projects } from "~/server/db/schema";
+import { profiles } from "~/server/db/schema";
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { eraseUserAccountData } from "~/server/queries";
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -22,15 +22,16 @@ export async function POST(req: Request) {
     return new NextResponse("Missing svix headers", { status: 400 });
   }
 
-  const payload = await req.json();
-  const body = JSON.stringify(payload);
+  // Signature verification MUST run against the raw request bytes — re-serializing
+  // a parsed-then-stringified copy is not guaranteed to match what was signed.
+  const rawBody = await req.text();
 
   const wh = new Webhook(WEBHOOK_SECRET);
 
   let evt: { type: string; data: { id: string } };
 
   try {
-    evt = wh.verify(body, {
+    evt = wh.verify(rawBody, {
       "svix-id": svix_id,
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
@@ -66,11 +67,14 @@ export async function POST(req: Request) {
     const clerkUserId = evt.data.id;
 
     try {
-      await db.delete(projects).where(eq(projects.clerkUserId, clerkUserId));
-      console.log(`Deleted project records for user: ${clerkUserId}`);
+      // Safety net for deletions triggered outside the app (e.g. the Clerk
+      // dashboard) — the app's own delete flow already runs this, and it's
+      // safe to run twice.
+      await eraseUserAccountData(clerkUserId);
+      console.log(`Erased account data for user: ${clerkUserId}`);
     } catch (error) {
-      console.error("Failed to delete project records:", error);
-      return new NextResponse("Failed to delete project records", { status: 500 });
+      console.error("Failed to erase account data:", error);
+      return new NextResponse("Failed to erase account data", { status: 500 });
     }
   }
 
