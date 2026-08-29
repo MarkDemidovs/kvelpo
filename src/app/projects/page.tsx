@@ -117,7 +117,7 @@ export default function ProjectsPage() {
             <Link
               key={project.id}
               href={`/projects/${project.id}`}
-              className="card-raised block p-5"
+              className="card-raised block min-w-0 p-5"
             >
               <p className="label-eyebrow">Project</p>
               <h3 className="mt-2 truncate text-[17px] font-semibold text-dark-primary">
@@ -133,7 +133,7 @@ export default function ProjectsPage() {
               <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-dark-secondary">
                 <span className="text-xs text-dark-muted">{new Date(project.createdAt).toLocaleDateString()}</span>
                 <span className="h-1 w-1 rounded-full bg-dark-subtle" />
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 items-center gap-2">
                   <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-dark-tertiary">
                     {project.avatarUrl ? (
                       <Image
@@ -149,8 +149,8 @@ export default function ProjectsPage() {
                       </span>
                     )}
                   </div>
-                  <span className="truncate text-[13px]">
-                    {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId}
+                  <span className="min-w-0 truncate text-[13px]">
+                    {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId.slice(0, 12)}
                   </span>
                 </div>
               </div>

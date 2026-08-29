@@ -175,7 +175,7 @@ export default function ProjectDetailPage() {
                     </button>
                   ) : null}
                 </div>
-                <div className="mt-3 flex items-center gap-2.5">
+                <div className="mt-3 flex min-w-0 items-center gap-2.5">
                   <div className="h-6.5 w-6.5 shrink-0 overflow-hidden rounded-full bg-dark-tertiary">
                     {project.avatarUrl ? (
                       <Image src={project.avatarUrl} alt="" width={26} height={26} className="h-full w-full object-cover" />
@@ -185,10 +185,10 @@ export default function ProjectDetailPage() {
                       </span>
                     )}
                   </div>
-                  <Link href={`/profile/${encodeURIComponent(project.clerkUserId)}`} className="text-sm text-dark-secondary hover:text-accent-blue">
-                    {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId}
+                  <Link href={`/profile/${encodeURIComponent(project.clerkUserId)}`} className="min-w-0 truncate text-sm text-dark-secondary hover:text-accent-blue">
+                    {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId.slice(0, 12)}
                   </Link>
-                  <span className="text-xs text-dark-muted">&middot; Owner</span>
+                  <span className="shrink-0 text-xs text-dark-muted">&middot; Owner</span>
                 </div>
               </div>
               <span className="whitespace-nowrap rounded-full bg-dark-tertiary px-3.5 py-2 text-[13px] text-dark-secondary">
@@ -271,9 +271,9 @@ export default function ProjectDetailPage() {
                       {project.applications.map((app) => (
                         <div key={app.id} className="card-raised p-5">
                           <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <Link href={`/profile/${encodeURIComponent(app.clerkUserId)}`} className="text-[15px] font-semibold text-dark-primary hover:text-accent-blue">
-                                {app.applicantFullName?.trim() ? app.applicantFullName.trim() : app.clerkUserId}
+                            <div className="min-w-0">
+                              <Link href={`/profile/${encodeURIComponent(app.clerkUserId)}`} className="block truncate text-[15px] font-semibold text-dark-primary hover:text-accent-blue">
+                                {app.applicantFullName?.trim() ? app.applicantFullName.trim() : app.clerkUserId.slice(0, 12)}
                               </Link>
                               <p className="mt-0.5 text-[13px] text-dark-muted">Applied for {app.roleTitle ?? "a role"}</p>
                             </div>

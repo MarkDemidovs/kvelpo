@@ -474,9 +474,9 @@ function ProjectCard({
   return (
     <article
       onClick={onClick}
-      className="card-raised flex min-h-[200px] cursor-pointer flex-col gap-4 p-5"
+      className="card-raised flex min-h-[200px] min-w-0 cursor-pointer flex-col gap-4 p-5"
     >
-      <div className="flex items-center gap-2.5">
+      <div className="flex min-w-0 items-center gap-2.5">
         <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-dark-tertiary">
           {project.avatarUrl ? (
             <Image
@@ -494,10 +494,10 @@ function ProjectCard({
         </div>
         <Link
           href={`/profile/${encodeURIComponent(project.clerkUserId)}`}
-          className="text-[13px] text-dark-muted hover:text-accent-blue"
+          className="min-w-0 truncate text-[13px] text-dark-muted hover:text-accent-blue"
           onClick={(e) => e.stopPropagation()}
         >
-          {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId}
+          {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId.slice(0, 12)}
         </Link>
       </div>
 
