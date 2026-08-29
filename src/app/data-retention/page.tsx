@@ -1,10 +1,8 @@
+import LegalPageShell from "~/app/_components/LegalPageShell";
+
 export default function DataRetentionPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-16 bg-dark-primary">
-      <div className="rounded-3xl border border-dark-subtle bg-dark-card p-8">
-        <h1 className="text-3xl font-semibold text-dark-primary mb-8">Data Retention Policy</h1>
-        
-        <div className="space-y-8 text-dark-secondary">
+    <LegalPageShell title="Data Retention Policy">
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: August 15, 2026</h2>
             <p className="text-sm">
@@ -177,8 +175,6 @@ export default function DataRetentionPage() {
               <p className="text-sm"><strong>Address:</strong> [Your Business Address]</p>
             </div>
           </section>
-        </div>
-      </div>
-    </main>
+    </LegalPageShell>
   );
 }

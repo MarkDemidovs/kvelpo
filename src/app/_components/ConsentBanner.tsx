@@ -31,23 +31,13 @@ export default async function ConsentBanner() {
         <form action={saveConsentAction} className="flex flex-wrap items-center gap-3">
           <input type="hidden" name="termsVersion" value="1" />
           <input type="hidden" name="privacyVersion" value="1" />
-          <button
-            type="submit"
-            name="consentAction"
-            value="accept"
-            className="rounded-lg bg-accent-blue px-4 py-2 font-semibold text-dark-primary hover:bg-blue-500 transition"
-          >
+          <button type="submit" name="consentAction" value="accept" className="btn-primary !px-4 !py-2 text-sm">
             Accept All
           </button>
-          <button
-            type="submit"
-            name="consentAction"
-            value="reject"
-            className="rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 font-semibold text-dark-secondary hover:bg-dark-card transition"
-          >
+          <button type="submit" name="consentAction" value="reject" className="btn-secondary !px-4 !py-2 text-sm">
             Essential Only
           </button>
-          <a href="/consent" className="rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 font-medium text-dark-secondary hover:bg-dark-card transition">
+          <a href="/consent" className="btn-secondary !px-4 !py-2 text-sm">
             Manage Preferences
           </a>
         </form>

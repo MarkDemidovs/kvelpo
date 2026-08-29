@@ -43,7 +43,7 @@ export default function ChatsPage() {
   if (!isSignedIn) {
     return (
       <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
-        <div className="rounded-3xl border border-dark-subtle bg-dark-card p-10 text-center">
+        <div className="card-raised p-10 text-center">
           <h1 className="text-2xl font-semibold text-dark-primary mb-4">Sign in to access chats</h1>
           <p className="text-dark-secondary">You need to be signed in to view your conversations.</p>
         </div>
@@ -54,43 +54,40 @@ export default function ChatsPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 bg-dark-primary">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-dark-primary">Chats</h1>
-        <p className="mt-2 text-dark-secondary">View and manage your project conversations.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Chats</h1>
+        <p className="mt-2 text-dark-secondary">Every project you own or belong to gets a chat here.</p>
       </div>
 
       {loading ? (
-        <div className="rounded-3xl bg-dark-card p-10 text-center text-dark-secondary">
+        <div className="card-raised p-10 text-center text-dark-secondary">
           Loading conversations...
         </div>
       ) : error ? (
-        <div className="rounded-3xl bg-dark-card p-10 text-center text-red-400">
+        <div className="card-raised p-10 text-center text-red-400">
           {error}
         </div>
       ) : conversations.length === 0 ? (
-        <div className="rounded-3xl bg-dark-card p-10 text-center text-dark-secondary">
+        <div className="card-raised p-10 text-center text-dark-secondary">
           <h2 className="text-xl font-semibold text-dark-primary mb-2">No conversations yet</h2>
           <p className="text-dark-secondary">Join projects or create your own to start conversations.</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {conversations.map((project) => (
             <Link
               key={project.id}
-              href={`/?project=${project.id}`}
-              className="block rounded-3xl border border-dark-subtle bg-dark-card p-6 transition hover:border-accent-blue hover:bg-dark-tertiary"
+              href={`/projects/${project.id}`}
+              className="card-raised block p-5"
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-[0.2em] text-dark-muted">Project</p>
-                  <h3 className="mt-1 truncate text-lg font-semibold text-dark-primary">
-                    {project.name ?? 'Untitled Project'}
-                  </h3>
-                </div>
-              </div>
+              <p className="label-eyebrow">Project</p>
+              <h3 className="mt-2 truncate text-[17px] font-semibold text-dark-primary">
+                {project.name ?? 'Untitled Project'}
+              </h3>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-sm text-dark-secondary">Open conversation</span>
-                <svg className="h-5 w-5 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="h-4 w-4 text-accent-blue" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <line x1="5" y1="12" x2="19" y2="12" strokeLinecap="round" />
+                  <polyline points="12 5 19 12 12 19" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
             </Link>

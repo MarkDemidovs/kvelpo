@@ -124,12 +124,24 @@ export default function ChatPopup() {
 
   const selectedConversation = conversations.find(c => c.id === selectedProjectId);
 
+  const messageBubble = (msg: Message) => (
+    <div key={msg.id} className="flex flex-col gap-0.5 text-xs">
+      <p className="font-semibold text-dark-muted">
+        {msg.senderName ?? msg.clerkUserId.slice(0, 8)}
+      </p>
+      <p className="break-words rounded-2xl rounded-bl-md bg-dark-tertiary px-3 py-2 text-[13px] text-dark-secondary">{msg.message}</p>
+      <p className="text-[0.65rem] text-dark-muted">
+        {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+      </p>
+    </div>
+  );
+
   return (
     <div className="fixed bottom-4 right-4 z-40 sm:bottom-6 sm:right-6">
       {!isOpen ? (
         <button
           onClick={() => setIsOpen(true)}
-          className="rounded-full bg-blue-600 p-3 text-white shadow-lg hover:bg-blue-700 transition flex items-center justify-center h-14 w-14"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-blue text-white shadow-lg transition hover:opacity-90"
           aria-label="Open chat"
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,32 +151,30 @@ export default function ChatPopup() {
       ) : (
         <>
           {/* Mobile Full Screen Chat */}
-          <div className="fixed inset-0 md:hidden bg-black bg-opacity-50 z-40" onClick={() => setIsOpen(false)} />
-          <div className="fixed inset-0 md:hidden z-50 flex flex-col bg-white">
+          <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setIsOpen(false)} />
+          <div className="fixed inset-0 z-50 flex flex-col bg-dark-card md:hidden">
             {/* Header */}
-            <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white p-4">
+            <div className="flex items-center justify-between gap-3 border-b border-dark-subtle p-4">
               {selectedProjectId && showConversationList ? (
-                <h3 className="font-semibold text-slate-900">Conversations</h3>
+                <h3 className="font-semibold text-dark-primary">Conversations</h3>
               ) : (
-                <>
-                  <div className="flex items-center gap-2">
-                    {selectedProjectId && (
-                      <button
-                        onClick={() => setShowConversationList(true)}
-                        className="p-1 rounded hover:bg-slate-100"
-                      >
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </button>
-                    )}
-                    <h3 className="font-semibold text-slate-900">{selectedConversation?.name ?? "Messages"}</h3>
-                  </div>
-                </>
+                <div className="flex items-center gap-2">
+                  {selectedProjectId && (
+                    <button
+                      onClick={() => setShowConversationList(true)}
+                      className="rounded p-1 hover:bg-dark-tertiary"
+                    >
+                      <svg className="h-5 w-5 text-dark-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  )}
+                  <h3 className="font-semibold text-dark-primary">{selectedConversation?.name ?? "Messages"}</h3>
+                </div>
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                className="rounded-full p-1 text-dark-muted hover:bg-dark-tertiary hover:text-dark-primary"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -173,12 +183,11 @@ export default function ChatPopup() {
             </div>
 
             {/* Content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex flex-1 flex-col overflow-hidden">
               {showConversationList ? (
-                // Conversation List
                 <div className="flex-1 overflow-y-auto">
                   {conversations.length === 0 ? (
-                    <div className="p-4 text-center text-slate-500">No conversations</div>
+                    <div className="p-4 text-center text-dark-secondary">No conversations</div>
                   ) : (
                     conversations.map((conv) => (
                       <button
@@ -187,54 +196,40 @@ export default function ChatPopup() {
                           setSelectedProjectId(conv.id);
                           setShowConversationList(false);
                         }}
-                        className="w-full px-4 py-3 text-left border-b border-slate-200 hover:bg-slate-100 transition"
+                        className="w-full border-b border-dark-subtle px-4 py-3 text-left transition hover:bg-dark-tertiary"
                       >
-                        <p className="font-medium text-slate-900">{conv.name}</p>
+                        <p className="font-medium text-dark-primary">{conv.name}</p>
                       </button>
                     ))
                   )}
                 </div>
               ) : selectedProjectId ? (
-                // Messages View
                 <>
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  <div className="flex-1 space-y-3 overflow-y-auto p-4">
                     {messages.length === 0 ? (
-                      <div className="flex items-center justify-center h-full text-slate-500 text-sm">
+                      <div className="flex h-full items-center justify-center text-sm text-dark-secondary">
                         No messages yet. Start a conversation!
                       </div>
                     ) : (
-                      messages.map((msg) => (
-                        <div key={msg.id} className="flex flex-col text-xs">
-                          <p className="font-semibold text-slate-600">
-                            {msg.senderName ?? msg.clerkUserId.slice(0, 8)}
-                          </p>
-                          <p className="text-slate-800 break-words">{msg.message}</p>
-                          <p className="text-[0.7rem] text-slate-400">
-                            {new Date(msg.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </p>
-                        </div>
-                      ))
+                      messages.map(messageBubble)
                     )}
                     <div ref={messagesEndRef} />
                   </div>
 
-                  <form onSubmit={handleSendMessage} className="border-t border-slate-200 p-4">
+                  <form onSubmit={(e) => void handleSendMessage(e)} className="border-t border-dark-subtle p-4">
                     <div className="flex gap-2">
                       <input
                         type="text"
                         value={messageInput}
                         onChange={(e) => setMessageInput(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        className="flex-1 rounded-full border border-dark-subtle bg-dark-tertiary px-3.5 py-2 text-sm text-dark-primary outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
                         disabled={isSending}
                       />
                       <button
                         type="submit"
                         disabled={isSending || !messageInput.trim()}
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                        className="rounded-full bg-accent-blue px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                       >
                         {isSending ? "..." : "Send"}
                       </button>
@@ -242,7 +237,7 @@ export default function ChatPopup() {
                   </form>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center text-slate-500">
+                <div className="flex flex-1 items-center justify-center text-dark-secondary">
                   Select a conversation
                 </div>
               )}
@@ -250,12 +245,12 @@ export default function ChatPopup() {
           </div>
 
           {/* Desktop Chat Window */}
-          <div className="hidden md:flex md:w-96 md:h-[500px] lg:w-[28rem] lg:h-[600px] rounded-xl border border-slate-300 bg-white shadow-2xl flex-col overflow-hidden">
-            <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white p-4">
-              <h3 className="font-semibold text-slate-900">Messages</h3>
+          <div className="hidden flex-col overflow-hidden rounded-2xl border border-dark-subtle bg-dark-card shadow-[0_40px_80px_-20px_rgba(0,0,0,0.85)] md:flex md:h-[500px] md:w-96 lg:h-[600px] lg:w-[28rem]">
+            <div className="flex items-center justify-between gap-3 border-b border-dark-subtle p-4">
+              <h3 className="font-semibold text-dark-primary">Messages</h3>
               <button
                 onClick={() => setIsOpen(false)}
-                className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                className="rounded-full p-1 text-dark-muted hover:bg-dark-tertiary hover:text-dark-primary"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -264,18 +259,18 @@ export default function ChatPopup() {
             </div>
 
             <div className="flex flex-1 overflow-hidden">
-              <div className="w-1/3 border-r border-slate-200 bg-slate-50 overflow-y-auto">
+              <div className="w-1/3 overflow-y-auto border-r border-dark-subtle">
                 {conversations.length === 0 ? (
-                  <div className="p-3 text-sm text-slate-500">No conversations</div>
+                  <div className="p-3 text-sm text-dark-secondary">No conversations</div>
                 ) : (
                   conversations.map((conv) => (
                     <button
                       key={conv.id}
                       onClick={() => setSelectedProjectId(conv.id)}
-                      className={`w-full px-3 py-2 text-left text-sm border-b border-slate-200 transition ${
+                      className={`w-full border-b border-dark-subtle px-3 py-2.5 text-left text-sm transition ${
                         selectedProjectId === conv.id
-                          ? "bg-blue-50 text-blue-900 font-medium"
-                          : "text-slate-700 hover:bg-slate-100"
+                          ? "bg-dark-tertiary font-medium text-dark-primary"
+                          : "text-dark-secondary hover:bg-dark-tertiary"
                       }`}
                     >
                       <p className="truncate">{conv.name}</p>
@@ -284,47 +279,34 @@ export default function ChatPopup() {
                 )}
               </div>
 
-              <div className="flex-1 flex flex-col bg-white">
+              <div className="flex flex-1 flex-col">
                 {selectedProjectId ? (
                   <>
-                    <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                    <div className="flex-1 space-y-3 overflow-y-auto p-3.5">
                       {messages.length === 0 ? (
-                        <div className="flex items-center justify-center h-full text-slate-500 text-xs">
+                        <div className="flex h-full items-center justify-center text-xs text-dark-secondary">
                           No messages yet
                         </div>
                       ) : (
-                        messages.map((msg) => (
-                          <div key={msg.id} className="flex flex-col text-xs">
-                            <p className="font-semibold text-slate-600">
-                              {msg.senderName ?? msg.clerkUserId.slice(0, 8)}
-                            </p>
-                            <p className="text-slate-800 break-words">{msg.message}</p>
-                            <p className="text-[0.7rem] text-slate-400">
-                              {new Date(msg.createdAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
-                          </div>
-                        ))
+                        messages.map(messageBubble)
                       )}
                       <div ref={messagesEndRef} />
                     </div>
 
-                    <form onSubmit={handleSendMessage} className="border-t border-slate-200 p-3">
+                    <form onSubmit={(e) => void handleSendMessage(e)} className="border-t border-dark-subtle p-3">
                       <div className="flex gap-2">
                         <input
                           type="text"
                           value={messageInput}
                           onChange={(e) => setMessageInput(e.target.value)}
                           placeholder="Type a message..."
-                          className="flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          className="flex-1 rounded-full border border-dark-subtle bg-dark-tertiary px-3 py-1.5 text-xs text-dark-primary outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
                           disabled={isSending}
                         />
                         <button
                           type="submit"
                           disabled={isSending || !messageInput.trim()}
-                          className="rounded-lg bg-blue-600 px-2 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                          className="rounded-full bg-accent-blue px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
                         >
                           {isSending ? "..." : "Send"}
                         </button>
@@ -332,7 +314,7 @@ export default function ChatPopup() {
                     </form>
                   </>
                 ) : (
-                  <div className="flex-1 flex items-center justify-center text-sm text-slate-500">
+                  <div className="flex flex-1 items-center justify-center text-sm text-dark-secondary">
                     Select a conversation
                   </div>
                 )}

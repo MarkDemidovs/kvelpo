@@ -23,6 +23,9 @@ interface ProfileData {
   link3: string | null;
 }
 
+const fieldClass =
+  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
+
 export default function ProfileForm() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -138,27 +141,27 @@ export default function ProfileForm() {
   };
 
   if (loading) {
-    return <p>Loading profile…</p>;
+    return <p className="text-dark-secondary">Loading profile…</p>;
   }
 
   return (
-    <div className="space-y-6 p-4 rounded-xl border border-dark-subtle bg-dark-card text-dark-primary">
+    <div className="space-y-6 text-dark-primary">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Profile Settings</h1>
-          <p className="text-sm text-dark-secondary">Editable profile fields stored in your kvelpo profile.</p>
+          <h1 className="text-[30px] font-bold tracking-tight">Profile settings</h1>
+          <p className="mt-1 text-[15px] text-dark-secondary">This is what shows up when someone views your profile.</p>
         </div>
         <UserButton />
       </div>
 
-      {error ? <div className="rounded-md bg-red-900/30 p-3 text-sm text-red-400">{error}</div> : null}
+      {error ? <div className="rounded-xl bg-red-900/30 p-3 text-sm text-red-400">{error}</div> : null}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="card-raised space-y-6 p-7">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-sm font-medium text-dark-primary">Full name</span>
+            <span className="text-sm font-medium text-dark-secondary">Full name</span>
             <input
-              className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-3 py-2 text-dark-primary"
+              className={fieldClass}
               value={fullName}
               onChange={(event) => setFullName(event.target.value)}
               placeholder="Your display name"
@@ -166,9 +169,9 @@ export default function ProfileForm() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-medium text-dark-primary">Avatar URL</span>
+            <span className="text-sm font-medium text-dark-secondary">Avatar URL</span>
             <input
-              className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-3 py-2 text-dark-primary"
+              className={fieldClass}
               value={avatarUrl}
               onChange={(event) => setAvatarUrl(event.target.value)}
               placeholder="https://..."
@@ -177,9 +180,9 @@ export default function ProfileForm() {
         </div>
 
         <label className="block">
-          <span className="text-sm font-medium text-dark-primary">Bio</span>
+          <span className="text-sm font-medium text-dark-secondary">Bio</span>
           <textarea
-            className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-3 py-2 text-dark-primary"
+            className={fieldClass}
             value={bio}
             onChange={(event) => setBio(event.target.value)}
             rows={4}
@@ -187,43 +190,41 @@ export default function ProfileForm() {
           />
         </label>
 
-        <fieldset className="flex items-center gap-3">
+        <label className="flex items-center gap-3">
           <input
-            id="isPublic"
             type="checkbox"
             checked={isPublic}
             onChange={(event) => setIsPublic(event.target.checked)}
+            className="h-4 w-4 accent-[oklch(68%_0.18_240)]"
           />
-          <label htmlFor="isPublic" className="text-sm text-dark-primary">
-            Public profile
-          </label>
-        </fieldset>
+          <div>
+            <p className="text-sm text-dark-primary">Public profile</p>
+            <p className="text-xs text-dark-muted">Anyone can view your profile and project history</p>
+          </div>
+        </label>
 
-        <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4">
-          <div className="flex items-center justify-between">
+        <div className="space-y-2 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
+          <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-dark-primary">Membership</p>
               <p className="text-xs text-dark-secondary">Current: {membership?.toUpperCase()}</p>
             </div>
-            <div className="flex items-center gap-2">
-              <Link href="/profile/subscription" className="rounded-lg bg-accent-blue px-4 py-2 text-sm font-semibold text-dark-primary hover:bg-blue-500">Manage subscription</Link>
-            </div>
+            <Link href="/profile/subscription" className="btn-secondary !px-4 !py-2 text-sm">Manage subscription</Link>
           </div>
-          <p className="text-xs text-dark-secondary">To change membership, use the subscription manager. Payments are processed via Stripe.</p>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4">
+        <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-dark-primary">Profile skills</p>
-              <p className="text-xs text-dark-secondary">Pick from shared skill roles. One of each, up to 15.</p>
+              <p className="text-sm font-medium text-dark-primary">Skills</p>
+              <p className="text-xs text-dark-secondary">Pick from shared skill roles, up to 15.</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-dark-secondary">{skills.length}/15</span>
+              <span className="text-sm text-dark-muted">{skills.length}/15</span>
               <button
                 type="button"
                 onClick={() => setExpanded(!expanded)}
-                className="text-xs text-dark-secondary hover:text-accent-blue underline"
+                className="text-xs font-semibold text-accent-blue"
               >
                 {expanded ? "Collapse" : "Expand"}
               </button>
@@ -232,7 +233,7 @@ export default function ProfileForm() {
 
           {expanded && (
             <div className="overflow-hidden transition-all duration-300 ease-in-out">
-              <div className="grid gap-2 grid-cols-3 pt-4">
+              <div className="grid gap-2 grid-cols-3 pt-2">
                 {skillsConfig.map((skill) => {
                   const isSelected = skills.includes(skill.name);
                   const disabled = !isSelected && skills.length >= 15;
@@ -272,82 +273,55 @@ export default function ProfileForm() {
           )}
         </div>
 
-        <div className="space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium text-dark-primary">Link 1</span>
-            <input
-              className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-3 py-2 text-dark-primary"
-              value={link1}
-              onChange={(event) => setLink1(event.target.value)}
-              placeholder="https://..."
-            />
-          </label>
-          <label className="block">
-            <span className="text-sm font-medium text-dark-primary">Link 2</span>
-            <input
-              className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-3 py-2 text-dark-primary"
-              value={link2}
-              onChange={(event) => setLink2(event.target.value)}
-              placeholder="https://..."
-            />
-          </label>
-          <label className="block">
-            <span className="text-sm font-medium text-dark-primary">Link 3</span>
-            <input
-              className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-3 py-2 text-dark-primary"
-              value={link3}
-              onChange={(event) => setLink3(event.target.value)}
-              placeholder="https://..."
-            />
-          </label>
+        <div>
+          <p className="label-eyebrow">Links</p>
+          <div className="mt-3 space-y-3">
+            <input className={`${fieldClass} !mt-0`} value={link1} onChange={(event) => setLink1(event.target.value)} placeholder="https://..." />
+            <input className={`${fieldClass} !mt-0`} value={link2} onChange={(event) => setLink2(event.target.value)} placeholder="https://..." />
+            <input className={`${fieldClass} !mt-0`} value={link3} onChange={(event) => setLink3(event.target.value)} placeholder="https://..." />
+          </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="inline-flex items-center justify-center rounded-lg bg-accent-blue px-5 py-2.5 text-sm font-semibold text-dark-primary transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-dark-muted"
-        >
+        <button type="submit" disabled={saving} className="btn-primary disabled:cursor-not-allowed disabled:opacity-50">
           {saving ? "Saving..." : "Save changes"}
         </button>
       </form>
 
-      <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4">
+      <div className="card-raised space-y-4 p-7">
         <div>
-          <p className="text-sm font-medium text-dark-primary">Privacy & legal</p>
+          <p className="text-sm font-medium text-dark-primary">Privacy &amp; legal</p>
           <p className="text-xs text-dark-secondary">Manage your consent and review the policies that apply to your account.</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Link href="/consent" className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-tertiary">
-            Consent center
-          </Link>
-          <Link href="/cookies" className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-tertiary">
-            Cookie policy
-          </Link>
-          <Link href="/terms" className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-tertiary">
-            Terms of service
-          </Link>
-          <Link href="/privacy" className="rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-tertiary">
-            Privacy policy
-          </Link>
+          <Link href="/consent" className="btn-secondary !px-4 !py-2 text-sm">Consent center</Link>
+          <Link href="/cookies" className="btn-secondary !px-4 !py-2 text-sm">Cookie policy</Link>
+          <Link href="/terms" className="btn-secondary !px-4 !py-2 text-sm">Terms of service</Link>
+          <Link href="/privacy" className="btn-secondary !px-4 !py-2 text-sm">Privacy policy</Link>
         </div>
 
         <button
           type="button"
-          onClick={handleConsent}
+          onClick={() => void handleConsent()}
           disabled={consentPending}
-          className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-dark-primary transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-dark-muted"
+          className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {consentPending ? "Saving consent..." : "Accept consent"}
         </button>
+      </div>
 
+      <div className="rounded-2xl border border-red-900/40 bg-red-950/20 p-6">
+        <p className="text-[15px] font-semibold text-red-400">Delete account</p>
+        <p className="mt-2 text-sm leading-relaxed text-dark-secondary">
+          This cancels any active subscription and permanently removes your profile. Some activity in other people&apos;s projects is kept but no longer tied to your name.
+        </p>
         <button
           type="button"
-          onClick={handleDeleteAccount}
+          onClick={() => void handleDeleteAccount()}
           disabled={deletePending}
-          className="inline-flex items-center justify-center rounded-lg border border-red-400 bg-red-900/30 px-4 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-900/50 disabled:cursor-not-allowed disabled:bg-red-900/20"
+          className="mt-4 inline-flex items-center justify-center rounded-full border border-red-900/50 px-5 py-2.5 text-sm font-semibold text-red-400 transition hover:bg-red-900/20 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {deletePending ? "Deleting account..." : "Delete account"}
+          {deletePending ? "Deleting account..." : "Delete my account"}
         </button>
       </div>
     </div>

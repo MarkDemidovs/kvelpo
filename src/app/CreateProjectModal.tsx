@@ -95,11 +95,11 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div
-        className="flex flex-col w-full max-w-full sm:max-w-md max-h-[90vh] rounded-xl border border-dark-subtle bg-dark-card overflow-hidden"
+        className="flex flex-col w-full max-w-full sm:max-w-md max-h-[90vh] rounded-3xl border border-dark-subtle bg-dark-card shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] overflow-hidden"
         style={{ maxWidth: "calc(100vw - 2rem)" }}
       >
-        <div className="flex flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between border-b border-dark-subtle">
-          <h2 className="text-xl font-semibold text-dark-primary">Create New Project</h2>
+        <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between border-b border-dark-subtle">
+          <h2 className="text-lg font-bold tracking-tight text-dark-primary">Create a project</h2>
           <button
             onClick={handleClose}
             className="rounded-full p-1 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
@@ -127,7 +127,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-3 py-2 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
+              className="mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
               placeholder="Enter project name"
             />
           </div>
@@ -141,15 +141,15 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-3 py-2 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
+              className="mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
               placeholder="Optional project description"
             />
           </div>
 
-          <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4">
+          <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-dark-primary">Project tags</p>
+                <p className="text-sm font-semibold text-dark-primary">Project tags</p>
                 <p className="text-xs text-dark-secondary">Pick from shared skill roles. Up to 3.</p>
               </div>
               <div className="flex items-center gap-2">
@@ -203,20 +203,19 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
           </div>
 
           <div>
-            <p className="block text-sm font-medium text-dark-primary">Roles</p>
-            <p className="mt-1 text-xs text-dark-secondary">Define what you need.</p>
+            <p className="label-eyebrow">Roles needed</p>
           </div>
 
           <div className="space-y-4">
             {rolesNeeded.map((role, index) => (
-              <div key={index} className="space-y-3 rounded-xl border border-dark-subtle bg-dark-tertiary p-4">
+              <div key={index} className="space-y-3 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-semibold text-dark-primary">Role {index + 1}</span>
                   {rolesNeeded.length > 1 && (
                     <button
                       type="button"
                       onClick={() => setRolesNeeded((prev) => prev.filter((_, i) => i !== index))}
-                      className="text-sm text-red-400 hover:underline"
+                      className="text-xs font-semibold text-red-400"
                     >
                       Remove
                     </button>
@@ -235,7 +234,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                           )
                         )
                       }
-                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-dark-primary focus:outline-none focus:ring-1 focus:ring-accent-blue"
+                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-dark-primary focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
                       placeholder="e.g. Designer"
                     />
                   </div>
@@ -251,7 +250,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                           )
                         )
                       }
-                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-dark-primary focus:outline-none focus:ring-1 focus:ring-accent-blue"
+                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-dark-primary focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
                       placeholder="Details"
                     />
                   </div>
@@ -279,18 +278,18 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
             <button
               type="button"
               onClick={() => setRolesNeeded((prev) => [...prev, { title: "", description: "", slotsNeeded: 1 }])}
-              className="w-full rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 text-sm font-medium text-dark-primary hover:bg-dark-card transition"
+              className="btn-secondary w-full !py-2.5 text-sm"
             >
-              Add another role
+              + Add another role
             </button>
           </div>
         </form>
 
-        <div className="flex justify-end gap-3 p-6 border-t border-dark-subtle bg-dark-tertiary">
+        <div className="flex justify-end gap-3 p-5 border-t border-dark-subtle bg-dark-tertiary">
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-dark-subtle px-4 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-card transition"
+            className="btn-secondary !px-5 !py-2.5 text-sm"
           >
             Cancel
           </button>
@@ -298,9 +297,9 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
             form="project-form"
             type="submit"
             disabled={saving || !name.trim()}
-            className="rounded-lg bg-accent-blue px-4 py-2 text-sm font-medium text-dark-primary hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-dark-muted"
+            className="btn-primary !px-5 !py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {saving ? "Creating..." : "Create Project"}
+            {saving ? "Creating..." : "Create project"}
           </button>
         </div>
       </div>

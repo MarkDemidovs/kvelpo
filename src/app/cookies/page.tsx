@@ -1,12 +1,9 @@
 import Link from "next/link";
+import LegalPageShell from "~/app/_components/LegalPageShell";
 
 export default function CookiesPage() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-16 bg-dark-primary">
-      <div className="rounded-3xl border border-dark-subtle bg-dark-card p-8">
-        <h1 className="text-3xl font-semibold text-dark-primary mb-8">Cookie Policy</h1>
-        
-        <div className="space-y-8 text-dark-secondary">
+    <LegalPageShell title="Cookie Policy">
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: August 15, 2026</h2>
             <p className="text-sm">
@@ -172,19 +169,17 @@ export default function CookiesPage() {
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">9. Additional Resources</h2>
             <div className="flex flex-wrap gap-4">
-              <Link href="/privacy" className="rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-card">
+              <Link href="/privacy" className="btn-secondary !px-4 !py-2 text-sm">
                 Privacy Policy
               </Link>
-              <Link href="/terms" className="rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-card">
+              <Link href="/terms" className="btn-secondary !px-4 !py-2 text-sm">
                 Terms of Service
               </Link>
-              <Link href="/consent" className="rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 text-sm font-medium text-dark-secondary hover:bg-dark-card">
+              <Link href="/consent" className="btn-secondary !px-4 !py-2 text-sm">
                 Consent Center
               </Link>
             </div>
           </section>
-        </div>
-      </div>
-    </main>
+    </LegalPageShell>
   );
 }

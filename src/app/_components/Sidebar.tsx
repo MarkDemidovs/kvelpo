@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -9,8 +10,16 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+const navLinkClass = (active: boolean) =>
+  `flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors ${
+    active ? "bg-dark-tertiary text-dark-primary" : "text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+  }`;
+
+const navIconClass = (active: boolean) => `h-5 w-5 ${active ? "text-accent-blue" : ""}`;
+
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -63,11 +72,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <div className="space-y-2">
               <Link
                 href="/profile"
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+                className={navLinkClass(pathname === "/profile")}
                 onClick={onClose}
               >
                 <svg
-                  className="h-5 w-5"
+                  className={navIconClass(pathname === "/profile")}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -84,11 +93,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               <Link
                 href="/inbox"
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+                className={navLinkClass(pathname === "/inbox")}
                 onClick={onClose}
               >
                 <svg
-                  className="h-5 w-5"
+                  className={navIconClass(pathname === "/inbox")}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -105,11 +114,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               <Link
                 href="/chats"
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+                className={navLinkClass(pathname === "/chats")}
                 onClick={onClose}
               >
                 <svg
-                  className="h-5 w-5"
+                  className={navIconClass(pathname === "/chats")}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -126,11 +135,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               <Link
                 href="/projects"
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+                className={navLinkClass(pathname === "/projects")}
                 onClick={onClose}
               >
                 <svg
-                  className="h-5 w-5"
+                  className={navIconClass(pathname === "/projects")}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -147,11 +156,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               <Link
                 href="/profile/subscription"
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+                className={navLinkClass(pathname === "/profile/subscription")}
                 onClick={onClose}
               >
                 <svg
-                  className="h-5 w-5"
+                  className={navIconClass(pathname === "/profile/subscription")}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -168,11 +177,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
               <Link
                 href="/settings"
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+                className={navLinkClass(pathname === "/settings")}
                 onClick={onClose}
               >
                 <svg
-                  className="h-5 w-5"
+                  className={navIconClass(pathname === "/settings")}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

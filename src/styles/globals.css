@@ -45,21 +45,111 @@ html, body {
 }
 
 .text-dark-muted {
-  color: #666666;
+  color: #7a7a7a;
 }
 
 .text-accent-blue {
-  color: #3b82f6;
+  color: oklch(68% 0.18 240);
 }
 
 .bg-accent-blue {
-  background-color: #3b82f6;
+  background-color: oklch(68% 0.18 240);
 }
 
 .border-accent-blue {
-  border-color: #3b82f6;
+  border-color: oklch(68% 0.18 240);
 }
 
 .hover-bg-accent-blue:hover {
-  background-color: #3b82f6;
+  background-color: oklch(68% 0.18 240);
+}
+
+/* Raised card: the app's default card treatment (border, soft shadow, hover lift) */
+.card-raised {
+  border: 1px solid #222222;
+  border-top-color: rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  background-color: #0a0a0a;
+  box-shadow: 0 20px 40px -28px rgba(0, 0, 0, 0.9);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.card-raised:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 52px -24px rgba(0, 0, 0, 0.95);
+  border-color: #333333;
+}
+
+/* Eyebrow label: small uppercase tracked text with a glowing accent dot */
+.label-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a7a7a;
+}
+
+.label-eyebrow::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: oklch(68% 0.18 240);
+  box-shadow: 0 0 8px 2px oklch(68% 0.18 240 / 0.55);
+  flex-shrink: 0;
+}
+
+/* Buttons: solid-white primary, ghost secondary, both pill-shaped with a hover lift */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  color: #000000;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  opacity: 0.88;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  background-color: transparent;
+  border: 1px solid #333333;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  border-color: #7a7a7a;
+}
+
+/* Scroll-reveal: paired with the Reveal component */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
 }

@@ -5,6 +5,15 @@ import Link from 'next/link';
 import { deleteAccountAction } from '~/app/actions/delete-account';
 import { useState } from 'react';
 
+const rowLinkClass =
+  "flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-dark-primary transition hover:bg-dark-tertiary";
+
+const ChevronIcon = () => (
+  <svg className="h-4 w-4 shrink-0 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+    <polyline points="9 6 15 12 9 18" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 export default function SettingsPage() {
   const { isSignedIn } = useAuth();
   const [deletePending, setDeletePending] = useState(false);
@@ -28,7 +37,7 @@ export default function SettingsPage() {
   if (!isSignedIn) {
     return (
       <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
-        <div className="rounded-3xl border border-dark-subtle bg-dark-card p-10 text-center">
+        <div className="card-raised p-10 text-center">
           <h1 className="text-2xl font-semibold text-dark-primary mb-4">Sign in to access settings</h1>
           <p className="text-dark-secondary">You need to be signed in to view your settings.</p>
         </div>
@@ -37,91 +46,65 @@ export default function SettingsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
+    <main className="mx-auto max-w-3xl px-4 py-8 bg-dark-primary">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-dark-primary">Settings</h1>
-        <p className="mt-2 text-dark-secondary">Manage your account settings and preferences.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Settings</h1>
+        <p className="mt-2 text-dark-secondary">Manage your account, membership, and legal preferences.</p>
       </div>
 
-      <div className="space-y-6">
-        {/* Account Settings */}
-        <div className="rounded-3xl border border-dark-subtle bg-dark-card p-6">
-          <h2 className="text-xl font-semibold text-dark-primary mb-4">Account Settings</h2>
-          <Link
-            href="/profile"
-            className="inline-flex items-center gap-2 rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 text-sm font-medium text-dark-primary hover:bg-dark-card transition"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Edit Profile
+      <div className="space-y-4">
+        <div className="card-raised p-2">
+          <Link href="/profile" className={rowLinkClass}>
+            <div>
+              <p className="text-[15px] font-semibold">Account</p>
+              <p className="mt-0.5 text-[13px] text-dark-muted">Name, bio, links, photo, skills</p>
+            </div>
+            <ChevronIcon />
+          </Link>
+          <Link href="/profile/subscription" className={rowLinkClass}>
+            <div>
+              <p className="text-[15px] font-semibold">Membership</p>
+              <p className="mt-0.5 text-[13px] text-dark-muted">Manage your plan and billing</p>
+            </div>
+            <ChevronIcon />
           </Link>
         </div>
 
-        {/* Membership Settings */}
-        <div className="rounded-3xl border border-dark-subtle bg-dark-card p-6">
-          <h2 className="text-xl font-semibold text-dark-primary mb-4">Membership Settings</h2>
-          <Link
-            href="/profile/subscription"
-            className="inline-flex items-center gap-2 rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-2 text-sm font-medium text-dark-primary hover:bg-dark-card transition"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            Manage Subscription
+        <div className="card-raised p-2">
+          <Link href="/consent" className={rowLinkClass}>
+            <p className="text-[15px] font-semibold">Consent center</p>
+            <ChevronIcon />
+          </Link>
+          <Link href="/cookies" className={rowLinkClass}>
+            <p className="text-[15px] font-semibold">Cookie policy</p>
+            <ChevronIcon />
+          </Link>
+          <Link href="/data-retention" className={rowLinkClass}>
+            <p className="text-[15px] font-semibold">Data retention</p>
+            <ChevronIcon />
+          </Link>
+          <Link href="/terms" className={rowLinkClass}>
+            <p className="text-[15px] font-semibold">Terms of service</p>
+            <ChevronIcon />
+          </Link>
+          <Link href="/privacy" className={rowLinkClass}>
+            <p className="text-[15px] font-semibold">Privacy policy</p>
+            <ChevronIcon />
           </Link>
         </div>
 
-        {/* Privacy & Legal */}
-        <div className="rounded-3xl border border-dark-subtle bg-dark-card p-6">
-          <h2 className="text-xl font-semibold text-dark-primary mb-4">Privacy & Legal</h2>
-          <div className="space-y-3">
-            <Link
-              href="/consent"
-              className="block rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-3 text-sm font-medium text-dark-secondary hover:bg-dark-card transition"
-            >
-              Consent Center
-            </Link>
-            <Link
-              href="/cookies"
-              className="block rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-3 text-sm font-medium text-dark-secondary hover:bg-dark-card transition"
-            >
-              Cookie Policy
-            </Link>
-            <Link
-              href="/data-retention"
-              className="block rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-3 text-sm font-medium text-dark-secondary hover:bg-dark-card transition"
-            >
-              Data Retention
-            </Link>
-            <Link
-              href="/terms"
-              className="block rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-3 text-sm font-medium text-dark-secondary hover:bg-dark-card transition"
-            >
-              Terms of Service
-            </Link>
-            <Link
-              href="/privacy"
-              className="block rounded-lg border border-dark-subtle bg-dark-tertiary px-4 py-3 text-sm font-medium text-dark-secondary hover:bg-dark-card transition"
-            >
-              Privacy Policy
-            </Link>
-          </div>
-        </div>
-
-        {/* Danger Zone */}
-        <div className="rounded-3xl border border-red-900/50 bg-red-900/20 p-6">
-          <h2 className="text-xl font-semibold text-red-400 mb-4">Danger Zone</h2>
-          <p className="text-sm text-red-300 mb-4">
-            Once you delete your account, there is no going back. Please be certain.
+        <div className="rounded-2xl border border-red-900/40 bg-red-950/20 p-6">
+          <p className="text-[15px] font-semibold text-red-400">Danger zone</p>
+          <p className="mt-2 text-sm text-dark-secondary">
+            Once you delete your account, there is no going back.
           </p>
           <button
             type="button"
-            onClick={handleDeleteAccount}
+            onClick={() => void handleDeleteAccount()}
             disabled={deletePending}
-            className="rounded-lg border border-red-400 bg-red-900/30 px-4 py-2 text-sm font-semibold text-red-400 transition hover:bg-red-900/50 disabled:cursor-not-allowed disabled:bg-red-900/20"
+            className="mt-4 inline-flex items-center justify-center rounded-full border border-red-900/50 px-5 py-2.5 text-sm font-semibold text-red-400 transition hover:bg-red-900/20 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {deletePending ? 'Deleting account...' : 'Delete Account'}
+            {deletePending ? 'Deleting account...' : 'Delete account'}
           </button>
         </div>
       </div>

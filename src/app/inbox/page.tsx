@@ -78,7 +78,7 @@ export default function InboxPage() {
   if (!isSignedIn) {
     return (
       <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
-        <div className="rounded-3xl border border-dark-subtle bg-dark-card p-10 text-center">
+        <div className="card-raised p-10 text-center">
           <h1 className="text-2xl font-semibold text-dark-primary mb-4">Sign in to access inbox</h1>
           <p className="text-dark-secondary">You need to be signed in to view your inbox.</p>
         </div>
@@ -87,62 +87,58 @@ export default function InboxPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 bg-dark-primary">
+    <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-dark-primary">Inbox</h1>
-        <p className="mt-2 text-dark-secondary">View your notifications and application statuses.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Inbox</h1>
+        <p className="mt-2 text-dark-secondary">Notifications and your application statuses, in one place.</p>
       </div>
 
       {loading ? (
-        <div className="rounded-3xl bg-dark-card p-10 text-center text-dark-secondary">
+        <div className="card-raised p-10 text-center text-dark-secondary">
           Loading inbox...
         </div>
       ) : error ? (
-        <div className="rounded-3xl bg-dark-card p-10 text-center text-red-400">
+        <div className="card-raised p-10 text-center text-red-400">
           {error}
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-9">
           {/* Notifications Section */}
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Notifications</h2>
+            <p className="label-eyebrow">Notifications</p>
             {notifications.length === 0 ? (
-              <div className="rounded-3xl bg-dark-card p-6 text-center text-dark-secondary">
+              <div className="card-raised mt-4 p-6 text-center text-dark-secondary">
                 No notifications yet.
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="mt-4 space-y-2.5">
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`rounded-3xl border p-4 transition ${
-                      notification.isRead
-                        ? 'border-dark-subtle bg-dark-tertiary'
-                        : 'border-accent-blue bg-dark-card'
-                    }`}
+                    className={`card-raised p-4.5 ${notification.isRead ? '' : '!border-accent-blue'}`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-dark-primary">{notification.message}</p>
-                        <p className="mt-1 text-xs text-dark-secondary">
+                        <p className="text-sm text-dark-primary">{notification.message}</p>
+                        <p className="mt-1.5 text-xs text-dark-muted">
                           {new Date(notification.createdAt).toLocaleDateString()}
                         </p>
                       </div>
                       {!notification.isRead && (
                         <button
-                          onClick={() => markAsRead(notification.id)}
-                          className="text-xs text-accent-blue hover:underline"
+                          onClick={() => void markAsRead(notification.id)}
+                          className="shrink-0 text-xs font-semibold text-accent-blue"
                         >
-                          Mark as read
+                          Mark read
                         </button>
                       )}
                     </div>
                     {notification.projectId && (
                       <Link
-                        href={`/?project=${notification.projectId}`}
-                        className="mt-3 inline-block text-sm text-accent-blue hover:underline"
+                        href={`/projects/${notification.projectId}`}
+                        className="mt-3 inline-block text-sm font-semibold text-accent-blue"
                       >
-                        View Project →
+                        View project &rarr;
                       </Link>
                     )}
                   </div>
@@ -153,41 +149,40 @@ export default function InboxPage() {
 
           {/* Applications Section */}
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Your Applications</h2>
+            <p className="label-eyebrow">Your applications</p>
             {applications.length === 0 ? (
-              <div className="rounded-3xl bg-dark-card p-6 text-center text-dark-secondary">
+              <div className="card-raised mt-4 p-6 text-center text-dark-secondary">
                 No applications yet. Apply to projects to see your request statuses here.
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="mt-4 space-y-2.5">
                 {applications.map((application) => (
-                  <div key={application.id} className="rounded-3xl border border-dark-subtle bg-dark-tertiary p-4">
+                  <div key={application.id} className="card-raised p-4.5">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold text-dark-primary">
                           {application.projectName ?? 'Unknown project'}
                         </p>
-                        <p className="mt-1 text-xs text-dark-secondary">
+                        <p className="mt-1 text-xs text-dark-muted">
                           {application.roleTitle ?? 'Requested role'}
                         </p>
                       </div>
                       <span
-                        key={`status-${application.id}`}
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
                           application.status === 'pending'
                             ? 'bg-yellow-900/50 text-yellow-400'
                             : application.status === 'accepted'
                               ? 'bg-emerald-900/50 text-emerald-400'
-                              : 'bg-dark-subtle text-dark-secondary'
+                              : 'bg-dark-tertiary text-dark-secondary'
                         }`}
                       >
                         {application.status}
                       </span>
                     </div>
                     {application.message && (
-                      <p className="mt-2 text-sm text-dark-secondary">{application.message}</p>
+                      <p className="mt-2.5 text-sm text-dark-secondary">{application.message}</p>
                     )}
-                    <p className="mt-2 text-xs text-dark-muted">
+                    <p className="mt-2.5 text-xs text-dark-muted">
                       Applied {new Date(application.appliedAt).toLocaleDateString()}
                     </p>
                   </div>

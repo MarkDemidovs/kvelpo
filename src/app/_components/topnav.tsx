@@ -97,16 +97,16 @@ export default function TopNav() {
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-dark-subtle bg-dark-primary/90 px-4 py-3 backdrop-blur-md">
       <div className="mx-auto flex flex-wrap items-center justify-between gap-3 max-w-6xl text-dark-primary">
-        <Link href="/" className="flex items-center gap-3 text-lg font-semibold tracking-tight text-dark-primary hover:text-dark-secondary">
-
+        <Link href="/" className="flex items-center gap-2.5 text-lg font-semibold tracking-tight text-dark-primary hover:text-dark-secondary">
           <Image
             src="/White.svg"
-            alt="Kollaborate logo"
-            width={90} 
-            height={22} 
-            className="h-5 w-auto" 
+            alt="kvelpo logo"
+            width={16}
+            height={19}
+            className="h-4 w-auto"
             priority
           />
+          <span className="text-[17px] font-semibold tracking-tight text-dark-primary">kvelpo</span>
         </Link>
 
         <div className="flex items-center gap-3">
@@ -180,7 +180,7 @@ export default function TopNav() {
 
                                 if (notification.projectId) {
                                   setIsStatusPanelOpen(false);
-                                  router.push(`/?project=${notification.projectId}`);
+                                  router.push(`/projects/${notification.projectId}`);
                                 }
                               }}
                               className="w-full rounded-3xl border border-dark-subtle bg-dark-tertiary p-3 text-left transition hover:border-accent-blue hover:bg-dark-secondary"
