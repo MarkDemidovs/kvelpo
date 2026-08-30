@@ -197,7 +197,7 @@ function LandingView() {
               {[
                 { name: 'Free', price: '$0', note: '1 active project' },
                 { name: 'Pro', price: '$10/mo', note: '3 active projects' },
-                { name: 'Team', price: '$30/mo', note: '10 active projects' },
+                { name: 'Team', price: '$25/mo', note: '10 active projects' },
               ].map((plan) => (
                 <div key={plan.name} className="card-raised p-8">
                   <p className="text-[15px] font-semibold text-dark-primary">{plan.name}</p>

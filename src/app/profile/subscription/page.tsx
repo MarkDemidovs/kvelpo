@@ -73,7 +73,7 @@ function SubscriptionPageContent() {
       {
         key: "team",
         name: "Team",
-        price: "$30/month",
+        price: "$25/month",
         description: "For teams that need expanded collaboration and more projects.",
         features: ["Create up to 10 projects", "Team collaboration tools", "Dedicated support"],
         priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM,
