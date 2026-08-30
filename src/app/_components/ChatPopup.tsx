@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { useChatWidget } from "./ChatContext";
 
 interface Conversation {
   id: number;
@@ -19,9 +20,8 @@ interface Message {
 
 export default function ChatPopup() {
   const { isSignedIn } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, selectedProjectId, openChat, closeChat, setSelectedProjectId } = useChatWidget();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -31,6 +31,10 @@ export default function ChatPopup() {
   useEffect(() => {
     if (!isSignedIn || !isOpen) return;
 
+    // A specific conversation was already requested (e.g. from the Chats
+    // page) — jump straight to it instead of the list.
+    setShowConversationList(!selectedProjectId);
+
     const controller = new AbortController();
     const fetchConversations = async () => {
       try {
@@ -38,9 +42,9 @@ export default function ChatPopup() {
         if (!res.ok) throw new Error(await res.text());
         const data = (await res.json()) as Conversation[];
         setConversations(data);
-        // Auto-select first conversation
+        // Auto-select the first conversation only if nothing was already requested.
         const firstConversation = data[0];
-        if (firstConversation) {
+        if (!selectedProjectId && firstConversation) {
           setSelectedProjectId(firstConversation.id);
         }
       } catch (error) {
@@ -52,6 +56,7 @@ export default function ChatPopup() {
 
     void fetchConversations();
     return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSignedIn, isOpen]);
 
   useEffect(() => {
@@ -140,7 +145,7 @@ export default function ChatPopup() {
     <div className="fixed bottom-4 right-4 z-40 sm:bottom-6 sm:right-6">
       {!isOpen ? (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => openChat()}
           className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-blue text-white shadow-lg transition hover:opacity-90"
           aria-label="Open chat"
         >
@@ -151,7 +156,7 @@ export default function ChatPopup() {
       ) : (
         <>
           {/* Mobile Full Screen Chat */}
-          <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setIsOpen(false)} />
+          <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => closeChat()} />
           <div className="fixed inset-0 z-50 flex flex-col bg-dark-card md:hidden">
             {/* Header */}
             <div className="flex items-center justify-between gap-3 border-b border-dark-subtle p-4">
@@ -173,7 +178,7 @@ export default function ChatPopup() {
                 </div>
               )}
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => closeChat()}
                 className="rounded-full p-1 text-dark-muted hover:bg-dark-tertiary hover:text-dark-primary"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,7 +254,7 @@ export default function ChatPopup() {
             <div className="flex items-center justify-between gap-3 border-b border-dark-subtle p-4">
               <h3 className="font-semibold text-dark-primary">Messages</h3>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => closeChat()}
                 className="rounded-full p-1 text-dark-muted hover:bg-dark-tertiary hover:text-dark-primary"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

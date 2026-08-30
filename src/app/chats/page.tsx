@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
-import Link from 'next/link';
+import { useChatWidget } from '~/app/_components/ChatContext';
 
 interface ConversationProject {
   id: number;
@@ -11,6 +11,7 @@ interface ConversationProject {
 
 export default function ChatsPage() {
   const { isSignedIn } = useAuth();
+  const { openChat } = useChatWidget();
   const [conversations, setConversations] = useState<ConversationProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,10 +75,11 @@ export default function ChatsPage() {
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {conversations.map((project) => (
-            <Link
+            <button
               key={project.id}
-              href={`/projects/${project.id}`}
-              className="card-raised block p-5"
+              type="button"
+              onClick={() => openChat(project.id)}
+              className="card-raised block p-5 text-left"
             >
               <p className="label-eyebrow">Project</p>
               <h3 className="mt-2 truncate text-[17px] font-semibold text-dark-primary">
@@ -90,7 +92,7 @@ export default function ChatsPage() {
                   <polyline points="12 5 19 12 12 19" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-            </Link>
+            </button>
           ))}
         </div>
       )}
