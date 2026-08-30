@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
+import { SubscriptionSkeleton } from "~/app/_components/Skeleton";
 
 type MembershipType = "free" | "pro" | "team";
 
@@ -42,6 +43,7 @@ function SubscriptionPageContent() {
   const { isSignedIn } = useAuth();
   const searchParams = useSearchParams();
   const [membership, setMembership] = useState<MembershipType>("free");
+  const [pageLoading, setPageLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,6 +116,8 @@ function SubscriptionPageContent() {
         }
       } catch (err: unknown) {
         console.error(err);
+      } finally {
+        setPageLoading(false);
       }
     };
 
@@ -230,6 +234,10 @@ function SubscriptionPageContent() {
         </div>
       </div>
     );
+  }
+
+  if (pageLoading) {
+    return <SubscriptionSkeleton />;
   }
 
   return (

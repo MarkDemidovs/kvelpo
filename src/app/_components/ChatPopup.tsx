@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useChatWidget } from "./ChatContext";
+import { Skeleton } from "./Skeleton";
 
 interface Conversation {
   id: number;
@@ -22,7 +23,9 @@ export default function ChatPopup() {
   const { isSignedIn } = useAuth();
   const { isOpen, selectedProjectId, openChat, closeChat, setSelectedProjectId } = useChatWidget();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversationsLoading, setConversationsLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [messagesLoading, setMessagesLoading] = useState(true);
   const [messageInput, setMessageInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showConversationList, setShowConversationList] = useState(true);
@@ -34,6 +37,7 @@ export default function ChatPopup() {
     // A specific conversation was already requested (e.g. from the Chats
     // page) — jump straight to it instead of the list.
     setShowConversationList(!selectedProjectId);
+    setConversationsLoading(true);
 
     const controller = new AbortController();
     const fetchConversations = async () => {
@@ -51,6 +55,8 @@ export default function ChatPopup() {
         if (error instanceof Error && error.name !== "AbortError") {
           console.error("Failed to load conversations:", error);
         }
+      } finally {
+        setConversationsLoading(false);
       }
     };
 
@@ -62,6 +68,7 @@ export default function ChatPopup() {
   useEffect(() => {
     if (!selectedProjectId) return;
 
+    setMessagesLoading(true);
     const controller = new AbortController();
     const fetchMessages = async () => {
       try {
@@ -78,7 +85,7 @@ export default function ChatPopup() {
       }
     };
 
-    void fetchMessages();
+    void fetchMessages().finally(() => setMessagesLoading(false));
 
     const interval = setInterval(() => {
       void fetchMessages();
@@ -141,6 +148,33 @@ export default function ChatPopup() {
     </div>
   );
 
+  const conversationListSkeleton = (
+    <div>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="border-b border-dark-subtle px-4 py-3">
+          <Skeleton className="h-3.5 w-2/3" />
+        </div>
+      ))}
+    </div>
+  );
+
+  const messageThreadSkeleton = (
+    <div className="flex-1 space-y-3 overflow-y-auto p-4">
+      <div className="flex flex-col items-start gap-1">
+        <Skeleton className="h-2.5 w-16" />
+        <Skeleton className="h-8 w-40 rounded-2xl" />
+      </div>
+      <div className="flex flex-col items-end gap-1">
+        <Skeleton className="h-2.5 w-10" />
+        <Skeleton className="h-8 w-32 rounded-2xl" />
+      </div>
+      <div className="flex flex-col items-start gap-1">
+        <Skeleton className="h-2.5 w-16" />
+        <Skeleton className="h-8 w-48 rounded-2xl" />
+      </div>
+    </div>
+  );
+
   return (
     <div className="fixed bottom-4 right-4 z-40 sm:bottom-6 sm:right-6">
       {!isOpen ? (
@@ -191,7 +225,9 @@ export default function ChatPopup() {
             <div className="flex flex-1 flex-col overflow-hidden">
               {showConversationList ? (
                 <div className="flex-1 overflow-y-auto">
-                  {conversations.length === 0 ? (
+                  {conversationsLoading ? (
+                    conversationListSkeleton
+                  ) : conversations.length === 0 ? (
                     <div className="p-4 text-center text-dark-secondary">No conversations</div>
                   ) : (
                     conversations.map((conv) => (
@@ -210,16 +246,20 @@ export default function ChatPopup() {
                 </div>
               ) : selectedProjectId ? (
                 <>
-                  <div className="flex-1 space-y-3 overflow-y-auto p-4">
-                    {messages.length === 0 ? (
-                      <div className="flex h-full items-center justify-center text-sm text-dark-secondary">
-                        No messages yet. Start a conversation!
-                      </div>
-                    ) : (
-                      messages.map(messageBubble)
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
+                  {messagesLoading ? (
+                    messageThreadSkeleton
+                  ) : (
+                    <div className="flex-1 space-y-3 overflow-y-auto p-4">
+                      {messages.length === 0 ? (
+                        <div className="flex h-full items-center justify-center text-sm text-dark-secondary">
+                          No messages yet. Start a conversation!
+                        </div>
+                      ) : (
+                        messages.map(messageBubble)
+                      )}
+                      <div ref={messagesEndRef} />
+                    </div>
+                  )}
 
                   <form onSubmit={(e) => void handleSendMessage(e)} className="border-t border-dark-subtle p-4">
                     <div className="flex gap-2">
@@ -265,7 +305,9 @@ export default function ChatPopup() {
 
             <div className="flex flex-1 overflow-hidden">
               <div className="w-1/3 overflow-y-auto border-r border-dark-subtle">
-                {conversations.length === 0 ? (
+                {conversationsLoading ? (
+                  conversationListSkeleton
+                ) : conversations.length === 0 ? (
                   <div className="p-3 text-sm text-dark-secondary">No conversations</div>
                 ) : (
                   conversations.map((conv) => (
@@ -287,16 +329,20 @@ export default function ChatPopup() {
               <div className="flex flex-1 flex-col">
                 {selectedProjectId ? (
                   <>
-                    <div className="flex-1 space-y-3 overflow-y-auto p-3.5">
-                      {messages.length === 0 ? (
-                        <div className="flex h-full items-center justify-center text-xs text-dark-secondary">
-                          No messages yet
-                        </div>
-                      ) : (
-                        messages.map(messageBubble)
-                      )}
-                      <div ref={messagesEndRef} />
-                    </div>
+                    {messagesLoading ? (
+                      messageThreadSkeleton
+                    ) : (
+                      <div className="flex-1 space-y-3 overflow-y-auto p-3.5">
+                        {messages.length === 0 ? (
+                          <div className="flex h-full items-center justify-center text-xs text-dark-secondary">
+                            No messages yet
+                          </div>
+                        ) : (
+                          messages.map(messageBubble)
+                        )}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    )}
 
                     <form onSubmit={(e) => void handleSendMessage(e)} className="border-t border-dark-subtle p-3">
                       <div className="flex gap-2">

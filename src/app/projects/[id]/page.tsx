@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { ProjectDetailSkeleton } from "~/app/_components/Skeleton";
 
 interface RoleNeeded {
   id: number;
@@ -157,7 +158,7 @@ export default function ProjectDetailPage() {
         ) : null}
 
         {isLoading ? (
-          <div className="card-raised mt-5 p-10 text-center text-dark-secondary">Loading project...</div>
+          <div className="mt-5"><ProjectDetailSkeleton /></div>
         ) : !project ? null : (
           <>
             <div className="mt-5 flex flex-wrap items-start justify-between gap-5">

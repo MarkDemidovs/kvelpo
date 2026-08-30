@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useChatWidget } from '~/app/_components/ChatContext';
+import { ConversationCardSkeletonGrid } from '~/app/_components/Skeleton';
 
 interface ConversationProject {
   id: number;
@@ -60,9 +61,7 @@ export default function ChatsPage() {
       </div>
 
       {loading ? (
-        <div className="card-raised p-10 text-center text-dark-secondary">
-          Loading conversations...
-        </div>
+        <ConversationCardSkeletonGrid />
       ) : error ? (
         <div className="card-raised p-10 text-center text-red-400">
           {error}

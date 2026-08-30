@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
+import { InboxSkeleton } from '~/app/_components/Skeleton';
 
 interface NotificationItem {
   id: number;
@@ -94,9 +95,7 @@ export default function InboxPage() {
       </div>
 
       {loading ? (
-        <div className="card-raised p-10 text-center text-dark-secondary">
-          Loading inbox...
-        </div>
+        <InboxSkeleton />
       ) : error ? (
         <div className="card-raised p-10 text-center text-red-400">
           {error}

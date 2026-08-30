@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import CreateProjectModal from './CreateProjectModal';
 import Reveal from './_components/Reveal';
+import { ProjectCardSkeletonGrid } from './_components/Skeleton';
 
 interface Project {
   id: number;
@@ -416,7 +417,7 @@ function HomeFeedContent() {
           )}
 
           {loading ? (
-            <div className="card-raised mt-10 p-10 text-center text-dark-secondary">Loading projects...</div>
+            <div className="mt-10"><ProjectCardSkeletonGrid /></div>
           ) : projectsError ? (
             <div className="card-raised mt-10 p-10 text-center text-red-400">{projectsError}</div>
           ) : (

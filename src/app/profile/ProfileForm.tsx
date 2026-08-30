@@ -6,6 +6,7 @@ import { UserButton } from "@clerk/nextjs";
 import { deleteAccountAction } from "~/app/actions/delete-account";
 import { saveConsentAction } from "~/app/actions/consent";
 import skillsConfig from "~/data/skills.json";
+import { ProfileFormSkeleton } from "~/app/_components/Skeleton";
 
 type MembershipType = "free" | "pro" | "team";
 
@@ -141,7 +142,7 @@ export default function ProfileForm() {
   };
 
   if (loading) {
-    return <p className="text-dark-secondary">Loading profile…</p>;
+    return <ProfileFormSkeleton />;
   }
 
   return (

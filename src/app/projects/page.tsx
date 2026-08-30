@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ProjectCardSkeletonGrid } from '~/app/_components/Skeleton';
 
 interface Project {
   id: number;
@@ -97,9 +98,7 @@ export default function ProjectsPage() {
       </div>
 
       {loading ? (
-        <div className="card-raised p-10 text-center text-dark-secondary">
-          Loading projects...
-        </div>
+        <ProjectCardSkeletonGrid />
       ) : error ? (
         <div className="card-raised p-10 text-center text-red-400">
           {error}
