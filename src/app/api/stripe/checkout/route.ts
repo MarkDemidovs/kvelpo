@@ -1,5 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
-import { getStripe, getPriceMembershipMap, resolveOrigin } from "~/server/stripe";
+import { db } from "~/server/db";
+import { profiles } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
+import { getStripe, getPriceMembershipMap, resolveOrigin, syncMembershipFromSubscription } from "~/server/stripe";
+
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"]);
 
 export async function POST(req: Request) {
   try {
@@ -28,8 +33,37 @@ export async function POST(req: Request) {
     const stripe = getStripe();
     const origin = resolveOrigin();
 
+    const profile = await db
+      .select({ stripeCustomerId: profiles.stripeCustomerId, stripeSubscriptionId: profiles.stripeSubscriptionId })
+      .from(profiles)
+      .where(eq(profiles.clerkUserId, userId))
+      .then((rows) => rows[0]);
+
+    // Already on a paid plan: change the existing subscription's price in place
+    // instead of starting a second Checkout Session, which would leave the old
+    // subscription active and double-bill the customer.
+    if (profile?.stripeSubscriptionId) {
+      const existing = await stripe.subscriptions.retrieve(profile.stripeSubscriptionId);
+      if (ACTIVE_SUBSCRIPTION_STATUSES.has(existing.status)) {
+        const item = existing.items.data[0];
+        if (!item) {
+          return new Response(JSON.stringify({ error: "Existing subscription has no items" }), { status: 500, headers: { "Content-Type": "application/json" } });
+        }
+
+        const updated = await stripe.subscriptions.update(profile.stripeSubscriptionId, {
+          items: [{ id: item.id, price: priceId }],
+          proration_behavior: "create_prorations",
+        });
+
+        await syncMembershipFromSubscription(updated, userId);
+
+        return new Response(JSON.stringify({ updated: true }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+      customer: profile?.stripeCustomerId ?? undefined,
       line_items: [{ price: priceId, quantity: 1 }],
       metadata: {
         userId,

@@ -186,9 +186,14 @@ function SubscriptionPageContent() {
         throw new Error(message || `Checkout creation failed: ${res.status}`);
       }
 
-      const data = (await res.json()) as { url?: string };
+      const data = (await res.json()) as { url?: string; updated?: boolean };
       if (data?.url) {
         window.location.href = data.url;
+        return;
+      }
+
+      if (data?.updated) {
+        window.location.reload();
         return;
       }
 
