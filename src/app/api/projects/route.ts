@@ -137,9 +137,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Name is required" }, { status: 400 });
     }
 
-    let limitError: string | null = null;
-
-    const newProject = await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       // Serialize project-creation checks per user so two concurrent requests
       // can't both pass the count check before either insert commits.
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${userId}))`);
@@ -147,10 +145,10 @@ export async function POST(request: Request) {
       const existingProjects = await tx.select({ id: projects.id }).from(projects).where(eq(projects.clerkUserId, userId));
 
       const membership = (await tx.select({ status: profiles.membership }).from(profiles).where(eq(profiles.clerkUserId, userId)).limit(1))?.[0]?.status as MembershipStatus ?? "free";
+      const limit = membershipProjectLimits[membership];
 
-      if (existingProjects.length >= membershipProjectLimits[membership]) {
-        limitError = `Your membership status is ${membership}, which means that you can make a maximum of ${membershipProjectLimits[membership]} projects`;
-        return undefined;
+      if (existingProjects.length >= limit) {
+        return { limitReached: true as const, membership, limit };
       }
 
       const [created] = await tx.insert(projects).values({
@@ -161,12 +159,28 @@ export async function POST(request: Request) {
         tags,
       }).returning();
 
-      return created;
+      return { limitReached: false as const, project: created };
     });
 
-    if (limitError) {
-      return Response.json({ error: limitError }, { status: 400 });
+    if (result.limitReached) {
+      const planLabel = result.membership.charAt(0).toUpperCase() + result.membership.slice(1);
+      const nextTip =
+        result.membership === "team"
+          ? "Delete an existing project to free up a slot."
+          : "Delete an existing project, or upgrade your plan to create more.";
+
+      return Response.json(
+        {
+          error: `You've reached the ${result.limit}-project limit for the ${planLabel} plan. ${nextTip}`,
+          code: "PROJECT_LIMIT_REACHED",
+          membership: result.membership,
+          limit: result.limit,
+        },
+        { status: 403 }
+      );
     }
+
+    const newProject = result.project;
 
     if (!newProject) {
       return Response.json({ error: "Failed to create project" }, { status: 500 });

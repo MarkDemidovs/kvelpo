@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import skillsConfig from "~/data/skills.json";
 
 interface CreateProjectModalProps {
@@ -38,11 +39,13 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
   ]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaving(true);
     setError(null);
+    setLimitReached(false);
 
     try {
       const response = await fetch("/api/projects", {
@@ -66,7 +69,8 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       });
 
       if (!response.ok) {
-        const errorData = (await response.json()) as { error?: string };
+        const errorData = (await response.json()) as { error?: string; code?: string };
+        setLimitReached(errorData.code === "PROJECT_LIMIT_REACHED");
         throw new Error(errorData.error ?? "Failed to create project");
       }
 
@@ -74,7 +78,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       onProjectCreated(newProject);
       handleClose();
     } catch (err) {
-      setError(String(err));
+      setError(String(err instanceof Error ? err.message : err));
     } finally {
       setSaving(false);
     }
@@ -87,6 +91,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
     setExpanded(false);
     setRolesNeeded([{ title: "", description: "", slotsNeeded: 1 }]);
     setError(null);
+    setLimitReached(false);
     onClose();
   };
 
@@ -113,7 +118,15 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         <form id="project-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {error && (
             <div className="rounded-md bg-red-900/30 p-3 text-sm text-red-400">
-              {error}
+              <p>{error}</p>
+              {limitReached && (
+                <Link
+                  href="/profile/subscription"
+                  className="mt-2 inline-block font-semibold text-accent-blue hover:underline"
+                >
+                  View plans →
+                </Link>
+              )}
             </div>
           )}
 
