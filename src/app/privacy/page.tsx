@@ -54,7 +54,7 @@ export default function PrivacyPage() {
             <div className="space-y-3 text-sm">
               <p><strong>Contract Performance:</strong> We process your data to provide the services you've requested.</p>
               <p><strong>Legitimate Interests:</strong> We process data for platform security, fraud prevention, and service improvement.</p>
-              <p><strong>Consent:</strong> For optional features like cookies and marketing communications.</p>
+              <p><strong>Consent:</strong> For optional, non-essential cookies where required.</p>
               <p><strong>Legal Obligation:</strong> To comply with applicable laws and regulations.</p>
             </div>
           </section>
@@ -99,12 +99,13 @@ export default function PrivacyPage() {
             <div className="space-y-3 text-sm">
               <p>We retain your personal information only as long as necessary for the purposes outlined in this policy:</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>Account Data:</strong> Retained while your account is active</li>
-                <li><strong>Project Data:</strong> Retained until project deletion or account termination</li>
-                <li><strong>Payment Data:</strong> Retained as required by financial regulations (typically 7 years)</li>
-                <li><strong>Analytics Data:</strong> Retained for 26 months or until anonymized</li>
+                <li><strong>Account and Profile Data:</strong> Retained while your account is active</li>
+                <li><strong>Project Data:</strong> Retained until you delete the project or your account</li>
+                <li><strong>Messages and Applications:</strong> Anonymized (disassociated from your identity) immediately when your account is deleted, rather than deleted outright, so the other party's conversation or application history stays intact</li>
+                <li><strong>Consent Records:</strong> Deleted immediately when your account is deleted</li>
+                <li><strong>Payment Data:</strong> Held by our payment processor, Stripe, as required by financial regulations (typically 7 years); we do not store your card details ourselves</li>
               </ul>
-              <p>Upon account deletion, all personal data is permanently removed within 30 days, except as required by law.</p>
+              <p>Deleting your account permanently and immediately erases your profile and projects and deletes you from our authentication provider — there is no grace period, and this cannot be undone.</p>
             </div>
           </section>
 
@@ -130,9 +131,9 @@ export default function PrivacyPage() {
               <p>We use cookies and similar technologies for:</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Authentication and session management</li>
-                <li>Remembering your preferences</li>
-                <li>Analytics and service improvement</li>
+                <li>Remembering your preferences and consent choices</li>
               </ul>
+              <p>We do not currently use analytics, advertising, or tracking cookies. See our <strong>Cookie Policy</strong> for full details.</p>
               <p>You can manage cookie preferences through our consent banner or browser settings.</p>
             </div>
           </section>

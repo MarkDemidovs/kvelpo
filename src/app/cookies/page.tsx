@@ -16,12 +16,10 @@ export default function CookiesPage() {
             <h2 className="text-xl font-semibold text-dark-primary mb-4">1. What Are Cookies?</h2>
             <div className="space-y-3 text-sm">
               <p>Cookies are small text files that are stored on your device when you visit websites. They are widely used to make websites work more efficiently and to provide information to website owners.</p>
-              <p>Similar technologies include:</p>
+              <p>Similar technologies we use include:</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Local Storage:</strong> Browser storage for application data</li>
                 <li><strong>Session Storage:</strong> Temporary browser storage for session data</li>
-                <li><strong>Web Beacons:</strong> Small transparent images used for tracking</li>
-                <li><strong>Fingerprinting:</strong> Device identification techniques</li>
               </ul>
             </div>
           </section>
@@ -48,37 +46,16 @@ export default function CookiesPage() {
                 <p className="mb-2">These cookies enable enhanced functionality and personalization:</p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Remembering your preferences and settings</li>
-                  <li>Language and theme selections</li>
                   <li>Remembering your consent preferences</li>
                 </ul>
                 <p className="mt-2"><strong>Processing Basis:</strong> Legitimate interests</p>
                 <p><strong>Consent Required:</strong> No (can be disabled in settings)</p>
               </div>
-
-              <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Analytics Cookies</h3>
-                <p className="mb-2">These cookies help us understand how users interact with our service:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Page visit statistics and user behavior</li>
-                  <li>Performance monitoring and error tracking</li>
-                  <li>A/B testing and feature optimization</li>
-                </ul>
-                <p className="mt-2"><strong>Processing Basis:</strong> Legitimate interests</p>
-                <p><strong>Consent Required:</strong> Yes (for EU users)</p>
-              </div>
-
-              <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Marketing Cookies</h3>
-                <p className="mb-2">These cookies are used for advertising and personalization:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Personalized content and recommendations</li>
-                  <li>Cross-site tracking for advertising</li>
-                  <li>Social media integration</li>
-                </ul>
-                <p className="mt-2"><strong>Processing Basis:</strong> Consent</p>
-                <p><strong>Consent Required:</strong> Yes (for EU users)</p>
-              </div>
             </div>
+
+            <p className="mt-4 text-sm">
+              We do not currently use analytics, advertising, or marketing cookies, and we do not use device fingerprinting or cross-site tracking. If that changes, we will update this policy and, where required, ask for your consent first.
+            </p>
           </section>
 
           <section>
@@ -88,8 +65,8 @@ export default function CookiesPage() {
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Clerk:</strong> Authentication and session management</li>
                 <li><strong>Stripe:</strong> Payment processing and security</li>
-                <li><strong>Vercel:</strong> Performance monitoring and analytics</li>
               </ul>
+              <p className="mt-4">Our hosting provider, Vercel, may process technical request data to operate our infrastructure, but we do not use any Vercel analytics or tracking product.</p>
               <p className="mt-4">These third parties have their own privacy policies and cookie policies. We encourage you to review their policies for detailed information.</p>
             </div>
           </section>

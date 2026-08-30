@@ -154,8 +154,8 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">12. Governing Law and Jurisdiction</h2>
             <p className="text-sm">
-              These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction], without regard to its conflict of law provisions. 
-              Any dispute arising under these Terms shall be resolved in the courts of [Your Jurisdiction].
+              These Terms shall be governed by and construed in accordance with the laws of Latvia, without regard to its conflict of law provisions.
+              Any dispute arising under these Terms shall be resolved in the courts of Latvia.
             </p>
           </section>
 

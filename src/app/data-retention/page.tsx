@@ -28,68 +28,44 @@ export default function DataRetentionPage() {
             <div className="space-y-4 text-sm">
               
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Account Information</h3>
-                <p className="mb-2"><strong>Retention Period:</strong> While account is active + 30 days after deletion</p>
+                <h3 className="font-semibold text-dark-primary mb-2">Account and Profile Information</h3>
+                <p className="mb-2"><strong>Retention Period:</strong> While your account is active</p>
                 <p><strong>Purpose:</strong> Account management and service provision</p>
-                <p><strong>Deletion:</strong> Permanent deletion within 30 days of account closure request</p>
-              </div>
-
-              <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Profile Data</h3>
-                <p className="mb-2"><strong>Retention Period:</strong> While account is active + 30 days after deletion</p>
-                <p><strong>Purpose:</strong> User identity and platform functionality</p>
-                <p><strong>Deletion:</strong> Deleted upon account closure or user request</p>
+                <p><strong>Deletion:</strong> Permanently and immediately deleted the moment you delete your account &mdash; there is no grace period</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
                 <h3 className="font-semibold text-dark-primary mb-2">Project Data</h3>
-                <p className="mb-2"><strong>Retention Period:</strong> While project exists + 30 days after deletion</p>
+                <p className="mb-2"><strong>Retention Period:</strong> While the project exists</p>
                 <p><strong>Purpose:</strong> Project collaboration and management</p>
-                <p><strong>Deletion:</strong> Deleted when project is deleted or account is closed</p>
+                <p><strong>Deletion:</strong> Deleted immediately when you delete the project or your account</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Messages and Communications</h3>
-                <p className="mb-2"><strong>Retention Period:</strong> 1 year after account deletion</p>
-                <p><strong>Purpose:</strong> Communication history and support</p>
-                <p><strong>Deletion:</strong> Anonymized after 1 year for service improvement</p>
-              </div>
-
-              <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Application Data</h3>
-                <p className="mb-2"><strong>Retention Period:</strong> 2 years after application resolution</p>
-                <p><strong>Purpose:</strong> Application history and project matching</p>
-                <p><strong>Deletion:</strong> Deleted after 2 years or upon user request</p>
+                <h3 className="font-semibold text-dark-primary mb-2">Messages and Applications</h3>
+                <p className="mb-2"><strong>Retention Period:</strong> Until account deletion, then indefinitely in anonymized form</p>
+                <p><strong>Purpose:</strong> Preserving the other party's conversation or application history</p>
+                <p><strong>Deletion:</strong> Immediately disassociated from your identity when you delete your account &mdash; the message or application text remains, but is no longer linked to you</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
                 <h3 className="font-semibold text-dark-primary mb-2">Payment and Billing Data</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> 7 years (financial regulations)</p>
                 <p><strong>Purpose:</strong> Payment processing, fraud prevention, legal compliance</p>
-                <p><strong>Deletion:</strong> Retained as required by financial regulations</p>
-              </div>
-
-              <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Analytics and Usage Data</h3>
-                <p className="mb-2"><strong>Retention Period:</strong> 26 months (aggregated/anonymized)</p>
-                <p><strong>Purpose:</strong> Service improvement and analytics</p>
-                <p><strong>Deletion:</strong> Anonymized or deleted after 26 months</p>
+                <p><strong>Deletion:</strong> Held by our payment processor, Stripe, as required by financial regulations; we do not store your card details ourselves</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
                 <h3 className="font-semibold text-dark-primary mb-2">Consent Records</h3>
-                <p className="mb-2"><strong>Retention Period:</strong> 3 years after consent withdrawal</p>
+                <p className="mb-2"><strong>Retention Period:</strong> While your account exists</p>
                 <p><strong>Purpose:</strong> GDPR compliance and consent management</p>
-                <p><strong>Deletion:</strong> Deleted after 3 years unless required for legal purposes</p>
-              </div>
-
-              <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Security Logs</h3>
-                <p className="mb-2"><strong>Retention Period:</strong> 90 days (aggregated)</p>
-                <p><strong>Purpose:</strong> Security monitoring and incident response</p>
-                <p><strong>Deletion:</strong> Anonymized after 90 days</p>
+                <p><strong>Deletion:</strong> Deleted immediately when you delete your account</p>
               </div>
             </div>
+
+            <p className="mt-4 text-sm">
+              We do not currently collect analytics or usage-tracking data, so no separate analytics retention period applies. If that changes, we will update this policy first.
+            </p>
           </section>
 
           <section>
