@@ -24,7 +24,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
       <html lang="en" suppressHydrationWarning className={`${geist.variable}`}>
         <body suppressHydrationWarning>
           <ChatProvider>
