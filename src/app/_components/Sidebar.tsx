@@ -39,7 +39,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   }, []);
 
   // Admin-only "Reports" entry. Checked each time the menu opens so the open
-  // count stays current; the server decides who is an admin (ADMIN_EMAILS).
+  // count stays current; the server decides who is an admin (see src/server/admin.ts).
   const [admin, setAdmin] = useState<{ openReports: number } | null>(null);
   useEffect(() => {
     if (!isSignedIn) {
