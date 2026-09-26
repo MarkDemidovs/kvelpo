@@ -1,5 +1,12 @@
 import Link from "next/link";
 import LegalPageShell from "~/app/_components/LegalPageShell";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cookie Policy",
+  description: "Which cookies kvelpo uses and why.",
+  alternates: { canonical: "/cookies" },
+};
 
 export default function CookiesPage() {
   return (

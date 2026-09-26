@@ -35,7 +35,6 @@ export default function ProfileForm() {
 
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [membership, setMembership] = useState<MembershipType>("free");
   const [skills, setSkills] = useState<string[]>([]);
@@ -58,7 +57,6 @@ export default function ProfileForm() {
         const data = (await res.json()) as ProfileData;
         setFullName(data.fullName ?? "");
         setBio(data.bio ?? "");
-        setAvatarUrl(data.avatarUrl ?? "");
         setIsPublic(data.isPublic ?? true);
         setMembership(data.membership ?? "free");
         setSkills(Array.isArray(data.skills) ? data.skills.filter((skill): skill is string => typeof skill === "string").slice(0, 15) : []);
@@ -87,7 +85,6 @@ export default function ProfileForm() {
         body: JSON.stringify({
           fullName,
           bio,
-          avatarUrl,
           isPublic,
           // membership is managed via Stripe subscriptions — handled separately
           skills,
@@ -165,27 +162,16 @@ export default function ProfileForm() {
       {error ? <div className="rounded-xl bg-red-900/30 p-3 text-sm text-red-400">{error}</div> : null}
 
       <form onSubmit={handleSubmit} className="card-raised space-y-6 p-7">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="text-sm font-medium text-dark-secondary">Full name</span>
-            <input
-              className={fieldClass}
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
-              placeholder="Your display name"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-medium text-dark-secondary">Avatar URL</span>
-            <input
-              className={fieldClass}
-              value={avatarUrl}
-              onChange={(event) => setAvatarUrl(event.target.value)}
-              placeholder="https://..."
-            />
-          </label>
-        </div>
+        <label className="block">
+          <span className="text-sm font-medium text-dark-secondary">Full name</span>
+          <input
+            className={fieldClass}
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            placeholder="Your display name"
+          />
+          <span className="mt-1.5 block text-xs text-dark-muted">Your profile picture comes from your sign-in account. Change it from the account menu (top right).</span>
+        </label>
 
         <label className="block">
           <span className="text-sm font-medium text-dark-secondary">Bio</span>

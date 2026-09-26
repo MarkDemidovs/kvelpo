@@ -1,4 +1,11 @@
 import LegalPageShell from "~/app/_components/LegalPageShell";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Data Retention Policy",
+  description: "How long kvelpo keeps your data and what happens when you delete your account.",
+  alternates: { canonical: "/data-retention" },
+};
 
 export default function DataRetentionPage() {
   return (

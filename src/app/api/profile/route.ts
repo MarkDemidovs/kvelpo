@@ -50,7 +50,6 @@ type MembershipType = "free" | "pro" | "team";
 type ProfileUpdateRequest = {
   fullName?: string | null;
   bio?: string | null;
-  avatarUrl?: string | null;
   isPublic?: boolean;
   membership?: MembershipType;
   link1?: string | null;
@@ -111,7 +110,6 @@ export async function PATCH(req: Request) {
   const parsedBody: ProfileUpdateRequest = {
     fullName: typeof body.fullName === "string" ? body.fullName : null,
     bio: typeof body.bio === "string" ? body.bio : null,
-    avatarUrl: typeof body.avatarUrl === "string" ? body.avatarUrl : null,
     isPublic: typeof body.isPublic === "boolean" ? body.isPublic : undefined,
     link1: links[0] ?? null,
     link2: links[1] ?? null,
@@ -122,7 +120,6 @@ export async function PATCH(req: Request) {
   const updateData: Record<string, unknown> = {
     fullName: parsedBody.fullName,
     bio: parsedBody.bio,
-    avatarUrl: parsedBody.avatarUrl,
     isPublic: parsedBody.isPublic,
     link1: parsedBody.link1,
     link2: parsedBody.link2,

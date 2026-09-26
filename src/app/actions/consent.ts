@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "~/server/db";
 import { userConsent } from "~/server/db/schema";
@@ -42,5 +42,21 @@ export async function saveConsentAction(formData: FormData) {
     path: "/",
   });
 
-  redirect("/");
+  redirect(await returnPath());
+}
+
+// Send the visitor back to the page they chose from (the banner can appear on
+// any page). Only same-origin paths are used, and the consent page itself
+// falls back to the home page.
+async function returnPath(): Promise<string> {
+  const referer = (await headers()).get("referer");
+  const host = (await headers()).get("host");
+  if (!referer || !host) return "/";
+  try {
+    const url = new URL(referer);
+    if (url.host !== host || url.pathname === "/consent") return "/";
+    return `${url.pathname}${url.search}`;
+  } catch {
+    return "/";
+  }
 }

@@ -1,6 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { saveConsentAction } from "~/app/actions/consent";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Consent Center",
+  description: "Manage your cookie and data-processing choices on kvelpo.",
+  alternates: { canonical: "/consent" },
+};
 
 export default async function ConsentPage() {
   const { userId } = await auth();

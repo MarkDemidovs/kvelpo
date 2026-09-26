@@ -101,7 +101,15 @@ function SubscriptionPageContent() {
   };
 
   useEffect(() => {
+    // Re-runs when the user signs in via the modal on this page, so the plan
+    // shown isn't the signed-out default.
+    if (!isSignedIn) {
+      setPageLoading(false);
+      return;
+    }
+
     const loadProfile = async () => {
+      setPageLoading(true);
       try {
         const res = await fetch("/api/profile");
         if (!res.ok) throw new Error("Unable to load profile");
@@ -123,7 +131,7 @@ function SubscriptionPageContent() {
     };
 
     void loadProfile();
-  }, []);
+  }, [isSignedIn]);
 
   useEffect(() => {
     const sessionId = searchParams.get("session_id");

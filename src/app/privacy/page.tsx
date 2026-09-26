@@ -1,4 +1,11 @@
 import LegalPageShell from "~/app/_components/LegalPageShell";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "How kvelpo collects, uses, and protects your personal data.",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPage() {
   return (
@@ -26,7 +33,7 @@ export default function PrivacyPage() {
                 <h3 className="font-semibold text-dark-primary mb-2">2.1 Account Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Email address and user identifier (via Clerk authentication)</li>
-                  <li>Profile information: full name, bio, avatar URL, skills, links, and work experience (job titles, organizations, locations, dates, and descriptions you add)</li>
+                  <li>Profile information: full name, profile picture (from your sign-in account), bio, skills, links, and work experience (job titles, organizations, locations, dates, and descriptions you add)</li>
                   <li>Membership and subscription details</li>
                 </ul>
               </div>

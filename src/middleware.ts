@@ -1,40 +1,15 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/server';
+import { clerkMiddleware } from '@clerk/nextjs/server';
 
-const isPublicRoute = createRouteMatcher([
-  '/consent',
-  '/privacy',
-  '/terms',
-  '/cookies',
-  '/data-retention',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/api/webhooks/(.*)',
-  '/api/stripe/webhook',
-]);
-
-const isStaticAsset = (pathname: string) => /\/(_next\/|favicon\.ico|.*\.(?:png|jpg|jpeg|gif|svg|css|js|ico|webmanifest))$/.test(pathname);
-
-// Auth is intentionally NOT enforced here: `/`, `/projects`, and `/profile/[id]`
-// all support anonymous browsing of public content (see their client-side
-// isSignedIn checks). Per-route auth/ownership checks live in the API routes
+// Clerk's middleware only attaches auth state here; it doesn't block any route.
+// `/`, `/projects`, and `/profile/[id]` support anonymous browsing of public
+// content, and per-route auth/ownership checks live in the API routes
 // themselves, which is the layer that actually needs to gate access to data.
-export default clerkMiddleware(async (_auth, req) => {
-  const pathname = req.nextUrl.pathname;
-
-  if (isPublicRoute(req) || isStaticAsset(pathname)) {
-    return NextResponse.next();
-  }
-
-  const consentStatus = req.cookies.get('app-consent-status')?.value;
-  const hasConsentDecision = consentStatus === 'accepted' || consentStatus === 'rejected';
-
-  if (!hasConsentDecision) {
-    return NextResponse.redirect(new URL('/consent', req.url));
-  }
-
-  return NextResponse.next();
-});
+//
+// Cookie consent is NOT enforced by redirecting here: the site only sets
+// strictly necessary cookies (auth/session, the consent choice itself), which
+// don't require prior consent, and a redirect wall also kept search engines
+// from ever reaching the site. EU visitors get the ConsentBanner instead.
+export default clerkMiddleware();
 
 export const config = {
   matcher: [

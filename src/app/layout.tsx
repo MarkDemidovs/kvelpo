@@ -5,13 +5,32 @@ import Link from "next/link";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import TopNav from "./_components/topnav";
+import { siteDescription, siteName, siteTagline, siteUrl } from "~/lib/site";
 import ChatPopup from "./_components/ChatPopup";
 import ConsentBanner from "./_components/ConsentBanner";
 import { ChatProvider } from "./_components/ChatContext";
 
 export const metadata: Metadata = {
-  title: "kvelpo",
-  description: "Created by Mark Demidovs",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${siteName}: ${siteTagline}`,
+    template: `%s | ${siteName}`,
+  },
+  description: siteDescription,
+  applicationName: siteName,
+  openGraph: {
+    type: "website",
+    siteName,
+    url: siteUrl,
+    title: `${siteName}: ${siteTagline}`,
+    description: siteDescription,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteName}: ${siteTagline}`,
+    description: siteDescription,
+  },
 };
 
 const geist = Geist({
