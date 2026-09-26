@@ -4,7 +4,7 @@ export default function DataRetentionPage() {
   return (
     <LegalPageShell title="Data Retention Policy">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: August 15, 2026</h2>
+            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 26, 2026</h2>
             <p className="text-sm">
               This Data Retention Policy explains how long kvelpo retains your personal information and the criteria we use for deletion.
             </p>
@@ -147,8 +147,9 @@ export default function DataRetentionPage() {
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">9. Contact Information</h2>
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
+              <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> privacy@kvelpo.com</p>
-              <p className="text-sm"><strong>Address:</strong> [Your Business Address]</p>
+              <p className="text-sm"><strong>Address:</strong> "Melnāji", Suntažu pagasts, Ogres novads, Latvia</p>
             </div>
           </section>
     </LegalPageShell>

@@ -4,7 +4,7 @@ export default function PrivacyPage() {
   return (
     <LegalPageShell title="Privacy Policy">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: August 15, 2026</h2>
+            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 26, 2026</h2>
             <p className="text-sm">
               This Privacy Policy explains how kvelpo ("we," "our," or "us") collects, uses, and protects your personal information. 
               This policy applies to our service and complies with the General Data Protection Regulation (GDPR) and other applicable privacy laws.
@@ -14,7 +14,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">1. Data Controller</h2>
             <p className="text-sm">
-              <strong>kvelpo</strong> is the data controller responsible for your personal information. 
+              <strong>Kvelpo SIA</strong>, registered in Latvia at "Melnāji", Suntažu pagasts, Ogres novads, Latvia, operates kvelpo and is the data controller responsible for your personal information.
               For privacy-related inquiries, please contact us at privacy@kvelpo.com.
             </p>
           </section>
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
                 <h3 className="font-semibold text-dark-primary mb-2">2.1 Account Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Email address and user identifier (via Clerk authentication)</li>
-                  <li>Profile information: full name, bio, avatar URL, skills, links</li>
+                  <li>Profile information: full name, bio, avatar URL, skills, links, and work experience (job titles, organizations, locations, dates, and descriptions you add)</li>
                   <li>Membership and subscription details</li>
                 </ul>
               </div>
@@ -169,9 +169,9 @@ export default function PrivacyPage() {
               For any privacy-related questions or to exercise your GDPR rights, please contact us at:
             </p>
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
+              <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> privacy@kvelpo.com</p>
-              <p className="text-sm"><strong>Address:</strong> [Your Business Address]</p>
-              <p className="text-sm"><strong>Phone:</strong> [Your Phone Number]</p>
+              <p className="text-sm"><strong>Address:</strong> "Melnāji", Suntažu pagasts, Ogres novads, Latvia</p>
             </div>
           </section>
     </LegalPageShell>

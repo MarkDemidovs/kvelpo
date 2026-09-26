@@ -5,7 +5,7 @@ export default function CookiesPage() {
   return (
     <LegalPageShell title="Cookie Policy">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: August 15, 2026</h2>
+            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 26, 2026</h2>
             <p className="text-sm">
               This Cookie Policy explains how kvelpo uses cookies and similar technologies to collect, store, and process your information. 
               This policy is designed to comply with the General Data Protection Regulation (GDPR) and ePrivacy Directive.
@@ -138,8 +138,9 @@ export default function CookiesPage() {
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">8. Contact Information</h2>
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
+              <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> privacy@kvelpo.com</p>
-              <p className="text-sm"><strong>Address:</strong> [Your Business Address]</p>
+              <p className="text-sm"><strong>Address:</strong> "Melnāji", Suntažu pagasts, Ogres novads, Latvia</p>
             </div>
           </section>
 

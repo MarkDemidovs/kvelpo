@@ -4,9 +4,9 @@ export default function TermsPage() {
   return (
     <LegalPageShell title="Terms of Service">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: August 15, 2026</h2>
+            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 26, 2026</h2>
             <p className="text-sm">
-              These Terms of Service ("Terms") govern your use of the kvelpo platform ("Service," "Platform," or "App"). 
+              These Terms of Service ("Terms") govern your use of the kvelpo platform ("Service," "Platform," or "App"), operated by Kvelpo SIA, a company registered in Latvia. 
               By accessing or using kvelpo, you agree to be bound by these Terms. If you disagree with any part of these terms, 
               you may not access the Service.
             </p>
@@ -170,8 +170,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">14. Contact Information</h2>
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
+              <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> legal@kvelpo.com</p>
-              <p className="text-sm"><strong>Address:</strong> [Your Business Address]</p>
+              <p className="text-sm"><strong>Address:</strong> "Melnāji", Suntažu pagasts, Ogres novads, Latvia</p>
             </div>
           </section>
     </LegalPageShell>
