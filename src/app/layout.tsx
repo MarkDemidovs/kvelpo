@@ -12,7 +12,6 @@ import { ChatProvider } from "./_components/ChatContext";
 export const metadata: Metadata = {
   title: "kvelpo",
   description: "Created by Mark Demidovs",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
 const geist = Geist({
