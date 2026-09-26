@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useChatWidget } from "./ChatContext";
 import { Skeleton } from "./Skeleton";
+import { SYSTEM_SENDER_ID } from "~/server/chat";
 
 interface Conversation {
   id: number;
@@ -139,7 +140,11 @@ export default function ChatPopup() {
 
   const selectedConversation = conversations.find(c => c.id === selectedProjectId);
 
-  const messageBubble = (msg: Message) => (
+  const messageBubble = (msg: Message) => msg.clerkUserId === SYSTEM_SENDER_ID ? (
+    <p key={msg.id} className="px-2 py-1 text-center text-[0.7rem] text-dark-muted">
+      {msg.message}
+    </p>
+  ) : (
     <div key={msg.id} className="flex flex-col gap-0.5 text-xs">
       <p className="font-semibold text-dark-muted">
         {msg.senderName ?? msg.clerkUserId.slice(0, 8)}

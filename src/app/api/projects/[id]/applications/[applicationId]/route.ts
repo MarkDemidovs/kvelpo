@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { applications, notifications, projectMembers, projectRolesNeeded, projects } from "~/server/db/schema";
+import { applications, messages, notifications, profiles, projectMembers, projectRolesNeeded, projects } from "~/server/db/schema";
+import { SYSTEM_SENDER_ID } from "~/server/chat";
 import { eq, and, gt, sql, TransactionRollbackError } from "drizzle-orm";
 
 export async function PATCH(
@@ -110,6 +111,18 @@ export async function PATCH(
             role: "member",
           });
         }
+
+        const applicantName = await tx
+          .select({ fullName: profiles.fullName })
+          .from(profiles)
+          .where(eq(profiles.clerkUserId, application.clerkUserId))
+          .then((rows) => rows[0]?.fullName?.trim() ?? "");
+
+        await tx.insert(messages).values({
+          projectId,
+          clerkUserId: SYSTEM_SENDER_ID,
+          message: `${applicantName.length > 0 ? applicantName : "A new member"} joined the team as ${role.title}. Say hi! 👋`,
+        });
       }
 
       await tx.insert(notifications).values({
