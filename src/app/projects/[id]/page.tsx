@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ProjectDetailSkeleton } from "~/app/_components/Skeleton";
+import ReportButton from "~/app/_components/ReportButton";
 
 interface RoleNeeded {
   id: number;
@@ -195,9 +196,12 @@ export default function ProjectDetailPage() {
                   <span className="shrink-0 text-xs text-dark-muted">&middot; Owner</span>
                 </div>
               </div>
-              <span className="whitespace-nowrap rounded-full bg-dark-tertiary px-3.5 py-2 text-[13px] text-dark-secondary">
-                {project.isPublic ? "Public project" : "Private project"}
-              </span>
+              <div className="flex flex-col items-end gap-2.5">
+                <span className="whitespace-nowrap rounded-full bg-dark-tertiary px-3.5 py-2 text-[13px] text-dark-secondary">
+                  {project.isPublic ? "Public project" : "Private project"}
+                </span>
+                {!project.isOwner ? <ReportButton targetType="project" targetId={project.id} targetLabel={project.name} /> : null}
+              </div>
             </div>
 
             <div className="mt-10 grid gap-10 lg:grid-cols-[2fr_1fr] lg:items-start">

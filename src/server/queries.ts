@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "./db";
 import { auth } from "@clerk/nextjs/server";
-import { profiles, projects, applications, projectRolesNeeded, projectMembers, messages, notifications, userConsent, experiences } from "./db/schema";
+import { profiles, projects, applications, projectRolesNeeded, projectMembers, messages, notifications, userConsent, experiences, reports } from "./db/schema";
 import { eq, and } from "drizzle-orm";
 import { getStripe } from "./stripe";
 
@@ -108,6 +108,10 @@ export async function eraseUserAccountData(clerkUserId: string): Promise<void> {
     await tx.update(messages).set({ clerkUserId: DELETED_USER_SENTINEL }).where(eq(messages.clerkUserId, clerkUserId));
     await tx.update(applications).set({ clerkUserId: DELETED_USER_SENTINEL }).where(eq(applications.clerkUserId, clerkUserId));
     await tx.update(projectMembers).set({ clerkUserId: DELETED_USER_SENTINEL }).where(eq(projectMembers.clerkUserId, clerkUserId));
+    // Reports they filed stay for moderation history but lose their identity;
+    // reports about their (now deleted) profile have nothing left to review.
+    await tx.update(reports).set({ reporterClerkUserId: DELETED_USER_SENTINEL }).where(eq(reports.reporterClerkUserId, clerkUserId));
+    await tx.delete(reports).where(and(eq(reports.targetType, "profile"), eq(reports.targetId, clerkUserId)));
 
     await tx.delete(notifications).where(eq(notifications.clerkUserId, clerkUserId));
     await tx.delete(experiences).where(eq(experiences.clerkUserId, clerkUserId));

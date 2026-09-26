@@ -63,6 +63,28 @@ export const experiences = createTable("experience", (d) => ({
   index("experiences_clerk_user_id_idx").on(t.clerkUserId),
 ]);
 
+// A user's report of a project or profile, reviewed on /admin/reports.
+// targetId is the project ID (as text) or the reported user's Clerk ID.
+export const reports = createTable("report", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  reporterClerkUserId: d.varchar({ length: 256 }).notNull(),
+  targetType: d.varchar({ length: 16 }).notNull(),
+  targetId: d.varchar({ length: 256 }).notNull(),
+  reason: d.varchar({ length: 32 }).notNull(),
+  details: d.text(),
+  status: d.varchar({ length: 16 }).notNull().default("open"),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  resolvedAt: d.timestamp({ withTimezone: true }),
+  resolvedBy: d.varchar({ length: 256 }),
+}), (t) => [
+  index("reports_status_idx").on(t.status),
+  index("reports_reporter_idx").on(t.reporterClerkUserId),
+  index("reports_target_idx").on(t.targetType, t.targetId),
+]);
+
 export const userConsent = createTable("user_consent", (d) => ({
   userId: d.varchar({ length: 256 }).primaryKey(),
   termsVersion: d.integer().notNull().default(1),

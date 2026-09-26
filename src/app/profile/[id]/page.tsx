@@ -4,6 +4,7 @@ import { experiences } from "~/server/db/schema";
 import { experienceColumns } from "~/server/experience";
 import { sortExperiences, type Experience } from "~/lib/experience";
 import ExperienceTimeline from "~/app/_components/ExperienceTimeline";
+import ReportButton from "~/app/_components/ReportButton";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
@@ -99,7 +100,9 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
                 </div>
                 {isOwner ? (
                   <Link href="/profile" className="btn-secondary !px-4 !py-2 text-sm">Edit your profile</Link>
-                ) : null}
+                ) : (
+                  <ReportButton targetType="profile" targetId={profileId} targetLabel={displayName} />
+                )}
               </div>
 
               <div className="mt-8 grid gap-6 sm:grid-cols-2">

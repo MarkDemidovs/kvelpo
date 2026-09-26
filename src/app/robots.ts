@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Signed-in-only or transactional pages: nothing useful to index.
-      disallow: ["/api/", "/sign-in", "/sign-up", "/inbox", "/chats", "/settings", "/profile$", "/profile/subscription"],
+      disallow: ["/api/", "/admin", "/sign-in", "/sign-up", "/inbox", "/chats", "/settings", "/profile$", "/profile/subscription"],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
     host: siteUrl,
