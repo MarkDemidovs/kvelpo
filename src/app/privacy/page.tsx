@@ -14,7 +14,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold text-dark-primary mb-4">1. Data Controller</h2>
             <p className="text-sm">
-              <strong>Kvelpo SIA</strong>, registered in Latvia at "Melnāji", Suntažu pagasts, Ogres novads, Latvia, operates kvelpo and is the data controller responsible for your personal information.
+              <strong>Kvelpo SIA</strong>, registered in Latvia at "Melnāji", Suntažu pagasts, Ogres novads, LV-5060, Latvia, operates kvelpo and is the data controller responsible for your personal information.
               For privacy-related inquiries, please contact us at privacy@kvelpo.com.
             </p>
           </section>
@@ -171,7 +171,7 @@ export default function PrivacyPage() {
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
               <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> privacy@kvelpo.com</p>
-              <p className="text-sm"><strong>Address:</strong> "Melnāji", Suntažu pagasts, Ogres novads, Latvia</p>
+              <p className="text-sm"><strong>Address:</strong> "Melnāji", Suntažu pagasts, Ogres novads, LV-5060, Latvia</p>
             </div>
           </section>
     </LegalPageShell>

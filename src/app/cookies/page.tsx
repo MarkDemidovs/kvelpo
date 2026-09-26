@@ -140,7 +140,7 @@ export default function CookiesPage() {
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
               <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> privacy@kvelpo.com</p>
-              <p className="text-sm"><strong>Address:</strong> "Melnāji", Suntažu pagasts, Ogres novads, Latvia</p>
+              <p className="text-sm"><strong>Address:</strong> "Melnāji", Suntažu pagasts, Ogres novads, LV-5060, Latvia</p>
             </div>
           </section>
 
