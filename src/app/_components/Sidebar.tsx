@@ -38,6 +38,24 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     setMounted(true);
   }, []);
 
+  // Admin-only "Reports" entry. Checked each time the menu opens so the open
+  // count stays current; the server decides who is an admin (ADMIN_EMAILS).
+  const [admin, setAdmin] = useState<{ openReports: number } | null>(null);
+  useEffect(() => {
+    if (!isSignedIn) {
+      setAdmin(null);
+      return;
+    }
+    if (!isOpen) return;
+
+    const controller = new AbortController();
+    fetch("/api/admin/status", { signal: controller.signal })
+      .then((res) => (res.ok ? (res.json() as Promise<{ isAdmin: boolean; openReports?: number }>) : null))
+      .then((data) => setAdmin(data?.isAdmin ? { openReports: data.openReports ?? 0 } : null))
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [isSignedIn, isOpen]);
+
   if (!mounted) return null;
 
   const content = (
@@ -214,6 +232,37 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </svg>
                 Settings
               </Link>
+
+              {admin ? (
+                <>
+                  <p className="px-4 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-dark-muted">Admin</p>
+                  <Link
+                    href="/admin/reports"
+                    className={navLinkClass(pathname === "/admin/reports")}
+                    onClick={onClose}
+                  >
+                    <svg
+                      className={navIconClass(pathname === "/admin/reports")}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 21V4m0 0h11l-1.5 4L15 12H4"
+                      />
+                    </svg>
+                    Reports
+                    {admin.openReports > 0 ? (
+                      <span className="ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
+                        {admin.openReports}
+                      </span>
+                    ) : null}
+                  </Link>
+                </>
+              ) : null}
             </div>
           </nav>
         </div>
