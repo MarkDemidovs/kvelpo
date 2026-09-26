@@ -113,9 +113,9 @@ function LandingView() {
             <p className="label-eyebrow">How it works</p>
             <div className="mt-11 grid gap-14 sm:grid-cols-3">
               {[
-                { n: '01', title: 'Post your project', body: 'Name it, describe it, and list the roles you need — how many people, what for.' },
+                { n: '01', title: 'Post your project', body: 'Name it, describe it, and list the roles you need, with how many people and what for.' },
                 { n: '02', title: 'Review applicants', body: 'Anyone can apply with a short message. Accept who fits, decline the rest.' },
-                { n: '03', title: 'Work in one place', body: "Accepted members get a project chat automatically — no extra tools to set up." },
+                { n: '03', title: 'Work in one place', body: "Accepted members get a project chat automatically, with no extra tools to set up." },
               ].map((step) => (
                 <div key={step.n}>
                   <span className="text-sm font-semibold text-accent-blue">{step.n}</span>
@@ -136,7 +136,7 @@ function LandingView() {
               <div>
                 <p className="label-eyebrow">If you&apos;re starting something</p>
                 <h3 className="mt-4.5 text-[28px] font-bold leading-tight tracking-tight text-dark-primary">Post it, and say what you need</h3>
-                <p className="mt-4 text-[15px] leading-relaxed text-dark-secondary">Describe what you&apos;re building and list the roles you&apos;re missing — a designer, a backend developer, however many spots each one has open. Applicants come to you.</p>
+                <p className="mt-4 text-[15px] leading-relaxed text-dark-secondary">Describe what you&apos;re building and list the roles you&apos;re missing, like a designer or a backend developer, with however many spots each one has open. Applicants come to you.</p>
                 <div className="card-raised mt-7 flex items-center justify-between gap-4 p-5">
                   <div>
                     <p className="text-sm font-semibold text-dark-primary">Product designer</p>
@@ -148,7 +148,7 @@ function LandingView() {
               <div>
                 <p className="label-eyebrow">If you want in on one</p>
                 <h3 className="mt-4.5 text-[28px] font-bold leading-tight tracking-tight text-dark-primary">Apply, and hear back directly</h3>
-                <p className="mt-4 text-[15px] leading-relaxed text-dark-secondary">Browse open projects, apply to the roles that fit with a short message, and hear back from the person actually running it — not a form that goes nowhere.</p>
+                <p className="mt-4 text-[15px] leading-relaxed text-dark-secondary">Browse open projects, apply to the roles that fit with a short message, and hear back from the person actually running it, not a form that goes nowhere.</p>
                 <div className="card-raised mt-7 flex items-center justify-between gap-4 p-5">
                   <div>
                     <p className="text-sm font-semibold text-dark-primary">Your application</p>
@@ -169,7 +169,7 @@ function LandingView() {
             <div>
               <p className="label-eyebrow">Once you&apos;re in</p>
               <h3 className="mt-4.5 text-3xl font-bold leading-tight tracking-tight text-dark-primary">No extra tools to set up</h3>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-dark-secondary">Every project gets its own chat the moment someone&apos;s accepted. Members talk, share updates, and coordinate right there — no separate Discord, no group chat full of strangers.</p>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-dark-secondary">Every project gets its own chat the moment someone&apos;s accepted. Members talk, share updates, and coordinate right there. No separate Discord, no group chat full of strangers.</p>
             </div>
             <div className="card-raised flex flex-col gap-3.5 p-6">
               <div className="flex flex-col items-start gap-1">
@@ -439,7 +439,7 @@ function HomeFeedContent() {
               <section>
                 <p className="label-eyebrow">Open projects</p>
                 {otherProjects.length === 0 ? (
-                  <div className="card-raised mt-5 p-10 text-center text-dark-secondary">No open projects yet — be the first to post one.</div>
+                  <div className="card-raised mt-5 p-10 text-center text-dark-secondary">No open projects yet. Be the first to post one.</div>
                 ) : (
                   <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {otherProjects.map((project) => (

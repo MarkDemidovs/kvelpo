@@ -31,7 +31,7 @@ export default function DataRetentionPage() {
                 <h3 className="font-semibold text-dark-primary mb-2">Account and Profile Information</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> While your account is active</p>
                 <p><strong>Purpose:</strong> Account management and service provision</p>
-                <p><strong>Deletion:</strong> Permanently and immediately deleted the moment you delete your account &mdash; there is no grace period</p>
+                <p><strong>Deletion:</strong> Permanently and immediately deleted the moment you delete your account. There is no grace period</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
@@ -45,7 +45,7 @@ export default function DataRetentionPage() {
                 <h3 className="font-semibold text-dark-primary mb-2">Messages and Applications</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> Until account deletion, then indefinitely in anonymized form</p>
                 <p><strong>Purpose:</strong> Preserving the other party's conversation or application history</p>
-                <p><strong>Deletion:</strong> Immediately disassociated from your identity when you delete your account &mdash; the message or application text remains, but is no longer linked to you</p>
+                <p><strong>Deletion:</strong> Immediately disassociated from your identity when you delete your account. The message or application text remains, but is no longer linked to you</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">

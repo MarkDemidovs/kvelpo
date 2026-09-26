@@ -105,7 +105,7 @@ export default function PrivacyPage() {
                 <li><strong>Consent Records:</strong> Deleted immediately when your account is deleted</li>
                 <li><strong>Payment Data:</strong> Held by our payment processor, Stripe, as required by financial regulations (typically 7 years); we do not store your card details ourselves</li>
               </ul>
-              <p>Deleting your account permanently and immediately erases your profile and projects and deletes you from our authentication provider — there is no grace period, and this cannot be undone.</p>
+              <p>Deleting your account permanently and immediately erases your profile and projects and deletes you from our authentication provider. There is no grace period, and this cannot be undone.</p>
             </div>
           </section>
 

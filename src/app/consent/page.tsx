@@ -43,12 +43,12 @@ export default async function ConsentPage() {
             <div className="space-y-3">
               <label htmlFor="accept" className="flex items-center gap-3 text-sm text-dark-secondary">
                 <input type="radio" id="accept" name="consentAction" value="accept" className="h-4 w-4 accent-[oklch(68%_0.18_240)]" />
-                <span><strong className="text-dark-primary">Accept All</strong> — allow all cookies for optimal experience</span>
+                <span><strong className="text-dark-primary">Accept All</strong>: allow all cookies for optimal experience</span>
               </label>
 
               <label htmlFor="reject" className="flex items-center gap-3 text-sm text-dark-secondary">
                 <input type="radio" id="reject" name="consentAction" value="reject" className="h-4 w-4 accent-[oklch(68%_0.18_240)]" />
-                <span><strong className="text-dark-primary">Reject Non-Essential</strong> — only essential cookies for basic functionality</span>
+                <span><strong className="text-dark-primary">Reject Non-Essential</strong>: only essential cookies for basic functionality</span>
               </label>
             </div>
 
