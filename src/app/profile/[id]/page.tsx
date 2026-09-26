@@ -1,5 +1,10 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
+import { experiences } from "~/server/db/schema";
+import { experienceColumns } from "~/server/experience";
+import { sortExperiences, type Experience } from "~/lib/experience";
+import ExperienceTimeline from "~/app/_components/ExperienceTimeline";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -46,6 +51,10 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
 
   const isOwner = userId === profileId;
   const canView = profile && (profile.isPublic || isOwner);
+
+  const experienceItems: Experience[] = canView
+    ? sortExperiences(await db.select(experienceColumns).from(experiences).where(eq(experiences.clerkUserId, profileId)))
+    : [];
   const displayName = profile?.fullName ?? "Anonymous";
   const initials = displayName
     .split(" ")
@@ -121,6 +130,15 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
                     ) : null}
                   </div>
                 </div>
+              </div>
+
+              <div className="mt-8">
+                <p className="label-eyebrow">Experience</p>
+                {experienceItems.length > 0 ? (
+                  <ExperienceTimeline items={experienceItems} />
+                ) : (
+                  <p className="mt-3 text-sm text-dark-secondary">No experience added yet.</p>
+                )}
               </div>
 
               <div className="mt-8">

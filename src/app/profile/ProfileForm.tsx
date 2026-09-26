@@ -7,6 +7,7 @@ import { deleteAccountAction } from "~/app/actions/delete-account";
 import { saveConsentAction } from "~/app/actions/consent";
 import skillsConfig from "~/data/skills.json";
 import { ProfileFormSkeleton } from "~/app/_components/Skeleton";
+import ExperienceSection from "./ExperienceSection";
 
 type MembershipType = "free" | "pro" | "team";
 
@@ -287,6 +288,8 @@ export default function ProfileForm() {
           {saving ? "Saving..." : "Save changes"}
         </button>
       </form>
+
+      <ExperienceSection />
 
       <div className="card-raised space-y-4 p-7">
         <div>

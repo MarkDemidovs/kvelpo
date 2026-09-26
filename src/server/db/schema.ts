@@ -40,6 +40,29 @@ export const profiles = createTable("profile", (d) => ({
   index("is_public_idx").on(t.isPublic),
 ]);
 
+// One entry in a user's LinkedIn-style experience timeline. Dates are stored
+// as the first day of the month (month precision); a null endDate means the
+// position is current.
+export const experiences = createTable("experience", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  clerkUserId: d.varchar({ length: 256 }).notNull(),
+  title: d.varchar({ length: 256 }).notNull(),
+  organization: d.varchar({ length: 256 }).notNull(),
+  location: d.varchar({ length: 256 }),
+  startDate: d.date({ mode: "string" }).notNull(),
+  endDate: d.date({ mode: "string" }),
+  description: d.text(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: d
+    .timestamp({ withTimezone: true })
+    .$onUpdate(() => new Date()),
+}), (t) => [
+  index("experiences_clerk_user_id_idx").on(t.clerkUserId),
+]);
+
 export const userConsent = createTable("user_consent", (d) => ({
   userId: d.varchar({ length: 256 }).primaryKey(),
   termsVersion: d.integer().notNull().default(1),
