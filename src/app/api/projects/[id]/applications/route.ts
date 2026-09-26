@@ -47,7 +47,7 @@ export async function POST(
     }
 
     const project = await db
-      .select({ clerkUserId: projects.clerkUserId, isPublic: projects.isPublic })
+      .select({ clerkUserId: projects.clerkUserId, isPublic: projects.isPublic, name: projects.name })
       .from(projects)
       .where(eq(projects.id, projectId))
       .then((rows) => rows[0]);
@@ -107,19 +107,32 @@ export async function POST(
 
     const applicantName = applicantProfile?.fullName ?? "Someone";
 
-    const [newApplication] = await db.insert(applications).values({
-      clerkUserId: userId,
-      projectRoleNeededId,
-      status: "pending",
-      message,
-    }).returning();
+    const newApplication = await db.transaction(async (tx) => {
+      const [created] = await tx.insert(applications).values({
+        clerkUserId: userId,
+        projectRoleNeededId,
+        status: "pending",
+        message,
+      }).returning();
 
-    await db.insert(notifications).values({
-      clerkUserId: project.clerkUserId,
-      projectId,
-      type: "application",
-      message: `${applicantName} applied for ${role.title}`,
-      isRead: false,
+      await tx.insert(notifications).values([
+        {
+          clerkUserId: project.clerkUserId,
+          projectId,
+          type: "application",
+          message: `${applicantName} applied for ${role.title} on ${project.name}`,
+          isRead: false,
+        },
+        {
+          clerkUserId: userId,
+          projectId,
+          type: "application_sent",
+          message: `You applied for ${role.title} on ${project.name}. We'll let you know when the owner responds.`,
+          isRead: false,
+        },
+      ]);
+
+      return created;
     });
 
     return Response.json(newApplication, { status: 201 });

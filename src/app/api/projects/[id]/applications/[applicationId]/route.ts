@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { applications, projectMembers, projectRolesNeeded, projects } from "~/server/db/schema";
+import { applications, notifications, projectMembers, projectRolesNeeded, projects } from "~/server/db/schema";
 import { eq, and, gt, sql, TransactionRollbackError } from "drizzle-orm";
 
 export async function PATCH(
@@ -37,7 +37,7 @@ export async function PATCH(
     }
 
     const role = await db
-      .select({ id: projectRolesNeeded.id, projectId: projectRolesNeeded.projectId })
+      .select({ id: projectRolesNeeded.id, projectId: projectRolesNeeded.projectId, title: projectRolesNeeded.title })
       .from(projectRolesNeeded)
       .where(eq(projectRolesNeeded.id, application.projectRoleNeededId))
       .then((rows) => rows[0]);
@@ -47,7 +47,7 @@ export async function PATCH(
     }
 
     const project = await db
-      .select({ clerkUserId: projects.clerkUserId })
+      .select({ clerkUserId: projects.clerkUserId, name: projects.name })
       .from(projects)
       .where(eq(projects.id, projectId))
       .then((rows) => rows[0]);
@@ -111,6 +111,17 @@ export async function PATCH(
           });
         }
       }
+
+      await tx.insert(notifications).values({
+        clerkUserId: application.clerkUserId,
+        projectId,
+        type: status === "accepted" ? "application_accepted" : "application_rejected",
+        message:
+          status === "accepted"
+            ? `You've been accepted as ${role.title} on ${project.name}! You can now chat with the team.`
+            : `Your application for ${role.title} on ${project.name} was declined.`,
+        isRead: false,
+      });
 
       return { application: updated } as const;
     }).catch((error: unknown) => {

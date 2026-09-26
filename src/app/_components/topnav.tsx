@@ -80,7 +80,18 @@ export default function TopNav() {
     };
 
     void fetchStatus();
-    return () => controller.abort();
+
+    // Pick up notifications created by other users (new applicants,
+    // accept/reject decisions) without needing a page reload.
+    const interval = setInterval(() => void fetchStatus(), 30_000);
+    const onFocus = () => void fetchStatus();
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [isSignedIn]);
 
   useEffect(() => {
