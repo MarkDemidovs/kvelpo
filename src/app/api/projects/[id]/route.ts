@@ -1,7 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { applications, projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, gt } from "drizzle-orm";
 
 export async function GET(
   request: Request,
@@ -68,7 +68,9 @@ export async function GET(
         slotsNeeded: projectRolesNeeded.slotsNeeded,
       })
       .from(projectRolesNeeded)
-      .where(eq(projectRolesNeeded.projectId, projectId));
+      // Filled roles stay in the table (at 0 slots) so their applications
+      // survive, but they're no longer open.
+      .where(and(eq(projectRolesNeeded.projectId, projectId), gt(projectRolesNeeded.slotsNeeded, 0)));
 
     let applicationsList: Array<{
       id: number;

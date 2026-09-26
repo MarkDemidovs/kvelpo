@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { applications, projectMembers, projectRolesNeeded, projects } from "~/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, gt, sql, TransactionRollbackError } from "drizzle-orm";
 
 export async function PATCH(
   request: Request,
@@ -37,7 +37,7 @@ export async function PATCH(
     }
 
     const role = await db
-      .select({ id: projectRolesNeeded.id, projectId: projectRolesNeeded.projectId, slotsNeeded: projectRolesNeeded.slotsNeeded })
+      .select({ id: projectRolesNeeded.id, projectId: projectRolesNeeded.projectId })
       .from(projectRolesNeeded)
       .where(eq(projectRolesNeeded.id, application.projectRoleNeededId))
       .then((rows) => rows[0]);
@@ -64,29 +64,32 @@ export async function PATCH(
       return Response.json({ error: "Only pending applications can be updated" }, { status: 400 });
     }
 
-    let updatedApplication;
-    await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
+      // Conditional updates make this safe against double-clicks/concurrent
+      // owners: only one request can move the application out of "pending",
+      // and only one can take each remaining slot.
       const [updated] = await tx
         .update(applications)
         .set({ status })
-        .where(eq(applications.id, appId))
+        .where(and(eq(applications.id, appId), eq(applications.status, "pending")))
         .returning();
 
-      updatedApplication = updated;
+      if (!updated) {
+        return { error: "Only pending applications can be updated" } as const;
+      }
 
       if (status === "accepted") {
-        if (role.slotsNeeded <= 0) {
-          throw new Error("Role is already filled");
-        }
+        // Filled roles are kept at 0 slots rather than deleted: deleting the
+        // role would cascade-delete every application for it, including the
+        // one being accepted here.
+        const [claimedSlot] = await tx
+          .update(projectRolesNeeded)
+          .set({ slotsNeeded: sql`${projectRolesNeeded.slotsNeeded} - 1` })
+          .where(and(eq(projectRolesNeeded.id, role.id), gt(projectRolesNeeded.slotsNeeded, 0)))
+          .returning({ id: projectRolesNeeded.id });
 
-        const slotsLeft = role.slotsNeeded - 1;
-        if (slotsLeft > 0) {
-          await tx
-            .update(projectRolesNeeded)
-            .set({ slotsNeeded: slotsLeft })
-            .where(eq(projectRolesNeeded.id, role.id));
-        } else {
-          await tx.delete(projectRolesNeeded).where(eq(projectRolesNeeded.id, role.id));
+        if (!claimedSlot) {
+          tx.rollback();
         }
 
         const existingMember = await tx
@@ -108,11 +111,22 @@ export async function PATCH(
           });
         }
       }
+
+      return { application: updated } as const;
+    }).catch((error: unknown) => {
+      if (error instanceof TransactionRollbackError) {
+        return { error: "This role is already filled" } as const;
+      }
+      throw error;
     });
 
-    return Response.json(updatedApplication);
+    if ("error" in result) {
+      return Response.json({ error: result.error }, { status: 400 });
+    }
+
+    return Response.json(result.application);
   } catch (error) {
     console.error("Error updating application:", error);
-    return Response.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 });
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

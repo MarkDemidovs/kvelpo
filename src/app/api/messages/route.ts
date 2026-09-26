@@ -4,6 +4,8 @@ import { messages, profiles } from "~/server/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { canAccessProjectChat } from "~/server/queries";
 
+const MAX_MESSAGE_LENGTH = 4000;
+
 export async function GET(req: Request) {
   const { userId } = await auth();
   if (!userId) {
@@ -64,11 +66,16 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = (await req.json()) as { projectId: number; message: string };
-    const { projectId, message: messageText } = body;
+    const body = (await req.json().catch(() => null)) as { projectId?: unknown; message?: unknown } | null;
+    const projectId = typeof body?.projectId === "number" && Number.isInteger(body.projectId) ? body.projectId : null;
+    const messageText = typeof body?.message === "string" ? body.message.trim() : "";
 
-    if (!projectId || !messageText?.trim()) {
+    if (!projectId || !messageText) {
       return new Response("Project ID and message required", { status: 400 });
+    }
+
+    if (messageText.length > MAX_MESSAGE_LENGTH) {
+      return new Response(`Messages must be at most ${MAX_MESSAGE_LENGTH} characters`, { status: 400 });
     }
 
     if (!(await canAccessProjectChat(projectId, userId))) {
@@ -78,7 +85,7 @@ export async function POST(req: Request) {
     await db.insert(messages).values({
       projectId,
       clerkUserId: userId,
-      message: messageText.trim(),
+      message: messageText,
     });
 
     return new Response(

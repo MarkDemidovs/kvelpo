@@ -63,13 +63,22 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function isHttpUrl(value: string): boolean {
+  try {
+    const { protocol } = new URL(value);
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export async function PATCH(req: Request) {
   const { userId } = await auth();
   if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const body = await req.json();
+  const body: unknown = await req.json().catch(() => null);
   if (!isObject(body)) {
     return new NextResponse("Invalid request body", { status: 400 });
   }
@@ -86,14 +95,27 @@ export async function PATCH(req: Request) {
     return new NextResponse("One or more selected skills are invalid", { status: 400 });
   }
 
+  const links = [body.link1, body.link2, body.link3].map((link) =>
+    typeof link === "string" && link.trim() ? link.trim() : null,
+  );
+  // Links are rendered as <a href> on the public profile, so only allow web
+  // URLs (no javascript:/data: etc.).
+  if (links.some((link) => link && (link.length > 512 || !isHttpUrl(link)))) {
+    return new NextResponse("Links must be http(s) URLs of at most 512 characters", { status: 400 });
+  }
+
+  if (typeof body.fullName === "string" && body.fullName.length > 256) {
+    return new NextResponse("Name must be at most 256 characters", { status: 400 });
+  }
+
   const parsedBody: ProfileUpdateRequest = {
     fullName: typeof body.fullName === "string" ? body.fullName : null,
     bio: typeof body.bio === "string" ? body.bio : null,
     avatarUrl: typeof body.avatarUrl === "string" ? body.avatarUrl : null,
     isPublic: typeof body.isPublic === "boolean" ? body.isPublic : undefined,
-    link1: typeof body.link1 === "string" ? body.link1 : null,
-    link2: typeof body.link2 === "string" ? body.link2 : null,
-    link3: typeof body.link3 === "string" ? body.link3 : null,
+    link1: links[0] ?? null,
+    link2: links[1] ?? null,
+    link3: links[2] ?? null,
     skills: uniqueSkills,
   };
 

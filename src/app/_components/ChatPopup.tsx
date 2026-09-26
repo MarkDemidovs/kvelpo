@@ -66,7 +66,7 @@ export default function ChatPopup() {
   }, [isSignedIn, isOpen]);
 
   useEffect(() => {
-    if (!selectedProjectId) return;
+    if (!selectedProjectId || !isOpen || !isSignedIn) return;
 
     setMessagesLoading(true);
     const controller = new AbortController();
@@ -95,11 +95,14 @@ export default function ChatPopup() {
       controller.abort();
       clearInterval(interval);
     };
-  }, [selectedProjectId]);
+  }, [selectedProjectId, isOpen, isSignedIn]);
 
+  // Polling replaces the array every few seconds; only scroll when a new
+  // message actually arrives so reading older messages isn't interrupted.
+  const lastMessageId = messages[messages.length - 1]?.id;
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [lastMessageId, selectedProjectId]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();

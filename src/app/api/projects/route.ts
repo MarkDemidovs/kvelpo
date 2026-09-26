@@ -1,7 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { eq, or, sql } from "drizzle-orm";
+import { desc, eq, or, sql } from "drizzle-orm";
 
 type MembershipStatus = "free" | "pro" | "team";
 
@@ -10,6 +10,9 @@ const membershipProjectLimits: Record<MembershipStatus, number> = {
   pro: 3,
   team: 10,
 };
+
+const MAX_TITLE_LENGTH = 256;
+const MAX_ROLE_SLOTS = 100;
 
 type ClerkAvatarUser = {
   id: string;
@@ -60,8 +63,8 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const mode = url.searchParams.get("mode") ?? "public";
-    const page = parseInt(url.searchParams.get("page") ?? "1", 10);
-    const limit = parseInt(url.searchParams.get("limit") ?? "12", 10);
+    const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") ?? "12", 10) || 12));
     const offset = (page - 1) * limit;
 
     const baseQuery = db
@@ -80,6 +83,9 @@ export async function GET(request: Request) {
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
       .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId))
+      // Order in SQL (not after fetching) so pages are stable and don't
+      // repeat or skip projects during infinite scroll.
+      .orderBy(desc(projects.createdAt), desc(projects.id))
       .limit(limit)
       .offset(offset);
 
@@ -94,9 +100,6 @@ export async function GET(request: Request) {
     } else {
       projectsData = await baseQuery.where(() => eq(projects.isPublic, true)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     }
-
-    // Sort by creation date in memory
-    projectsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return Response.json(await attachClerkAvatars(projectsData));
   } catch (error) {
@@ -126,8 +129,8 @@ export async function POST(request: Request) {
       rolesNeeded?: unknown;
     };
 
-    const name = typeof body.name === "string" ? body.name : undefined;
-    const description = typeof body.description === "string" ? body.description : null;
+    const name = typeof body.name === "string" ? body.name.trim() : undefined;
+    const description = typeof body.description === "string" ? body.description.trim() || null : null;
     const isPublic = Boolean(body.isPublic);
     const rawTags = Array.isArray(body.tags) ? body.tags : [];
     const tags = rawTags.filter((tag): tag is string => typeof tag === "string").slice(0, 3);
@@ -136,6 +139,34 @@ export async function POST(request: Request) {
     if (!name) {
       return Response.json({ error: "Name is required" }, { status: 400 });
     }
+
+    if (name.length > MAX_TITLE_LENGTH) {
+      return Response.json({ error: `Name must be at most ${MAX_TITLE_LENGTH} characters` }, { status: 400 });
+    }
+
+    const filteredRoles = Array.isArray(rolesNeeded)
+      ? rolesNeeded.filter((role): role is RolePayload => {
+        if (typeof role !== "object" || role === null) {
+          return false;
+        }
+
+        const maybeRole = role as Record<string, unknown>;
+        return (
+          typeof maybeRole.title === "string" &&
+          maybeRole.title.trim().length > 0
+        );
+      })
+      : [];
+
+    if (filteredRoles.some((role) => role.title.trim().length > MAX_TITLE_LENGTH)) {
+      return Response.json({ error: `Role titles must be at most ${MAX_TITLE_LENGTH} characters` }, { status: 400 });
+    }
+
+    const roleRows = filteredRoles.map((role) => ({
+      title: role.title.trim(),
+      description: typeof role.description === "string" ? role.description.trim() || null : null,
+      slotsNeeded: Math.min(MAX_ROLE_SLOTS, Math.max(1, Math.floor(Number(role.slotsNeeded)) || 1)),
+    }));
 
     const result = await db.transaction(async (tx) => {
       // Serialize project-creation checks per user so two concurrent requests
@@ -158,6 +189,12 @@ export async function POST(request: Request) {
         isPublic,
         tags,
       }).returning();
+
+      // Same transaction as the project, so a failed role insert can't leave
+      // behind a project with no roles.
+      if (created && roleRows.length > 0) {
+        await tx.insert(projectRolesNeeded).values(roleRows.map((role) => ({ ...role, projectId: created.id })));
+      }
 
       return { limitReached: false as const, project: created };
     });
@@ -186,31 +223,6 @@ export async function POST(request: Request) {
       return Response.json({ error: "Failed to create project" }, { status: 500 });
     }
 
-    const filteredRoles = Array.isArray(rolesNeeded)
-      ? rolesNeeded.filter((role): role is RolePayload => {
-        if (typeof role !== "object" || role === null) {
-          return false;
-        }
-
-        const maybeRole = role as Record<string, unknown>;
-        return (
-          typeof maybeRole.title === "string" &&
-          maybeRole.title.trim().length > 0
-        );
-      })
-      : [];
-
-    if (filteredRoles.length > 0) {
-      await db.insert(projectRolesNeeded).values(
-        filteredRoles.map((role) => ({
-          projectId: newProject.id,
-          title: role.title.trim(),
-          description: role.description?.trim() ?? null,
-          slotsNeeded: Math.max(1, Number(role.slotsNeeded) || 1),
-        }))
-      );
-    }
-
     const [profile] = await db
       .select({ fullName: profiles.fullName })
       .from(profiles)
@@ -225,10 +237,7 @@ export async function POST(request: Request) {
       console.error("Failed to fetch Clerk avatar for new project:", error);
     }
 
-    const totalSlots = filteredRoles.reduce(
-      (sum, role) => sum + Math.max(1, Number(role.slotsNeeded) || 1),
-      0,
-    );
+    const totalSlots = roleRows.reduce((sum, role) => sum + role.slotsNeeded, 0);
 
     return Response.json({
       ...newProject,

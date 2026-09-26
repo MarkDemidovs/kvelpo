@@ -68,13 +68,13 @@ export async function syncMembershipFromSubscription(
   const customerId =
     typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
 
-  const targetUserId =
-    clerkUserId ??
-    (await db
-      .select({ clerkUserId: profiles.clerkUserId })
-      .from(profiles)
-      .where(eq(profiles.stripeCustomerId, customerId))
-      .then((rows) => rows[0]?.clerkUserId));
+  const profile = await db
+    .select({ clerkUserId: profiles.clerkUserId, stripeSubscriptionId: profiles.stripeSubscriptionId })
+    .from(profiles)
+    .where(clerkUserId ? eq(profiles.clerkUserId, clerkUserId) : eq(profiles.stripeCustomerId, customerId))
+    .then((rows) => rows[0]);
+
+  const targetUserId = clerkUserId ?? profile?.clerkUserId;
 
   if (!targetUserId) {
     console.error(`syncMembershipFromSubscription: no profile found for Stripe customer ${customerId}`);
@@ -99,6 +99,11 @@ export async function syncMembershipFromSubscription(
   if (ACTIVE_STATUSES.has(subscription.status) && mappedMembership) {
     updateData.membership = mappedMembership;
   } else if (DOWNGRADE_STATUSES.has(subscription.status)) {
+    // Only the subscription the profile currently points at may downgrade it;
+    // an older/duplicate subscription ending must not wipe out an active one.
+    if (profile?.stripeSubscriptionId && profile.stripeSubscriptionId !== subscription.id) {
+      return;
+    }
     updateData.membership = "free";
     updateData.stripeSubscriptionId = null;
     updateData.subscriptionEndDate = null;

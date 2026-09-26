@@ -300,7 +300,10 @@ function HomeFeedContent() {
       const newProjects = data as Project[];
 
       if (isLoadMore) {
-        setDisplayedProjects(prev => [...prev, ...newProjects]);
+        setDisplayedProjects(prev => {
+          const seen = new Set(prev.map((p) => p.id));
+          return [...prev, ...newProjects.filter((p) => !seen.has(p.id))];
+        });
       } else {
         setDisplayedProjects(newProjects);
       }

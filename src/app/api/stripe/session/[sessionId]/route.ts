@@ -30,6 +30,10 @@ export async function GET(
 
     const sessionUserId = session.metadata?.userId;
 
+    if (sessionUserId !== userId) {
+      return new NextResponse("Session not found", { status: 404 });
+    }
+
     // Persist the membership on the success redirect. This makes the upgrade
     // durable even when the Stripe webhook is delayed. We only trust the
     // session if it's paid and its metadata belongs to the signed-in user.
@@ -37,8 +41,7 @@ export async function GET(
       session.payment_status === "paid" &&
       subscription &&
       typeof subscription !== "string" &&
-      sessionUserId &&
-      sessionUserId === userId
+      sessionUserId
     ) {
       await syncMembershipFromSubscription(subscription, userId);
     }

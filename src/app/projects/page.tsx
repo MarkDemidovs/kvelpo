@@ -33,7 +33,7 @@ export default function ProjectsPage() {
       setError(null);
 
       try {
-        const res = await fetch('/api/projects?mode=public');
+        const res = await fetch('/api/projects?mode=public&limit=100');
         const data = (await res.json().catch(() => null)) as unknown;
 
         if (!res.ok) {

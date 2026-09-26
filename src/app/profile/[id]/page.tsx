@@ -21,6 +21,10 @@ type PublicProfile = {
   skills: string[];
 };
 
+function isHttpUrl(value: string | null): value is string {
+  return !!value && /^https?:\/\//i.test(value);
+}
+
 export default async function ProfileDetailPage({ params }: ProfilePageProps) {
   const { userId } = await auth();
   const { id: profileId } = await params;
@@ -97,22 +101,22 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
                 <div>
                   <p className="label-eyebrow">Links</p>
                   <div className="mt-3 space-y-2">
-                    {profile.link1 ? (
+                    {isHttpUrl(profile.link1) ? (
                       <a href={profile.link1} target="_blank" rel="noreferrer" className="block text-sm text-accent-blue hover:underline">
                         {profile.link1}
                       </a>
                     ) : null}
-                    {profile.link2 ? (
+                    {isHttpUrl(profile.link2) ? (
                       <a href={profile.link2} target="_blank" rel="noreferrer" className="block text-sm text-accent-blue hover:underline">
                         {profile.link2}
                       </a>
                     ) : null}
-                    {profile.link3 ? (
+                    {isHttpUrl(profile.link3) ? (
                       <a href={profile.link3} target="_blank" rel="noreferrer" className="block text-sm text-accent-blue hover:underline">
                         {profile.link3}
                       </a>
                     ) : null}
-                    {!profile.link1 && !profile.link2 && !profile.link3 ? (
+                    {![profile.link1, profile.link2, profile.link3].some(isHttpUrl) ? (
                       <p className="text-sm text-dark-secondary">No links added.</p>
                     ) : null}
                   </div>
