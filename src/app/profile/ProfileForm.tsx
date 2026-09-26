@@ -40,6 +40,7 @@ export default function ProfileForm() {
   const [membership, setMembership] = useState<MembershipType>("free");
   const [skills, setSkills] = useState<string[]>([]);
   const [expanded, setExpanded] = useState(false);
+  const [skillQuery, setSkillQuery] = useState("");
   const [link1, setLink1] = useState("");
   const [link2, setLink2] = useState("");
   const [link3, setLink3] = useState("");
@@ -142,6 +143,11 @@ export default function ProfileForm() {
     }
   };
 
+  const normalizedQuery = skillQuery.trim().toLowerCase();
+  const filteredSkills = normalizedQuery
+    ? skillsConfig.filter((skill) => skill.name.toLowerCase().includes(normalizedQuery))
+    : skillsConfig;
+
   if (loading) {
     return <ProfileFormSkeleton />;
   }
@@ -233,10 +239,46 @@ export default function ProfileForm() {
             </div>
           </div>
 
+          {skills.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {skills.map((name) => {
+                const color = skillsConfig.find((skill) => skill.name === name)?.color ?? "#aaa";
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => setSkills(skills.filter((selected) => selected !== name))}
+                    className="inline-flex items-center gap-1.5 rounded-full border-2 bg-dark-card px-3 py-1 text-xs font-semibold"
+                    style={{ borderColor: color, color }}
+                    aria-label={`Remove ${name}`}
+                  >
+                    {name}
+                    <span aria-hidden="true">×</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+
           {expanded && (
             <div className="overflow-hidden transition-all duration-300 ease-in-out">
-              <div className="grid gap-2 grid-cols-3 pt-2">
-                {skillsConfig.map((skill) => {
+              <input
+                type="search"
+                value={skillQuery}
+                onChange={(event) => setSkillQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  // Enter would otherwise submit the whole profile form.
+                  if (event.key === "Enter") event.preventDefault();
+                }}
+                placeholder="Search skills..."
+                aria-label="Search skills"
+                className={`${fieldClass} !mt-0`}
+              />
+              {filteredSkills.length === 0 ? (
+                <p className="pt-4 text-sm text-dark-muted">No skills match &quot;{skillQuery.trim()}&quot;.</p>
+              ) : null}
+              <div className="grid grid-cols-2 gap-2 pt-3 sm:grid-cols-3">
+                {filteredSkills.map((skill) => {
                   const isSelected = skills.includes(skill.name);
                   const disabled = !isSelected && skills.length >= 15;
 
