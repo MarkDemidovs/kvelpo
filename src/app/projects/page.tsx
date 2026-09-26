@@ -74,7 +74,7 @@ export default function ProjectsPage() {
     }`;
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8 bg-dark-primary">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 bg-dark-primary">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Projects</h1>
         <p className="mt-2 text-dark-secondary">Browse and discover projects to collaborate on.</p>
