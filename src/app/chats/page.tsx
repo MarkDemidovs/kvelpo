@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useChatWidget } from '~/app/_components/ChatContext';
 import { ConversationCardSkeletonGrid } from '~/app/_components/Skeleton';
+import SignInRequired from "~/app/_components/SignInRequired";
 
 interface ConversationProject {
   id: number;
@@ -43,14 +44,7 @@ export default function ChatsPage() {
   }, [isSignedIn]);
 
   if (!isSignedIn) {
-    return (
-      <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
-        <div className="card-raised p-10 text-center">
-          <h1 className="text-2xl font-semibold text-dark-primary mb-4">Sign in to access chats</h1>
-          <p className="text-dark-secondary">You need to be signed in to view your conversations.</p>
-        </div>
-      </main>
-    );
+    return <SignInRequired title="Sign in to access chats" message="You need to be signed in to view your conversations." />;
   }
 
   return (

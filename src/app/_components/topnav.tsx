@@ -241,7 +241,7 @@ export default function TopNav() {
           </Show>
 
           <Show when="signed-out">
-            <SignInButton>
+            <SignInButton mode="modal">
               <button className="rounded-full border border-dark-subtle bg-dark-tertiary px-4 py-2 text-sm font-medium text-dark-primary transition hover:border-accent-blue hover:bg-dark-secondary">
                 Sign In
               </button>

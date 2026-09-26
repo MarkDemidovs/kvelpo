@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth, useClerk } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,6 +21,18 @@ const navIconClass = (active: boolean) => `h-5 w-5 ${active ? "text-accent-blue"
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
+
+  // Members-only pages in this menu open the sign-in modal for signed-out
+  // visitors, landing them on the page they picked once signed in.
+  const handleNavigate = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    onClose();
+    if (isLoaded && !isSignedIn) {
+      event.preventDefault();
+      openSignIn({ forceRedirectUrl: href });
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -73,7 +86,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link
                 href="/profile"
                 className={navLinkClass(pathname === "/profile")}
-                onClick={onClose}
+                onClick={(e) => handleNavigate(e, "/profile")}
               >
                 <svg
                   className={navIconClass(pathname === "/profile")}
@@ -94,7 +107,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link
                 href="/inbox"
                 className={navLinkClass(pathname === "/inbox")}
-                onClick={onClose}
+                onClick={(e) => handleNavigate(e, "/inbox")}
               >
                 <svg
                   className={navIconClass(pathname === "/inbox")}
@@ -115,7 +128,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link
                 href="/chats"
                 className={navLinkClass(pathname === "/chats")}
-                onClick={onClose}
+                onClick={(e) => handleNavigate(e, "/chats")}
               >
                 <svg
                   className={navIconClass(pathname === "/chats")}
@@ -157,7 +170,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link
                 href="/profile/subscription"
                 className={navLinkClass(pathname === "/profile/subscription")}
-                onClick={onClose}
+                onClick={(e) => handleNavigate(e, "/profile/subscription")}
               >
                 <svg
                   className={navIconClass(pathname === "/profile/subscription")}
@@ -178,7 +191,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               <Link
                 href="/settings"
                 className={navLinkClass(pathname === "/settings")}
-                onClick={onClose}
+                onClick={(e) => handleNavigate(e, "/settings")}
               >
                 <svg
                   className={navIconClass(pathname === "/settings")}

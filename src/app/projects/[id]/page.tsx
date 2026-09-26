@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -48,6 +49,8 @@ interface ApiErrorResponse {
 export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
   const [project, setProject] = useState<ProjectDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -222,7 +225,13 @@ export default function ProjectDetailPage() {
                             {!project.isOwner ? (
                               <button
                                 type="button"
-                                onClick={() => setSelectedRoleId(role.id)}
+                                onClick={() => {
+                                  if (isLoaded && !isSignedIn) {
+                                    openSignIn({ forceRedirectUrl: window.location.href });
+                                    return;
+                                  }
+                                  setSelectedRoleId(role.id);
+                                }}
                                 className="btn-primary shrink-0 !px-4.5 !py-2.5 text-sm"
                               >
                                 Apply for this role

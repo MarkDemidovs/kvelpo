@@ -55,7 +55,7 @@ function LandingView() {
               Post a project, list the roles you need, and review who applies. No cold outreach, no group chats full of strangers.
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5 sm:justify-start">
-              <SignInButton>
+              <SignInButton mode="modal">
                 <button type="button" className="btn-primary">Create a project</button>
               </SignInButton>
               <Link href="/projects" className="btn-secondary">Browse open projects</Link>
@@ -242,7 +242,7 @@ function LandingView() {
           <Reveal>
             <h2 className="text-4xl font-bold tracking-tight text-dark-primary">Ready to stop building alone?</h2>
             <div className="mt-7">
-              <SignInButton>
+              <SignInButton mode="modal">
                 <button type="button" className="btn-primary">Create a project</button>
               </SignInButton>
             </div>

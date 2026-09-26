@@ -4,6 +4,7 @@ import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { deleteAccountAction } from '~/app/actions/delete-account';
 import { useState } from 'react';
+import SignInRequired from "~/app/_components/SignInRequired";
 
 const rowLinkClass =
   "flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-dark-primary transition hover:bg-dark-tertiary";
@@ -35,14 +36,7 @@ export default function SettingsPage() {
   };
 
   if (!isSignedIn) {
-    return (
-      <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
-        <div className="card-raised p-10 text-center">
-          <h1 className="text-2xl font-semibold text-dark-primary mb-4">Sign in to access settings</h1>
-          <p className="text-dark-secondary">You need to be signed in to view your settings.</p>
-        </div>
-      </main>
-    );
+    return <SignInRequired title="Sign in to access settings" message="You need to be signed in to view your settings." />;
   }
 
   return (

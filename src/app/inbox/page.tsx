@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { InboxSkeleton } from '~/app/_components/Skeleton';
+import SignInRequired from "~/app/_components/SignInRequired";
 
 interface NotificationItem {
   id: number;
@@ -77,14 +78,7 @@ export default function InboxPage() {
   };
 
   if (!isSignedIn) {
-    return (
-      <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
-        <div className="card-raised p-10 text-center">
-          <h1 className="text-2xl font-semibold text-dark-primary mb-4">Sign in to access inbox</h1>
-          <p className="text-dark-secondary">You need to be signed in to view your inbox.</p>
-        </div>
-      </main>
-    );
+    return <SignInRequired title="Sign in to access inbox" message="You need to be signed in to view your inbox." />;
   }
 
   return (

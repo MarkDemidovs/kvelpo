@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { SubscriptionSkeleton } from "~/app/_components/Skeleton";
+import SignInRequired from "~/app/_components/SignInRequired";
 
 type MembershipType = "free" | "pro" | "team";
 
@@ -231,14 +232,7 @@ function SubscriptionPageContent() {
   };
 
   if (!isSignedIn) {
-    return (
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        <div className="card-raised p-10 text-center">
-          <h1 className="text-2xl font-semibold text-dark-primary mb-4">Sign in to manage subscription</h1>
-          <p className="text-dark-secondary">You need to be signed in to view your subscription details.</p>
-        </div>
-      </div>
-    );
+    return <SignInRequired title="Sign in to manage subscription" message="You need to be signed in to view your subscription details." />;
   }
 
   if (pageLoading) {
