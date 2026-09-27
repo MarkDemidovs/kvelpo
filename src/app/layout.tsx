@@ -59,6 +59,7 @@ export default function RootLayout({
                   <Link href="/privacy" className="hover:text-dark-primary">Privacy</Link>
                   <Link href="/cookies" className="hover:text-dark-primary">Cookies</Link>
                   <Link href="/consent" className="hover:text-dark-primary">Consent</Link>
+                  <Link href="/support" className="hover:text-dark-primary">Support</Link>
                 </div>
               </div>
             </footer>

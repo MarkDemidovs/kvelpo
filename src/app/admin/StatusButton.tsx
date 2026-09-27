@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function ReportStatusButton({ reportId, status }: { reportId: number; status: "open" | "resolved" }) {
+/** Toggles an admin item (report, support message) between open and resolved. */
+export default function StatusButton({ endpoint, status }: { endpoint: string; status: "open" | "resolved" }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +14,7 @@ export default function ReportStatusButton({ reportId, status }: { reportId: num
     setPending(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/reports/${reportId}`, {
+      const res = await fetch(endpoint, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: next }),

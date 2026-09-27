@@ -35,6 +35,7 @@ export default function PrivacyPage() {
                   <li>Email address and user identifier (via Clerk authentication)</li>
                   <li>Profile information: full name, profile picture (from your sign-in account), bio, skills, links, and work experience (job titles, organizations, locations, dates, and descriptions you add)</li>
                   <li>Membership and subscription details</li>
+                  <li>Messages you send us through the support form (your name, email address, topic, and message)</li>
                 </ul>
               </div>
               <div>

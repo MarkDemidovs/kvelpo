@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "./db";
 import { auth } from "@clerk/nextjs/server";
-import { profiles, projects, applications, projectRolesNeeded, projectMembers, messages, notifications, userConsent, experiences, reports } from "./db/schema";
+import { profiles, projects, applications, projectRolesNeeded, projectMembers, messages, notifications, userConsent, experiences, reports, supportMessages } from "./db/schema";
 import { eq, and } from "drizzle-orm";
 import { getStripe } from "./stripe";
 
@@ -83,7 +83,8 @@ export async function canAccessProjectChat(projectId: number, userId: string): P
  *   applications, project memberships) are anonymized rather than deleted, so
  *   the remaining participants don't lose their conversation/roster history.
  * - Rows that belong exclusively to the user (their own notifications,
- *   experience timeline, consent record, profile) are hard-deleted.
+ *   experience timeline, support messages, consent record, profile) are
+ *   hard-deleted.
  * - Any active Stripe subscription is canceled so deleting an account also
  *   stops billing; the Stripe customer object itself is left alone since
  *   invoice/billing records have their own retention requirements.
@@ -115,6 +116,7 @@ export async function eraseUserAccountData(clerkUserId: string): Promise<void> {
 
     await tx.delete(notifications).where(eq(notifications.clerkUserId, clerkUserId));
     await tx.delete(experiences).where(eq(experiences.clerkUserId, clerkUserId));
+    await tx.delete(supportMessages).where(eq(supportMessages.clerkUserId, clerkUserId));
     await tx.delete(userConsent).where(eq(userConsent.userId, clerkUserId));
     await tx.delete(profiles).where(eq(profiles.clerkUserId, clerkUserId));
   });

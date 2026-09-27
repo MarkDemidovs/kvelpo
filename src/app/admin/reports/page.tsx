@@ -6,7 +6,7 @@ import { db } from "~/server/db";
 import { profiles, projects, reports } from "~/server/db/schema";
 import { getAdminUserId } from "~/server/admin";
 import { isReportReason, REPORT_REASONS } from "~/lib/reports";
-import ReportStatusButton from "./ReportStatusButton";
+import StatusButton from "../StatusButton";
 
 export const metadata: Metadata = {
   title: "Reports",
@@ -94,7 +94,7 @@ export default async function AdminReportsPage() {
                 : ""}
             </p>
           </div>
-          <ReportStatusButton reportId={report.id} status={report.status === "resolved" ? "resolved" : "open"} />
+          <StatusButton endpoint={`/api/admin/reports/${report.id}`} status={report.status === "resolved" ? "resolved" : "open"} />
         </div>
       </li>
     );

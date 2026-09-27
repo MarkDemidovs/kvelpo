@@ -85,6 +85,30 @@ export const reports = createTable("report", (d) => ({
   index("reports_target_idx").on(t.targetType, t.targetId),
 ]);
 
+// A message sent through the /support contact form, read on /admin/support.
+// Signed-out visitors can write in too (clerkUserId null); ipHash is a salted
+// hash used only for rate limiting, never the raw IP.
+export const supportMessages = createTable("support_message", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  clerkUserId: d.varchar({ length: 256 }),
+  name: d.varchar({ length: 256 }),
+  email: d.varchar({ length: 320 }).notNull(),
+  topic: d.varchar({ length: 32 }).notNull(),
+  message: d.text().notNull(),
+  ipHash: d.varchar({ length: 64 }),
+  status: d.varchar({ length: 16 }).notNull().default("open"),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+  resolvedAt: d.timestamp({ withTimezone: true }),
+  resolvedBy: d.varchar({ length: 256 }),
+}), (t) => [
+  index("support_messages_status_idx").on(t.status),
+  index("support_messages_user_idx").on(t.clerkUserId),
+  index("support_messages_ip_idx").on(t.ipHash),
+]);
+
 export const userConsent = createTable("user_consent", (d) => ({
   userId: d.varchar({ length: 256 }).primaryKey(),
   termsVersion: d.integer().notNull().default(1),

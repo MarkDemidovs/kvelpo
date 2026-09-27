@@ -40,7 +40,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   // Admin-only "Reports" entry. Checked each time the menu opens so the open
   // count stays current; the server decides who is an admin (see src/server/admin.ts).
-  const [admin, setAdmin] = useState<{ openReports: number } | null>(null);
+  const [admin, setAdmin] = useState<{ openReports: number; openSupport: number } | null>(null);
   useEffect(() => {
     if (!isSignedIn) {
       setAdmin(null);
@@ -50,8 +50,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
     const controller = new AbortController();
     fetch("/api/admin/status", { signal: controller.signal })
-      .then((res) => (res.ok ? (res.json() as Promise<{ isAdmin: boolean; openReports?: number }>) : null))
-      .then((data) => setAdmin(data?.isAdmin ? { openReports: data.openReports ?? 0 } : null))
+      .then((res) => (res.ok ? (res.json() as Promise<{ isAdmin: boolean; openReports?: number; openSupport?: number }>) : null))
+      .then((data) => setAdmin(data?.isAdmin ? { openReports: data.openReports ?? 0, openSupport: data.openSupport ?? 0 } : null))
       .catch(() => undefined);
     return () => controller.abort();
   }, [isSignedIn, isOpen]);
@@ -233,6 +233,28 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 Settings
               </Link>
 
+              {/* Open to everyone, signed in or not: people who can't sign in need it most. */}
+              <Link
+                href="/support"
+                className={navLinkClass(pathname === "/support")}
+                onClick={onClose}
+              >
+                <svg
+                  className={navIconClass(pathname === "/support")}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Contact support
+              </Link>
+
               {admin ? (
                 <>
                   <p className="px-4 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-dark-muted">Admin</p>
@@ -258,6 +280,31 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     {admin.openReports > 0 ? (
                       <span className="ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
                         {admin.openReports}
+                      </span>
+                    ) : null}
+                  </Link>
+                  <Link
+                    href="/admin/support"
+                    className={navLinkClass(pathname === "/admin/support")}
+                    onClick={onClose}
+                  >
+                    <svg
+                      className={navIconClass(pathname === "/admin/support")}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                      />
+                    </svg>
+                    Support inbox
+                    {admin.openSupport > 0 ? (
+                      <span className="ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-accent-blue px-2 py-0.5 text-xs font-semibold text-white">
+                        {admin.openSupport}
                       </span>
                     ) : null}
                   </Link>
