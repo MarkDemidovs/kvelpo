@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ProjectDetailSkeleton } from "~/app/_components/Skeleton";
 import ReportButton from "~/app/_components/ReportButton";
+import { AdminProjectBar } from "~/app/_components/AdminControls";
 
 interface RoleNeeded {
   id: number;
@@ -40,6 +41,9 @@ interface ProjectDetails {
   rolesNeeded: RoleNeeded[];
   isOwner: boolean;
   applications?: Application[];
+  /** Only present for admins. */
+  viewerIsAdmin?: boolean;
+  ownerBanned?: boolean;
 }
 
 interface ApiErrorResponse {
@@ -165,6 +169,22 @@ export default function ProjectDetailPage() {
           <div className="mt-5"><ProjectDetailSkeleton /></div>
         ) : !project ? null : (
           <>
+            {project.viewerIsAdmin ? (
+              <div className="mt-5">
+                <AdminProjectBar
+                  project={{
+                    id: project.id,
+                    name: project.name,
+                    description: project.description,
+                    isPublic: project.isPublic,
+                    clerkUserId: project.clerkUserId,
+                    ownerLabel: project.userFullName?.trim() ? project.userFullName.trim() : "this user",
+                    ownerBanned: Boolean(project.ownerBanned),
+                  }}
+                  onEdited={() => void loadProject()}
+                />
+              </div>
+            ) : null}
             <div className="mt-5 flex flex-wrap items-start justify-between gap-5">
               <div>
                 <div className="flex items-center gap-3">

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "~/server/db";
-import { projects } from "~/server/db/schema";
+import { profiles, projects } from "~/server/db/schema";
 import { siteUrl } from "~/lib/site";
 
 // Rebuilt at most hourly so newly posted projects get picked up.
@@ -23,7 +23,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const publicProjects = await db
       .select({ id: projects.id, createdAt: projects.createdAt, updatedAt: projects.updatedAt })
       .from(projects)
-      .where(eq(projects.isPublic, true))
+      .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
+      .where(and(eq(projects.isPublic, true), isNull(profiles.bannedAt)))
       .orderBy(desc(projects.createdAt))
       .limit(5000);
 

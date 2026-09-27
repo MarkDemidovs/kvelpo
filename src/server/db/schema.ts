@@ -27,6 +27,10 @@ export const profiles = createTable("profile", (d) => ({
   stripeSubscriptionId: d.varchar({ length: 256 }),
   subscriptionStartDate: d.timestamp({ withTimezone: true }),
   subscriptionEndDate: d.timestamp({ withTimezone: true }),
+  // Set when an admin bans the user: their projects and profile are hidden
+  // from everyone but admins, and Clerk blocks them from signing in.
+  bannedAt: d.timestamp({ withTimezone: true }),
+  bannedReason: d.text(),
   skills: d.jsonb().notNull().default([]),
   createdAt: d
     .timestamp({ withTimezone: true })
@@ -107,6 +111,25 @@ export const supportMessages = createTable("support_message", (d) => ({
   index("support_messages_status_idx").on(t.status),
   index("support_messages_user_idx").on(t.clerkUserId),
   index("support_messages_ip_idx").on(t.ipHash),
+]);
+
+// Audit log of admin actions (edit/delete/warn/ban/unban), shown on /admin.
+// projectName is copied in because deleted projects can't be looked up later.
+export const moderationActions = createTable("moderation_action", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  adminClerkUserId: d.varchar({ length: 256 }).notNull(),
+  action: d.varchar({ length: 16 }).notNull(),
+  targetClerkUserId: d.varchar({ length: 256 }),
+  projectId: d.integer(),
+  projectName: d.varchar({ length: 256 }),
+  reason: d.text(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+}), (t) => [
+  index("moderation_actions_created_at_idx").on(t.createdAt),
+  index("moderation_actions_target_idx").on(t.targetClerkUserId),
 ]);
 
 export const userConsent = createTable("user_consent", (d) => ({

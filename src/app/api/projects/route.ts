@@ -1,7 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { desc, eq, or, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, or, sql } from "drizzle-orm";
 
 type MembershipStatus = "free" | "pro" | "team";
 
@@ -96,9 +96,10 @@ export async function GET(request: Request) {
       }
       projectsData = await baseQuery.where(() => eq(projects.clerkUserId, userId)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     } else if (userId) {
-      projectsData = await baseQuery.where(() => or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId))).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), isNull(profiles.bannedAt))).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     } else {
-      projectsData = await baseQuery.where(() => eq(projects.isPublic, true)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
+      // Projects of banned users are hidden from everyone browsing.
+      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), isNull(profiles.bannedAt))).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
     }
 
     return Response.json(await attachClerkAvatars(projectsData));

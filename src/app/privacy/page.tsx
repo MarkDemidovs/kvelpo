@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <LegalPageShell title="Privacy Policy">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 26, 2026</h2>
+            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 27, 2026</h2>
             <p className="text-sm">
               This Privacy Policy explains how kvelpo ("we," "our," or "us") collects, uses, and protects your personal information. 
               This policy applies to our service and complies with the General Data Protection Regulation (GDPR) and other applicable privacy laws.
@@ -47,7 +47,15 @@ export default function PrivacyPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-dark-primary mb-2">2.3 Technical Information</h3>
+                <h3 className="font-semibold text-dark-primary mb-2">2.3 Safety and Moderation Information</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Reports you submit about projects or profiles, and reports other users submit about your projects or profile</li>
+                  <li>Warnings sent to you and whether your account is suspended, with the reason</li>
+                  <li>A record of moderation actions taken on your account or content (what was done, when, by which kvelpo team member, and why)</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-dark-primary mb-2">2.4 Technical Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>IP address and location data (for EU compliance detection)</li>
                   <li>Device and browser information</li>
@@ -76,6 +84,7 @@ export default function PrivacyPage() {
               <li>Facilitate project collaboration and communication</li>
               <li>Send service-related notifications and updates</li>
               <li>Analyze usage patterns to improve our services</li>
+              <li>Keep the platform safe: review reports, moderate content, and enforce our Terms of Service</li>
               <li>Comply with legal obligations and protect our rights</li>
             </ul>
           </section>
@@ -111,6 +120,7 @@ export default function PrivacyPage() {
                 <li><strong>Project Data:</strong> Retained until you delete the project or your account</li>
                 <li><strong>Messages and Applications:</strong> Anonymized (disassociated from your identity) immediately when your account is deleted, rather than deleted outright, so the other party's conversation or application history stays intact</li>
                 <li><strong>Consent Records:</strong> Deleted immediately when your account is deleted</li>
+                <li><strong>Reports and Moderation Records:</strong> Kept while needed to keep the platform safe. When you delete your account, reports about your profile are deleted, and reports you submitted and moderation records are disassociated from your identity</li>
                 <li><strong>Payment Data:</strong> Held by our payment processor, Stripe, as required by financial regulations (typically 7 years); we do not store your card details ourselves</li>
               </ul>
               <p>Deleting your account permanently and immediately erases your profile and projects and deletes you from our authentication provider. There is no grace period, and this cannot be undone.</p>

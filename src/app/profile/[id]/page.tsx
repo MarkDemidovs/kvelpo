@@ -5,6 +5,8 @@ import { experienceColumns } from "~/server/experience";
 import { sortExperiences, type Experience } from "~/lib/experience";
 import ExperienceTimeline from "~/app/_components/ExperienceTimeline";
 import ReportButton from "~/app/_components/ReportButton";
+import { AdminUserBar } from "~/app/_components/AdminControls";
+import { getAdminUserId } from "~/server/admin";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,6 +27,7 @@ type PublicProfile = {
   link2: string | null;
   link3: string | null;
   skills: string[];
+  bannedAt: Date | null;
 };
 
 function isHttpUrl(value: string | null): value is string {
@@ -51,7 +54,10 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
   }
 
   const isOwner = userId === profileId;
-  const canView = profile && (profile.isPublic || isOwner);
+  const viewerIsAdmin = userId ? Boolean(await getAdminUserId()) : false;
+  const isBanned = Boolean(profile?.bannedAt);
+  // Admins can open any profile (including private and banned ones) to moderate.
+  const canView = profile && (viewerIsAdmin || (!isBanned && (profile.isPublic || isOwner)));
 
   const experienceItems: Experience[] = canView
     ? sortExperiences(await db.select(experienceColumns).from(experiences).where(eq(experiences.clerkUserId, profileId)))
@@ -71,6 +77,11 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
         className="pointer-events-none absolute -top-40 left-1/2 h-[640px] w-[640px] -translate-x-1/2 rounded-full opacity-60 blur-2xl"
         style={{ background: "radial-gradient(circle, oklch(68% 0.18 240 / 0.1), transparent 68%)" }}
       />
+      {viewerIsAdmin && !isOwner ? (
+        <div className="relative mb-4">
+          <AdminUserBar userId={profileId} userLabel={profile?.fullName?.trim() ? profile.fullName.trim() : "this user"} banned={isBanned} />
+        </div>
+      ) : null}
       <div className="card-raised relative p-9">
         {profile ? (
           canView ? (
@@ -162,7 +173,9 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
           ) : (
             <div>
               <p className="text-xl font-semibold text-dark-primary">Profile unavailable</p>
-              <p className="mt-3 text-sm leading-7 text-dark-secondary">This profile is private and can only be viewed by the owner.</p>
+              <p className="mt-3 text-sm leading-7 text-dark-secondary">
+                {isBanned ? "This account has been suspended." : "This profile is private and can only be viewed by the owner."}
+              </p>
             </div>
           )
         ) : (

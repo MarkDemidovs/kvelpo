@@ -11,7 +11,7 @@ export default function TermsPage() {
   return (
     <LegalPageShell title="Terms of Service">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 26, 2026</h2>
+            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 27, 2026</h2>
             <p className="text-sm">
               These Terms of Service ("Terms") govern your use of the kvelpo platform ("Service," "Platform," or "App"), operated by Kvelpo SIA, a company registered in Latvia. 
               By accessing or using kvelpo, you agree to be bound by these Terms. If you disagree with any part of these terms, 
@@ -81,6 +81,7 @@ export default function TermsPage() {
                 <li>The right to modify, adapt, and create derivative works from your content as necessary for technical operations</li>
               </ul>
               <p className="mt-4">You represent and warrant that you own all rights to your content or have the necessary permissions to grant these licenses.</p>
+              <p className="mt-4"><strong>Moderation.</strong> Other users can report projects and profiles they believe break these Terms. The kvelpo team may review reported content, or content we otherwise become aware of, and may edit, hide, or remove projects and other content that violates these Terms. When we edit or remove your content, we notify you in the app and tell you why.</p>
             </div>
           </section>
 
@@ -118,6 +119,8 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold text-dark-primary mb-4">8. Termination</h2>
             <div className="space-y-3 text-sm">
               <p>We reserve the right to suspend or terminate your access to the Service at any time, with or without cause, with or without notice.</p>
+              <p>For violations of these Terms we may first send you a warning through the in-app notifications. Serious or repeated violations can lead to suspension of your account (a &quot;ban&quot;): you are signed out, can no longer sign in, and your profile and projects are hidden from other users. We may lift a suspension at our discretion.</p>
+              <p>If you believe a moderation decision was made in error, contact us through the support page or at legal@kvelpo.com and we will review it.</p>
               <p>Upon termination, your right to use the Service will immediately cease. All provisions of the Terms which by their nature should survive termination shall survive, including ownership provisions, warranty disclaimers, and limitations of liability.</p>
             </div>
           </section>

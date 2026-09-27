@@ -2,6 +2,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { applications, projects, profiles, projectRolesNeeded } from "~/server/db/schema";
 import { eq, sql, and, gt } from "drizzle-orm";
+import { getAdminUserId } from "~/server/admin";
 
 export async function GET(
   request: Request,
@@ -28,19 +29,20 @@ export async function GET(
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
+        ownerBannedAt: profiles.bannedAt,
         rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
       })
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
       .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId))
       .where(eq(projects.id, projectId))
-      .groupBy(projects.id, profiles.fullName);
+      .groupBy(projects.id, profiles.fullName, profiles.bannedAt);
 
-    if (!projectData || projectData.length === 0) {
+    const project = projectData[0];
+    if (!project) {
       return Response.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const project = projectData[0];
     const isPublic = project?.isPublic;
     const projectOwnerId = project?.clerkUserId;
     let avatarUrl: string | null = null;
@@ -54,8 +56,14 @@ export async function GET(
       }
     }
 
-    if (!isPublic && projectOwnerId !== userId) {
+    const viewerIsAdmin = userId ? Boolean(await getAdminUserId()) : false;
+
+    if (!isPublic && projectOwnerId !== userId && !viewerIsAdmin) {
       return Response.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    if (project?.ownerBannedAt && !viewerIsAdmin) {
+      return Response.json({ error: "Project not found" }, { status: 404 });
     }
 
     const isOwner = projectOwnerId === userId;
@@ -103,8 +111,11 @@ export async function GET(
         .where(eq(projectRolesNeeded.projectId, projectId));
     }
 
+    const { ownerBannedAt, ...publicProject } = project;
     return Response.json({
-      ...project,
+      ...publicProject,
+      // Only admins learn about moderation state.
+      ...(viewerIsAdmin ? { viewerIsAdmin: true, ownerBanned: Boolean(ownerBannedAt) } : {}),
       avatarUrl,
       rolesNeeded,
       isOwner,
