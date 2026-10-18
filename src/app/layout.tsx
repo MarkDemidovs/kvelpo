@@ -8,6 +8,7 @@ import TopNav from "./_components/topnav";
 import { siteDescription, siteName, siteTagline, siteUrl } from "~/lib/site";
 import ChatPopup from "./_components/ChatPopup";
 import ConsentBanner from "./_components/ConsentBanner";
+import TermsGate from "./_components/TermsGate";
 import { ChatProvider } from "./_components/ChatContext";
 
 export const metadata: Metadata = {
@@ -48,6 +49,7 @@ export default function RootLayout({
           <ChatProvider>
             <TopNav />
             <ConsentBanner />
+            <TermsGate />
             <main className="pt-16">
               {children}
             </main>

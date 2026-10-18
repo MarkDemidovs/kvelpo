@@ -29,8 +29,6 @@ export default async function ConsentBanner() {
           </p>
         </div>
         <form action={saveConsentAction} className="flex flex-wrap items-center gap-3">
-          <input type="hidden" name="termsVersion" value="1" />
-          <input type="hidden" name="privacyVersion" value="1" />
           <button type="submit" name="consentAction" value="accept" className="btn-primary !px-4 !py-2 text-sm">
             Accept All
           </button>

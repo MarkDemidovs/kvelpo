@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { UserButton } from "@clerk/nextjs";
 import { deleteAccountAction } from "~/app/actions/delete-account";
-import { saveConsentAction } from "~/app/actions/consent";
 import skillsConfig from "~/data/skills.json";
 import { ProfileFormSkeleton } from "~/app/_components/Skeleton";
 import ExperienceSection from "./ExperienceSection";
@@ -43,7 +42,6 @@ export default function ProfileForm() {
   const [link1, setLink1] = useState("");
   const [link2, setLink2] = useState("");
   const [link3, setLink3] = useState("");
-  const [consentPending, setConsentPending] = useState(false);
   const [deletePending, setDeletePending] = useState(false);
 
   useEffect(() => {
@@ -104,22 +102,6 @@ export default function ProfileForm() {
       setError(String(err));
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleConsent = async () => {
-    setConsentPending(true);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      formData.set("termsVersion", "1");
-      formData.set("privacyVersion", "1");
-      await saveConsentAction(formData);
-    } catch (err) {
-      setError(String(err));
-    } finally {
-      setConsentPending(false);
     }
   };
 
@@ -332,14 +314,9 @@ export default function ProfileForm() {
           <Link href="/privacy" className="btn-secondary !px-4 !py-2 text-sm">Privacy policy</Link>
         </div>
 
-        <button
-          type="button"
-          onClick={() => void handleConsent()}
-          disabled={consentPending}
-          className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {consentPending ? "Saving consent..." : "Accept consent"}
-        </button>
+        <p className="text-xs text-dark-muted">
+          You accepted the Terms of Service and Privacy Policy when you started using kvelpo. Your acceptance is saved to your account.
+        </p>
       </div>
 
       <div className="rounded-2xl border border-red-900/40 bg-red-950/20 p-6">

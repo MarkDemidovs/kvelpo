@@ -44,9 +44,6 @@ export default async function ConsentPage() {
           </ul>
 
           <form action={saveConsentAction} className="mt-6 space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-5">
-            <input type="hidden" name="termsVersion" value="1" />
-            <input type="hidden" name="privacyVersion" value="1" />
-
             <div className="space-y-3">
               <label htmlFor="accept" className="flex items-center gap-3 text-sm text-dark-secondary">
                 <input type="radio" id="accept" name="consentAction" value="accept" className="h-4 w-4 accent-[oklch(68%_0.18_240)]" />
