@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { deleteAccountAction } from "~/app/actions/delete-account";
 import skillsConfig from "~/data/skills.json";
 import { ProfileFormSkeleton } from "~/app/_components/Skeleton";
@@ -28,6 +28,7 @@ const fieldClass =
   "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-fg placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
 
 export default function ProfileForm() {
+  const { user } = useUser();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,32 +132,54 @@ export default function ProfileForm() {
     return <ProfileFormSkeleton />;
   }
 
+  const displayName = fullName.trim().length > 0 ? fullName.trim() : (user?.fullName ?? "");
+  const initials =
+    displayName
+      .split(/\s+/)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?";
+
   return (
     <div className="space-y-6 text-fg">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-[30px] font-bold tracking-tight">Profile settings</h1>
+          <h1 className="text-2xl font-bold tracking-tight md:text-[30px]">Edit profile</h1>
           <p className="mt-1 text-[15px] text-fg-secondary">This is what shows up when someone views your profile.</p>
         </div>
-        <UserButton />
+        <div className="hidden md:block">
+          <UserButton />
+        </div>
       </div>
 
       {error ? <div className="rounded-xl bg-danger-bg p-3 text-sm text-danger">{error}</div> : null}
 
-      <form onSubmit={handleSubmit} className="card-raised space-y-6 p-7">
+      <form onSubmit={handleSubmit} className="card-raised !transform-none space-y-7 p-5 sm:p-7">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <span className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-accent-blue/15 text-3xl font-bold text-accent-blue">
+            {user?.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.imageUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              initials
+            )}
+          </span>
+          <p className="text-xs text-dark-muted">Your photo comes from the account you signed in with.</p>
+        </div>
+
         <label className="block">
-          <span className="text-sm font-medium text-fg-secondary">Full name</span>
+          <span className="text-sm font-medium text-fg">Full name</span>
           <input
             className={fieldClass}
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
             placeholder="Your display name"
           />
-          <span className="mt-1.5 block text-xs text-dark-muted">Your profile picture comes from your sign-in account. Change it from the account menu (top right).</span>
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-fg-secondary">Bio</span>
+          <span className="text-sm font-medium text-fg">Bio</span>
           <textarea
             className={fieldClass}
             value={bio}
@@ -164,72 +187,43 @@ export default function ProfileForm() {
             rows={4}
             placeholder="A short description about you"
           />
+          <span className="mt-1.5 block text-xs text-dark-muted">Tell people what you do and what you&apos;d like to work on.</span>
         </label>
 
-        <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={isPublic}
-            onChange={(event) => setIsPublic(event.target.checked)}
-            className="h-4 w-4 accent-accent-blue"
-          />
-          <div>
-            <p className="text-sm text-fg">Public profile</p>
-            <p className="text-xs text-dark-muted">Anyone can view your profile and project history</p>
+        <div>
+          <div className="flex items-baseline justify-between gap-3">
+            <p className="text-sm font-medium text-fg">Skills</p>
+            <span className="text-sm text-dark-muted">{skills.length} of 15</span>
           </div>
-        </label>
-
-        <div className="space-y-2 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium text-fg">Membership</p>
-              <p className="text-xs text-fg-secondary">Current: {membership?.toUpperCase()}</p>
-            </div>
-            <Link href="/profile/subscription" className="btn-secondary !px-4 !py-2 text-sm">Manage subscription</Link>
-          </div>
-        </div>
-
-        <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium text-fg">Skills</p>
-              <p className="text-xs text-fg-secondary">Pick from shared skill roles, up to 15.</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-dark-muted">{skills.length}/15</span>
-              <button
-                type="button"
-                onClick={() => setExpanded(!expanded)}
-                className="text-xs font-semibold text-accent-blue"
-              >
-                {expanded ? "Collapse" : "Expand"}
-              </button>
-            </div>
-          </div>
+          <p className="mt-0.5 text-xs text-dark-muted">Pick up to 15 so the right projects can find you.</p>
 
           {skills.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {skills.map((name) => {
-                const color = skillsConfig.find((skill) => skill.name === name)?.color ?? "var(--text-2)";
-                return (
-                  <button
-                    key={name}
-                    type="button"
-                    onClick={() => setSkills(skills.filter((selected) => selected !== name))}
-                    className="inline-flex items-center gap-1.5 rounded-full border-2 bg-dark-card px-3 py-1 text-xs font-semibold"
-                    style={{ borderColor: color, color }}
-                    aria-label={`Remove ${name}`}
-                  >
-                    {name}
-                    <span aria-hidden="true">×</span>
-                  </button>
-                );
-              })}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {skills.map((name) => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => setSkills(skills.filter((selected) => selected !== name))}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[var(--btn-primary-bg)] px-3.5 py-1.5 text-[13px] font-semibold text-[var(--btn-primary-fg)]"
+                  aria-label={`Remove ${name}`}
+                >
+                  {name}
+                  <span aria-hidden="true" className="opacity-70">×</span>
+                </button>
+              ))}
             </div>
           ) : null}
 
-          {expanded && (
-            <div className="overflow-hidden transition-all duration-300 ease-in-out">
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            className="mt-3 text-sm font-semibold text-accent-blue"
+          >
+            {expanded ? "Hide skill list" : skills.length > 0 ? "Add or change skills" : "Choose skills"}
+          </button>
+
+          {expanded ? (
+            <div className="mt-3">
               <input
                 type="search"
                 value={skillQuery}
@@ -245,7 +239,7 @@ export default function ProfileForm() {
               {filteredSkills.length === 0 ? (
                 <p className="pt-4 text-sm text-dark-muted">No skills match &quot;{skillQuery.trim()}&quot;.</p>
               ) : null}
-              <div className="grid grid-cols-2 gap-2 pt-3 sm:grid-cols-3">
+              <div className="flex flex-wrap gap-2 pt-3">
                 {filteredSkills.map((skill) => {
                   const isSelected = skills.includes(skill.name);
                   const disabled = !isSelected && skills.length >= 15;
@@ -264,13 +258,12 @@ export default function ProfileForm() {
                         }
                       }}
                       disabled={disabled}
-                      className={`inline-flex items-center justify-center rounded-full border transition ${
-                        isSelected ? "bg-dark-card font-bold border-2" : "bg-dark-card"
-                      } ${disabled ? "cursor-not-allowed opacity-50" : "hover:bg-dark-tertiary"} h-10 px-4 text-sm font-medium`}
-                      style={{
-                        borderColor: isSelected ? skill.color : "var(--line)",
-                        color: isSelected ? skill.color : "var(--text-2)",
-                      }}
+                      aria-pressed={isSelected}
+                      className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${
+                        isSelected
+                          ? "bg-[var(--btn-primary-bg)] text-[var(--btn-primary-fg)]"
+                          : "bg-dark-tertiary text-fg hover:bg-dark-secondary"
+                      } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
                     >
                       {skill.name}
                     </button>
@@ -282,19 +275,59 @@ export default function ProfileForm() {
                 <p className="mt-4 text-sm text-danger">Max 15 skills selected. Remove one to add another.</p>
               ) : null}
             </div>
-          )}
+          ) : null}
         </div>
 
         <div>
-          <p className="label-eyebrow">Links</p>
-          <div className="mt-3 space-y-3">
-            <input className={`${fieldClass} !mt-0`} value={link1} onChange={(event) => setLink1(event.target.value)} placeholder="https://..." />
-            <input className={`${fieldClass} !mt-0`} value={link2} onChange={(event) => setLink2(event.target.value)} placeholder="https://..." />
-            <input className={`${fieldClass} !mt-0`} value={link3} onChange={(event) => setLink3(event.target.value)} placeholder="https://..." />
+          <p className="text-lg font-semibold text-fg">Links</p>
+          <div className="mt-3 space-y-4">
+            {[
+              { label: "Website", value: link1, set: setLink1, placeholder: "https://yourwebsite.com" },
+              { label: "Portfolio", value: link2, set: setLink2, placeholder: "https://" },
+              { label: "Another link", value: link3, set: setLink3, placeholder: "https://" },
+            ].map((field) => (
+              <label key={field.label} className="block">
+                <span className="text-sm font-medium text-fg">{field.label}</span>
+                <input
+                  className={fieldClass}
+                  value={field.value}
+                  onChange={(event) => field.set(event.target.value)}
+                  placeholder={field.placeholder}
+                />
+              </label>
+            ))}
           </div>
         </div>
 
-        <button type="submit" disabled={saving} className="btn-primary disabled:cursor-not-allowed disabled:opacity-50">
+        <div className="divide-y divide-dark-subtle rounded-2xl border border-dark-subtle">
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5">
+            <div>
+              <p className="text-[15px] font-semibold text-fg">Public profile</p>
+              <p className="mt-0.5 text-xs text-dark-muted">Anyone can see your profile and project history.</p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isPublic}
+              aria-label="Public profile"
+              onClick={() => setIsPublic(!isPublic)}
+              className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${isPublic ? "bg-accent-blue" : "bg-dark-tertiary"}`}
+            >
+              <span
+                className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${isPublic ? "left-[1.375rem]" : "left-0.5"}`}
+              />
+            </button>
+          </div>
+          <div className="flex items-center justify-between gap-4 px-4 py-3.5">
+            <div>
+              <p className="text-[15px] font-semibold text-fg">Membership</p>
+              <p className="mt-0.5 text-xs text-dark-muted">You&apos;re on the {membership === "free" ? "Free" : "Pro"} plan.</p>
+            </div>
+            <Link href="/profile/subscription" className="btn-secondary !px-4 !py-2 text-sm">Manage plan</Link>
+          </div>
+        </div>
+
+        <button type="submit" disabled={saving} className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50">
           {saving ? "Saving..." : "Save changes"}
         </button>
       </form>

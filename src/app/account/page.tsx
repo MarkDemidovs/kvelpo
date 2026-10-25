@@ -2,7 +2,8 @@
 
 import { SignOutButton, useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
+import { Chevron, MenuControlRow, MenuGroup, MenuRow, menuIconProps as iconProps } from "~/app/_components/MenuList";
 import SignInRequired from "~/app/_components/SignInRequired";
 import ThemeToggle from "~/app/_components/ThemeToggle";
 
@@ -15,52 +16,6 @@ interface AdminStatus {
   isAdmin: boolean;
   openReports?: number;
   openSupport?: number;
-}
-
-const iconProps = {
-  className: "h-[18px] w-[18px]",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.8,
-  viewBox: "0 0 24 24",
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
-
-const Chevron = () => (
-  <svg className="h-4 w-4 shrink-0 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <polyline points="9 6 15 12 9 18" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-function IconBubble({ children }: { children: ReactNode }) {
-  return (
-    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-dark-tertiary text-fg">{children}</span>
-  );
-}
-
-function Row({
-  href,
-  icon,
-  label,
-  trailing,
-}: {
-  href: string;
-  icon: ReactNode;
-  label: string;
-  trailing?: ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 border-b border-dark-subtle px-4 py-3.5 text-fg transition last:border-b-0 hover:bg-dark-tertiary"
-    >
-      <IconBubble>{icon}</IconBubble>
-      <span className="flex-1 text-[15px] font-semibold">{label}</span>
-      {trailing}
-      <Chevron />
-    </Link>
-  );
 }
 
 const planLabel = (membership: string | null | undefined) => (membership === "pro" ? "Pro plan" : "Free plan");
@@ -106,10 +61,7 @@ export default function AccountPage() {
       <h1 className="mb-5 text-2xl font-bold tracking-tight text-fg md:text-3xl">Account</h1>
 
       <div className="space-y-5">
-        <Link
-          href={userId ? `/profile/${userId}` : "/profile"}
-          className="card-raised flex items-center gap-4 p-4"
-        >
+        <Link href={userId ? `/profile/${userId}` : "/profile"} className="card-raised flex items-center gap-4 p-4">
           <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent-blue/15 text-sm font-bold text-accent-blue">
             {user?.imageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -125,8 +77,8 @@ export default function AccountPage() {
           <Chevron />
         </Link>
 
-        <div className="card-raised overflow-hidden !transform-none">
-          <Row
+        <MenuGroup>
+          <MenuRow
             href="/profile/subscription"
             label="Membership"
             icon={
@@ -141,7 +93,7 @@ export default function AccountPage() {
               </span>
             }
           />
-          <Row
+          <MenuRow
             href="/settings"
             label="Settings"
             icon={
@@ -152,16 +104,17 @@ export default function AccountPage() {
               </svg>
             }
           />
-          <div className="flex items-center gap-3 border-b border-dark-subtle px-4 py-3">
-            <IconBubble>
+          <MenuControlRow
+            label="Appearance"
+            icon={
               <svg {...iconProps}>
                 <path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z" />
               </svg>
-            </IconBubble>
-            <span className="flex-1 text-[15px] font-semibold text-fg">Appearance</span>
+            }
+          >
             <ThemeToggle hideSystem />
-          </div>
-          <Row
+          </MenuControlRow>
+          <MenuRow
             href="/support"
             label="Help & support"
             icon={
@@ -171,52 +124,49 @@ export default function AccountPage() {
               </svg>
             }
           />
-        </div>
+        </MenuGroup>
 
         {admin ? (
-          <div>
-            <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-[0.12em] text-dark-muted">Admin</p>
-            <div className="card-raised overflow-hidden !transform-none">
-              <Row
-                href="/admin"
-                label="Admin panel"
-                icon={
-                  <svg {...iconProps}>
-                    <path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6l8-3z" />
-                  </svg>
-                }
-              />
-              <Row
-                href="/admin/reports"
-                label="Reports"
-                trailing={
-                  admin.openReports ? (
-                    <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">{admin.openReports}</span>
-                  ) : null
-                }
-                icon={
-                  <svg {...iconProps}>
-                    <path d="M6 21V4m0 0h11l-2 4 2 4H6" />
-                  </svg>
-                }
-              />
-              <Row
-                href="/admin/support"
-                label="Support inbox"
-                trailing={
-                  admin.openSupport ? (
-                    <span className="rounded-full bg-accent-blue px-2 py-0.5 text-xs font-semibold text-accent-fg">{admin.openSupport}</span>
-                  ) : null
-                }
-                icon={
-                  <svg {...iconProps}>
-                    <path d="M3 13l2.5-7.5A2 2 0 017.4 4h9.2a2 2 0 011.9 1.5L21 13v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z" />
-                    <path d="M3 13h5l1 2h6l1-2h5" />
-                  </svg>
-                }
-              />
-            </div>
-          </div>
+          <MenuGroup title="Admin">
+            <MenuRow
+              href="/admin"
+              label="Admin panel"
+              icon={
+                <svg {...iconProps}>
+                  <path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6l8-3z" />
+                </svg>
+              }
+            />
+            <MenuRow
+              href="/admin/reports"
+              label="Reports"
+              trailing={
+                admin.openReports ? (
+                  <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">{admin.openReports}</span>
+                ) : null
+              }
+              icon={
+                <svg {...iconProps}>
+                  <path d="M6 21V4m0 0h11l-2 4 2 4H6" />
+                </svg>
+              }
+            />
+            <MenuRow
+              href="/admin/support"
+              label="Support inbox"
+              trailing={
+                admin.openSupport ? (
+                  <span className="rounded-full bg-accent-blue px-2 py-0.5 text-xs font-semibold text-accent-fg">{admin.openSupport}</span>
+                ) : null
+              }
+              icon={
+                <svg {...iconProps}>
+                  <path d="M3 13l2.5-7.5A2 2 0 017.4 4h9.2a2 2 0 011.9 1.5L21 13v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z" />
+                  <path d="M3 13h5l1 2h6l1-2h5" />
+                </svg>
+              }
+            />
+          </MenuGroup>
         ) : null}
 
         <SignOutButton redirectUrl="/">
