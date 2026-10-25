@@ -6,6 +6,10 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
+  // The support route reads this file at runtime, so make sure it ships with the deployment.
+  outputFileTracingIncludes: {
+    "/api/support": ["./support-recipients.txt"],
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "img.clerk.com" },
