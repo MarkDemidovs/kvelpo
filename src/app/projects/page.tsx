@@ -17,6 +17,7 @@ interface Project {
   createdAt: string;
   rolesNeededCount?: number;
   featured?: boolean;
+  boostedUntil?: string | null;
 }
 
 const timeAgo = (value: string) => {
@@ -108,7 +109,9 @@ export default function MyProjectsPage() {
                         </span>
                       ) : null}
                       {project.featured ? (
-                        <span className="rounded-full bg-accent-blue/12 px-2.5 py-1 text-[11px] font-semibold text-accent-blue">Featured</span>
+                        <span className="rounded-full bg-accent-blue/12 px-2.5 py-1 text-[11px] font-semibold text-accent-blue">
+                          Featured{project.boostedUntil ? ` · ends in ${Math.max(1, Math.ceil((new Date(project.boostedUntil).getTime() - Date.now()) / 86_400_000))}d` : ''}
+                        </span>
                       ) : null}
                     </div>
                     <h3 className="text-[18px] font-semibold tracking-tight text-fg">{project.name}</h3>

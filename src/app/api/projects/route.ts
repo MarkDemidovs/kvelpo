@@ -96,6 +96,24 @@ export async function GET(request: Request) {
     const categoryParam = url.searchParams.get("category");
     const categoryCondition: SQL | undefined = isProjectCategory(categoryParam) ? eq(projects.category, categoryParam) : undefined;
 
+    // Filtering by skill or role is a Pro feature, enforced here and not just in the UI.
+    const skillParam = url.searchParams.get("skill")?.trim().slice(0, 64) ?? "";
+    const roleParam = url.searchParams.get("role")?.trim().slice(0, 100) ?? "";
+    let skillCondition: SQL | undefined;
+    let roleCondition: SQL | undefined;
+    if (skillParam || roleParam) {
+      const viewerMembership = userId
+        ? await db.select({ membership: profiles.membership }).from(profiles).where(eq(profiles.clerkUserId, userId)).then((rows) => rows[0]?.membership ?? null)
+        : null;
+      if (!isPro(viewerMembership)) {
+        return Response.json({ error: "Filtering by skill or role is part of Pro.", code: "PRO_REQUIRED" }, { status: 403 });
+      }
+      if (skillParam) skillCondition = sql`${projects.tags} @> ${JSON.stringify([skillParam])}::jsonb`;
+      if (roleParam) {
+        roleCondition = sql`exists (select 1 from "kvelpo_project_role_needed" rn where rn."projectId" = ${projects.id} and rn."title" ilike ${`%${escapeLike(roleParam)}%`})`;
+      }
+    }
+
     const roleSlots = sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`;
     const sortParam = url.searchParams.get("sort");
     const sortOrder = sortParam === "oldest" ? [asc(projects.createdAt), asc(projects.id)] : sortParam === "roles" ? [desc(roleSlots), desc(projects.createdAt)] : [desc(projects.createdAt), desc(projects.id)];
@@ -136,10 +154,10 @@ export async function GET(request: Request) {
       }
       projectsData = await baseQuery.where(() => and(eq(projects.clerkUserId, userId), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     } else if (userId) {
-      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), eq(projects.isDraft, false), isNull(profiles.bannedAt), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), eq(projects.isDraft, false), isNull(profiles.bannedAt), searchCondition, categoryCondition, skillCondition, roleCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     } else {
       // Projects of banned users are hidden from everyone browsing.
-      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), eq(projects.isDraft, false), isNull(profiles.bannedAt), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), eq(projects.isDraft, false), isNull(profiles.bannedAt), searchCondition, categoryCondition, skillCondition, roleCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     }
 
     return Response.json(await attachClerkAvatars(projectsData.map(toListResponse)));

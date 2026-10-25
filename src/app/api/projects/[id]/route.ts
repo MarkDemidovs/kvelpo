@@ -98,6 +98,13 @@ export async function GET(
       // survive, but they're no longer open.
       .where(and(eq(projectRolesNeeded.projectId, projectId), gt(projectRolesNeeded.slotsNeeded, 0)));
 
+    // How many people have joined (accepted): public, so visitors see "Team of N so far".
+    const [{ joined } = { joined: 0 }] = await db
+      .select({ joined: sql<number>`count(*)::int` })
+      .from(applications)
+      .innerJoin(projectRolesNeeded, eq(applications.projectRoleNeededId, projectRolesNeeded.id))
+      .where(and(eq(projectRolesNeeded.projectId, projectId), eq(applications.status, "accepted")));
+
     let applicationsList: Array<{
       id: number;
       clerkUserId: string;
@@ -132,6 +139,7 @@ export async function GET(
     const { ownerBannedAt, ownerMembership, ...publicProject } = project;
     return Response.json({
       ...publicProject,
+      spotsFilled: joined,
       featured: isBoosted(project.boostedUntil),
       ownerVerified: isPro(ownerMembership),
       // Only admins learn about moderation state.

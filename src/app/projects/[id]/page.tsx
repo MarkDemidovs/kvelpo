@@ -50,6 +50,8 @@ interface ProjectDetails {
   featured?: boolean;
   ownerVerified?: boolean;
   boostedUntil?: string | null;
+  /** People already accepted onto the team. */
+  spotsFilled?: number;
   applications?: Application[];
   /** Only present for admins. */
   viewerIsAdmin?: boolean;
@@ -214,6 +216,9 @@ export default function ProjectDetailPage() {
   const applications = project?.applications ?? [];
   const pending = applications.filter((app) => app.status === "pending").length;
   const accepted = applications.filter((app) => app.status === "accepted").length;
+  const joined = project?.spotsFilled ?? accepted;
+  const totalSpots = openSpots + joined;
+  const boostDaysLeft = project?.featured && project.boostedUntil ? Math.max(1, Math.ceil((new Date(project.boostedUntil).getTime() - Date.now()) / 86_400_000)) : null;
   const chips = project ? [...(project.category ? [project.category] : []), ...project.tags].slice(0, 4) : [];
 
   const rolesList = (withApply: boolean) =>
@@ -431,7 +436,24 @@ export default function ProjectDetailPage() {
               <p className="mt-5 flex items-center gap-2.5 rounded-xl bg-dark-secondary px-4 py-3 text-sm text-fg-secondary lg:hidden">
                 <svg className="h-4 w-4 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1M9.5 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM21 20v-1a4 4 0 00-3-3.9M16 4.1a3.5 3.5 0 010 6.8" /></svg>
                 {openSpots} spot{openSpots === 1 ? "" : "s"} open across {project.rolesNeeded.length} role{project.rolesNeeded.length === 1 ? "" : "s"}
+                {joined > 0 ? ` · ${joined} joined` : ""}
               </p>
+            ) : null}
+
+            {project.isOwner && boostDaysLeft !== null ? (
+              <div className={`mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4 ${boostDaysLeft <= 2 ? "bg-warning-bg" : "bg-accent-blue/[0.08]"}`}>
+                <p className="text-sm text-fg">
+                  <span className="font-semibold">
+                    {boostDaysLeft <= 1 ? "Your boost ends today." : `Your boost ends in ${boostDaysLeft} days.`}
+                  </span>{" "}
+                  <span className="text-fg-secondary">
+                    {boostDaysLeft <= 2 ? "Extend it to stay at the top of Explore." : `It stays at the top of Explore until ${new Date(project.boostedUntil!).toLocaleDateString()}.`}
+                  </span>
+                </p>
+                <button type="button" onClick={() => setBoostOpen(true)} className="btn-secondary !px-4 !py-2 text-[13px]">
+                  Extend boost
+                </button>
+              </div>
             ) : null}
 
             {project.isOwner ? (
@@ -529,8 +551,8 @@ export default function ProjectDetailPage() {
                       projectId={project.id}
                       applications={applications.length}
                       pendingApplications={pending}
-                      spotsFilled={accepted}
-                      spotsTotal={openSpots + accepted}
+                      spotsFilled={joined}
+                      spotsTotal={totalSpots}
                       featured={Boolean(project.featured)}
                       onBoost={() => setBoostOpen(true)}
                     />
@@ -549,8 +571,19 @@ export default function ProjectDetailPage() {
                     {openSpots} spot{openSpots === 1 ? "" : "s"} open
                   </p>
                   <p className="mt-1 text-[13px] text-dark-muted">
-                    Across {project.rolesNeeded.length} role{project.rolesNeeded.length === 1 ? "" : "s"}
+                    Across {project.rolesNeeded.length} role{project.rolesNeeded.length === 1 ? "" : "s"} &middot;{" "}
+                    {joined === 0 ? "No one has joined yet" : `${joined} ${joined === 1 ? "person has" : "people have"} joined`}
                   </p>
+                  <div
+                    className="mt-4 h-1.5 overflow-hidden rounded-full bg-dark-tertiary"
+                    role="progressbar"
+                    aria-label="Spots filled"
+                    aria-valuemin={0}
+                    aria-valuemax={totalSpots}
+                    aria-valuenow={joined}
+                  >
+                    <div className="h-full rounded-full bg-accent-blue" style={{ width: `${totalSpots > 0 ? Math.round((joined / totalSpots) * 100) : 0}%` }} />
+                  </div>
                   {project.rolesNeeded.length > 0 ? (
                     <button
                       type="button"
@@ -574,6 +607,10 @@ export default function ProjectDetailPage() {
                     <li className="flex items-center gap-2.5">
                       <svg className="h-4 w-4 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
                       Posted {timeAgo(project.createdAt)}
+                    </li>
+                    <li className="flex items-center gap-2.5">
+                      <svg className="h-4 w-4 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1M9.5 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" /></svg>
+                      Team of {joined + 1} so far
                     </li>
                     {project.category ? (
                       <li className="flex items-center gap-2.5">

@@ -10,6 +10,8 @@ import Landing from './_components/landing/Landing';
 import VerifiedBadge from './_components/VerifiedBadge';
 import { ProjectCardSkeletonGrid } from './_components/Skeleton';
 import { PROJECT_CATEGORIES, type ProjectCategory } from '~/lib/categories';
+import { isPro } from '~/lib/membership';
+import skillsConfig from '~/data/skills.json';
 
 interface Project {
   id: number;
@@ -84,6 +86,10 @@ function HomeFeedContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q')?.trim() ?? '');
   const [category, setCategory] = useState<'All' | ProjectCategory>('All');
   const [sort, setSort] = useState<Sort>('newest');
+  const [viewerIsPro, setViewerIsPro] = useState(false);
+  const [skill, setSkill] = useState('');
+  const [roleInput, setRoleInput] = useState('');
+  const [role, setRole] = useState('');
   const observerTarget = useRef<HTMLDivElement>(null);
 
   // Shown until dismissed; remembered per browser.
@@ -104,6 +110,21 @@ function HomeFeedContent() {
     }
   };
 
+  // Skill and role filters are part of Pro.
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/profile', { signal: controller.signal })
+      .then((res) => (res.ok ? (res.json() as Promise<{ membership?: string | null }>) : null))
+      .then((data) => setViewerIsPro(isPro(data?.membership ?? null)))
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setRole(roleInput.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [roleInput]);
+
   // The top bar's search box navigates to /?q=...
   useEffect(() => {
     const fromUrl = searchParams.get('q') ?? '';
@@ -123,6 +144,8 @@ function HomeFeedContent() {
       const query = new URLSearchParams({ mode: 'public', page: String(pageNum), limit: '12', sort });
       if (searchQuery) query.set('q', searchQuery);
       if (category !== 'All') query.set('category', category);
+      if (viewerIsPro && skill) query.set('skill', skill);
+      if (viewerIsPro && role) query.set('role', role);
       const res = await fetch(`/api/projects?${query.toString()}`);
       const data = (await res.json().catch(() => null)) as unknown;
 
@@ -159,7 +182,7 @@ function HomeFeedContent() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [searchQuery, category, sort]);
+  }, [searchQuery, category, sort, viewerIsPro, skill, role]);
 
   // Debounce typing so every keystroke doesn't hit the API.
   useEffect(() => {
@@ -217,7 +240,7 @@ function HomeFeedContent() {
   };
 
   const firstName = user?.firstName?.trim();
-  const filtering = Boolean(searchQuery) || category !== 'All';
+  const filtering = Boolean(searchQuery) || category !== 'All' || Boolean(skill) || Boolean(role);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-dark-primary pt-14 text-fg">
@@ -334,6 +357,41 @@ function HomeFeedContent() {
               </select>
             </label>
           </div>
+
+          {viewerIsPro ? (
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-[var(--btn-primary-bg)] px-2.5 py-1 text-[11px] font-semibold text-[var(--btn-primary-fg)]">Pro</span>
+              <select
+                value={skill}
+                onChange={(event) => setSkill(event.target.value)}
+                aria-label="Filter by skill"
+                className="cursor-pointer rounded-full border border-dark-subtle bg-dark-primary px-4 py-2 text-[13px] text-fg outline-none focus:border-accent-blue"
+              >
+                <option value="">Any skill</option>
+                {skillsConfig.map((item) => (
+                  <option key={item.name} value={item.name}>{item.name}</option>
+                ))}
+              </select>
+              <input
+                type="search"
+                value={roleInput}
+                onChange={(event) => setRoleInput(event.target.value)}
+                placeholder="Role, e.g. Designer"
+                aria-label="Filter by role"
+                className="w-48 rounded-full border border-dark-subtle bg-dark-primary px-4 py-2 text-[13px] text-fg outline-none focus:border-accent-blue"
+              />
+              {skill || roleInput ? (
+                <button type="button" onClick={() => { setSkill(''); setRoleInput(''); setRole(''); }} className="text-[13px] font-medium text-accent-blue hover:underline">
+                  Clear
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <p className="mt-4 text-[13px] text-fg-secondary">
+              Want to filter by skill or role?{' '}
+              <Link href="/profile/subscription" className="font-semibold text-accent-blue hover:underline">Pro members can</Link>.
+            </p>
+          )}
 
           {loading ? (
             <div className="mt-8"><ProjectCardSkeletonGrid /></div>
