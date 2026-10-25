@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 export type Theme = "light" | "dark" | "system";
 
 export const THEME_STORAGE_KEY = "kvelpo-theme";
-const DEFAULT_THEME: Theme = "dark";
+const DEFAULT_THEME: Theme = "system";
 
 /**
  * Runs in <head> before first paint so the page never flashes the wrong theme.

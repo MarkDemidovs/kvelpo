@@ -263,7 +263,15 @@ function SubscriptionPageContent() {
   const periodWord = billing === "yearly" ? "year" : "month";
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
+    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 pt-20">
+      <Link href="/settings" className="inline-flex items-center gap-1.5 text-sm text-fg-secondary hover:text-fg">
+        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12" strokeLinecap="round" />
+          <polyline points="12 19 5 12 12 5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Settings
+      </Link>
+
       <section className="text-center">
         <p className="label-eyebrow justify-center">Membership</p>
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-fg">Choose your plan</h1>
@@ -489,6 +497,7 @@ function SubscriptionPageContent() {
               `Top of Explore and search for ${PRICING.boostDays} days`,
               "“Featured” label on your project",
               "Works on Free and Pro",
+              "See the extra views in Insights",
             ]}
           />
         </div>

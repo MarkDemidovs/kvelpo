@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 export interface ApplicationStatus {
   id: number;
   status: string;
+  projectId?: number | null;
   projectName: string | null;
   roleTitle: string | null;
   message: string | null;
@@ -28,6 +29,7 @@ interface InboxContextValue {
   unreadCount: number;
   refresh: () => Promise<void>;
   markRead: (id: number) => Promise<void>;
+  markAllRead: () => Promise<void>;
 }
 
 const InboxContext = createContext<InboxContextValue | null>(null);
@@ -98,6 +100,19 @@ export function InboxProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const markAllRead = useCallback(async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    try {
+      await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+    } catch (error) {
+      console.error("Failed to mark all notifications read:", error);
+    }
+  }, []);
+
   const value = useMemo<InboxContextValue>(
     () => ({
       notifications,
@@ -105,8 +120,9 @@ export function InboxProvider({ children }: { children: ReactNode }) {
       unreadCount: notifications.filter((n) => !n.isRead).length,
       refresh,
       markRead,
+      markAllRead,
     }),
-    [notifications, applications, refresh, markRead],
+    [notifications, applications, refresh, markRead, markAllRead],
   );
 
   return <InboxContext.Provider value={value}>{children}</InboxContext.Provider>;

@@ -1,4 +1,4 @@
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "~/server/db";
 import { profiles, projectViews } from "~/server/db/schema";
 import { isPro } from "~/lib/membership";
@@ -39,6 +39,8 @@ export type ProjectInsights = {
   totalViews: number;
   /** Last 7 days, oldest first, with zero-filled gaps. */
   days: { date: string; views: number }[];
+  /** Views in the 7 days before `days`, for the week-over-week comparison. */
+  previousWeekViews: number;
   viewers: { userId: string | null; name: string; viewedOn: string }[] | null;
 };
 
@@ -56,6 +58,12 @@ export async function getProjectInsights(projectId: number, ownerMembership: str
     .from(projectViews)
     .where(and(eq(projectViews.projectId, projectId), gte(projectViews.viewedOn, since)))
     .groupBy(projectViews.viewedOn);
+
+  const previousStart = new Date(Date.now() - 13 * DAY_MS).toISOString().slice(0, 10);
+  const [{ previous } = { previous: 0 }] = await db
+    .select({ previous: sql<number>`count(*)::int` })
+    .from(projectViews)
+    .where(and(eq(projectViews.projectId, projectId), gte(projectViews.viewedOn, previousStart), lt(projectViews.viewedOn, since)));
 
   const countByDate = new Map(perDay.map((row) => [row.date, row.views]));
   const days = Array.from({ length: 7 }, (_, index) => {
@@ -92,5 +100,5 @@ export async function getProjectInsights(projectId: number, ownerMembership: str
     });
   }
 
-  return { canSeeViewers, totalViews: total, days, viewers };
+  return { canSeeViewers, totalViews: total, days, previousWeekViews: previous, viewers };
 }

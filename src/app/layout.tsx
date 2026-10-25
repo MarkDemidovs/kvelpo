@@ -6,11 +6,9 @@ import { type Metadata, type Viewport } from "next";
 import { Geist } from "next/font/google";
 import TopNav from "./_components/topnav";
 import { siteDescription, siteName, siteTagline, siteUrl } from "~/lib/site";
-import ChatPopup from "./_components/ChatPopup";
 import ConsentBanner from "./_components/ConsentBanner";
 import TermsGate from "./_components/TermsGate";
 import { ThemeProvider, themeInitScript } from "./_components/ThemeProvider";
-import { ChatProvider } from "./_components/ChatContext";
 import { InboxProvider } from "./_components/InboxContext";
 import BottomTabBar from "./_components/BottomTabBar";
 
@@ -60,30 +58,27 @@ export default function RootLayout({
         </head>
         <body suppressHydrationWarning>
           <ThemeProvider>
-          <ChatProvider>
           <InboxProvider>
             <TopNav />
             <ConsentBanner />
             <TermsGate />
-            <main className="pt-16">
+            <main className="pt-14">
               {children}
             </main>
-            <footer className="border-t border-dark-subtle bg-dark-tertiary px-6 py-6 text-sm text-fg-secondary">
+            <footer className="border-t border-dark-subtle bg-dark-primary px-4 py-8 text-sm text-fg-secondary sm:px-6 lg:px-8">
               <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
                 <p>© 2026 kvelpo</p>
-                <div className="flex flex-wrap gap-4">
-                  <Link href="/terms" className="hover:text-fg">Terms</Link>
+                <div className="flex flex-wrap gap-x-5 gap-y-2">
+                  <Link href="/support" className="hover:text-fg">Help &amp; support</Link>
                   <Link href="/privacy" className="hover:text-fg">Privacy</Link>
+                  <Link href="/terms" className="hover:text-fg">Terms</Link>
                   <Link href="/cookies" className="hover:text-fg">Cookies</Link>
                   <Link href="/consent" className="hover:text-fg">Consent</Link>
-                  <Link href="/support" className="hover:text-fg">Support</Link>
                 </div>
               </div>
             </footer>
             <BottomTabBar />
-            <ChatPopup />
           </InboxProvider>
-          </ChatProvider>
           </ThemeProvider>
         </body>
       </html>

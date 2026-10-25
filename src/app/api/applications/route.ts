@@ -17,6 +17,7 @@ export async function GET() {
         status: applications.status,
         message: applications.message,
         appliedAt: applications.createdAt,
+        projectId: projects.id,
         projectName: projects.name,
         roleTitle: projectRolesNeeded.title,
       })

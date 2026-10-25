@@ -153,6 +153,8 @@ export const projects = createTable("project", (d) => ({
   description: d.text(),
   isPublic: d.boolean().notNull().default(true),
   tags: d.jsonb().notNull().default([]),
+  // One of PROJECT_CATEGORIES (src/lib/categories.ts); null for projects posted before categories existed.
+  category: d.varchar({ length: 32 }),
   // Pushed to the top of Explore (with a "Featured" label) until this time.
   boostedUntil: d.timestamp({ withTimezone: true }),
   createdAt: d
@@ -167,6 +169,7 @@ export const projects = createTable("project", (d) => ({
   index("name_idx").on(t.name),
   index("projects_is_public_idx").on(t.isPublic),
   index("projects_boosted_until_idx").on(t.boostedUntil),
+  index("projects_category_idx").on(t.category),
 ]);
 
 export const projectRolesNeeded = createTable("project_role_needed", (d) => ({

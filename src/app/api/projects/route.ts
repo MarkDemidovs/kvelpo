@@ -1,7 +1,8 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { and, desc, eq, ilike, isNull, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNull, or, sql, type SQL } from "drizzle-orm";
+import { isProjectCategory } from "~/lib/categories";
 import { isPro, normalizeMembership, projectLimitFor } from "~/lib/membership";
 import { isBoosted } from "~/server/boost";
 
@@ -26,6 +27,7 @@ type ProjectListItem = {
   description: string | null;
   isPublic: boolean;
   tags: unknown;
+  category: string | null;
   createdAt: Date;
   updatedAt: Date;
   userFullName: string | null;
@@ -90,6 +92,13 @@ export async function GET(request: Request) {
         )
       : undefined;
 
+    const categoryParam = url.searchParams.get("category");
+    const categoryCondition: SQL | undefined = isProjectCategory(categoryParam) ? eq(projects.category, categoryParam) : undefined;
+
+    const roleSlots = sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`;
+    const sortParam = url.searchParams.get("sort");
+    const sortOrder = sortParam === "oldest" ? [asc(projects.createdAt), asc(projects.id)] : sortParam === "roles" ? [desc(roleSlots), desc(projects.createdAt)] : [desc(projects.createdAt), desc(projects.id)];
+
     const featuredRank = sql<number>`case when ${projects.boostedUntil} > now() then 2 when ${profiles.membership} in ('pro', 'team') and ${projects.createdAt} > now() - interval '30 days' then 1 else 0 end`;
 
     const baseQuery = db
@@ -100,10 +109,11 @@ export async function GET(request: Request) {
         description: projects.description,
         isPublic: projects.isPublic,
         tags: projects.tags,
+        category: projects.category,
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
-        rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
+        rolesNeededCount: roleSlots,
         boostedUntil: projects.boostedUntil,
         ownerMembership: profiles.membership,
       })
@@ -113,7 +123,7 @@ export async function GET(request: Request) {
       // Order in SQL (not after fetching) so pages are stable and don't
       // repeat or skip projects during infinite scroll. Boosted projects come
       // first, then fresh Pro projects ("featured placement"), then newest.
-      .orderBy(desc(featuredRank), desc(projects.createdAt), desc(projects.id))
+      .orderBy(desc(featuredRank), ...sortOrder)
       .limit(limit)
       .offset(offset);
 
@@ -122,12 +132,12 @@ export async function GET(request: Request) {
       if (!userId) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
       }
-      projectsData = await baseQuery.where(() => and(eq(projects.clerkUserId, userId), searchCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(eq(projects.clerkUserId, userId), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     } else if (userId) {
-      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), isNull(profiles.bannedAt), searchCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), isNull(profiles.bannedAt), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     } else {
       // Projects of banned users are hidden from everyone browsing.
-      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), isNull(profiles.bannedAt), searchCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), isNull(profiles.bannedAt), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     }
 
     return Response.json(await attachClerkAvatars(projectsData.map(toListResponse)));
@@ -155,6 +165,7 @@ export async function POST(request: Request) {
       description?: unknown;
       isPublic?: unknown;
       tags?: unknown;
+      category?: unknown;
       rolesNeeded?: unknown;
     };
 
@@ -163,6 +174,7 @@ export async function POST(request: Request) {
     const isPublic = Boolean(body.isPublic);
     const rawTags = Array.isArray(body.tags) ? body.tags : [];
     const tags = rawTags.filter((tag): tag is string => typeof tag === "string").slice(0, 3);
+    const category = isProjectCategory(body.category) ? body.category : null;
     const rolesNeeded = body.rolesNeeded;
 
     if (!name) {
@@ -218,6 +230,7 @@ export async function POST(request: Request) {
         description,
         isPublic,
         tags,
+        category,
       }).returning();
 
       // Same transaction as the project, so a failed role insert can't leave

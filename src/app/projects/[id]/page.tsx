@@ -8,6 +8,7 @@ import Image from "next/image";
 import { ProjectDetailSkeleton } from "~/app/_components/Skeleton";
 import ReportButton from "~/app/_components/ReportButton";
 import { AdminProjectBar } from "~/app/_components/AdminControls";
+import BoostModal from "~/app/_components/BoostModal";
 import ProjectInsights from "~/app/_components/ProjectInsights";
 import VerifiedBadge from "~/app/_components/VerifiedBadge";
 
@@ -39,6 +40,7 @@ interface ProjectDetails {
   description: string | null;
   isPublic: boolean;
   tags: string[];
+  category?: string | null;
   createdAt: string;
   rolesNeeded: RoleNeeded[];
   isOwner: boolean;
@@ -56,6 +58,16 @@ interface ApiErrorResponse {
   message?: string;
 }
 
+type Tab = "overview" | "applications" | "insights";
+
+const timeAgo = (value: string) => {
+  const days = Math.floor((Date.now() - new Date(value).getTime()) / 86_400_000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 30) return `${days} days ago`;
+  return new Date(value).toLocaleDateString();
+};
+
 export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -69,6 +81,14 @@ export default function ProjectDetailPage() {
   const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [tab, setTab] = useState<Tab>("overview");
+  const [boostOpen, setBoostOpen] = useState(false);
+
+  // Deep link: /projects/12?tab=insights
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("tab");
+    if (requested === "applications" || requested === "insights") setTab(requested);
+  }, []);
 
   const loadProject = async () => {
     setIsLoading(true);
@@ -155,19 +175,110 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const startApplying = (roleId: number) => {
+    if (isLoaded && !isSignedIn) {
+      openSignIn({ forceRedirectUrl: window.location.href });
+      return;
+    }
+    setSelectedRoleId(roleId);
+  };
+
+  const ownerName = project?.userFullName?.trim() ? project.userFullName.trim() : (project?.clerkUserId.slice(0, 12) ?? "");
+  const openSpots = project?.rolesNeeded.reduce((sum, role) => sum + role.slotsNeeded, 0) ?? 0;
+  const applications = project?.applications ?? [];
+  const pending = applications.filter((app) => app.status === "pending").length;
+  const accepted = applications.filter((app) => app.status === "accepted").length;
+  const chips = project ? [...(project.category ? [project.category] : []), ...project.tags].slice(0, 4) : [];
+
+  const rolesList = (withApply: boolean) =>
+    project?.rolesNeeded.length === 0 ? (
+      <p className="mt-4 text-sm text-fg-secondary">No roles are currently open for this project.</p>
+    ) : (
+      <div className="mt-4 divide-y divide-dark-subtle overflow-hidden rounded-2xl border border-dark-subtle">
+        {project?.rolesNeeded.map((role) => (
+          <div key={role.id} className="p-5">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-[15px] font-semibold text-fg">{role.title}</p>
+                <p className="mt-1 text-sm text-fg-secondary">{role.description ?? "No details provided."}</p>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-dark-muted">{role.slotsNeeded} spot{role.slotsNeeded !== 1 ? "s" : ""} left</span>
+                {withApply ? (
+                  <button type="button" onClick={() => startApplying(role.id)} className="btn-secondary !px-4 !py-2 text-sm">
+                    Apply
+                  </button>
+                ) : null}
+              </div>
+            </div>
+
+            {withApply && selectedRoleId === role.id ? (
+              <div className="mt-4 rounded-2xl bg-dark-secondary p-4">
+                <label htmlFor={`apply-${role.id}`} className="text-sm font-medium text-fg">Message</label>
+                <textarea
+                  id={`apply-${role.id}`}
+                  value={applicationMessage}
+                  onChange={(e) => setApplicationMessage(e.target.value)}
+                  rows={3}
+                  className="mt-2 w-full rounded-xl border border-dark-subtle bg-dark-primary px-3 py-2 text-sm text-fg outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
+                  placeholder="Optional note for the project owner"
+                />
+                <div className="mt-3.5 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedRoleId(null); setApplicationMessage(""); }}
+                    className="btn-secondary !px-4 !py-2 text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleApply()}
+                    disabled={isSubmittingApplication}
+                    className="btn-primary !px-4 !py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isSubmittingApplication ? "Applying..." : "Submit application"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    );
+
+  const aboutBlock = project ? (
+    <div>
+      <h2 className="text-xl font-semibold tracking-tight text-fg">About the project</h2>
+      <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-fg-secondary">
+        {project.description ?? "No description provided."}
+      </p>
+    </div>
+  ) : null;
+
+  const rolesBlock = project ? (
+    <div>
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-xl font-semibold tracking-tight text-fg">Open roles</h2>
+        <p className="text-xs text-dark-muted">{project.rolesNeeded.length} role{project.rolesNeeded.length === 1 ? "" : "s"} &middot; {openSpots} spot{openSpots === 1 ? "" : "s"}</p>
+      </div>
+      {rolesList(!project.isOwner)}
+    </div>
+  ) : null;
+
   return (
-    <main className="min-h-screen bg-dark-primary text-fg">
+    <main className="min-h-screen bg-dark-primary pt-14 text-fg">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-fg-secondary hover:text-fg">
-          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+        <Link href={project?.isOwner ? "/projects" : "/"} className="inline-flex items-center gap-1.5 text-sm text-fg-secondary hover:text-fg">
+          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden="true">
             <line x1="19" y1="12" x2="5" y2="12" strokeLinecap="round" />
             <polyline points="12 19 5 12 12 5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          Back to projects
+          {project?.isOwner ? "My projects" : "All projects"}
         </Link>
 
         {error ? (
-          <div className="card-raised mt-5 p-4 text-sm text-danger">{error}</div>
+          <div className="mt-5 rounded-2xl bg-danger-bg p-4 text-sm text-danger">{error}</div>
         ) : null}
 
         {isLoading ? (
@@ -190,206 +301,251 @@ export default function ProjectDetailPage() {
                 />
               </div>
             ) : null}
-            <div className="mt-5 flex flex-wrap items-start justify-between gap-5">
-              <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-[32px] font-bold tracking-tight text-fg">{project.name}</h1>
-                  {project.isOwner ? (
+
+            {chips.length > 0 ? (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {chips.map((chip) => (
+                  <span key={chip} className="rounded-full bg-dark-tertiary px-3 py-1.5 text-xs text-fg-secondary">{chip}</span>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="mt-4 flex flex-wrap items-end justify-between gap-5">
+              <div className="min-w-0">
+                <h1 className="text-[40px] font-bold leading-[1.05] tracking-tight text-fg sm:text-[56px]">{project.name}</h1>
+
+                {project.isOwner ? (
+                  <div className="mt-4 flex flex-wrap items-center gap-2.5 text-sm text-fg-secondary">
+                    {project.isPublic && openSpots > 0 ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-2.5 py-1 text-[11px] font-medium text-success">
+                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                        Recruiting
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-dark-tertiary px-2.5 py-1 text-[11px] font-medium text-fg-secondary">{project.isPublic ? "Not recruiting" : "Private"}</span>
+                    )}
+                    {project.featured ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent-blue/12 px-2.5 py-1 text-[11px] font-semibold text-accent-blue">
+                        Featured
+                        <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" /></svg>
+                      </span>
+                    ) : null}
+                    <span>Posted {timeAgo(project.createdAt)} &middot; {project.rolesNeeded.length} role{project.rolesNeeded.length === 1 ? "" : "s"} open</span>
+                  </div>
+                ) : (
+                  <div className="mt-5 flex items-center gap-3">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-accent-blue/12">
+                      {project.avatarUrl ? (
+                        <Image src={project.avatarUrl} alt="" width={40} height={40} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase text-accent-blue">{ownerName.slice(0, 2)}</span>
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <Link href={`/profile/${encodeURIComponent(project.clerkUserId)}`} className="truncate text-[15px] font-medium text-fg hover:text-accent-blue">
+                          {ownerName}
+                        </Link>
+                        {project.ownerVerified ? <VerifiedBadge className="h-3.5 w-3.5" /> : null}
+                      </div>
+                      <p className="text-[13px] text-dark-muted">
+                        Project owner &middot; Posted {timeAgo(project.createdAt)}
+                        {project.featured ? " · Featured" : ""}
+                        {!project.isPublic ? " · Private" : ""}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {project.isOwner ? (
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => void handleDeleteProject()}
+                    disabled={isDeleting}
+                    className="rounded-full px-3 py-2 text-sm font-medium text-danger transition hover:bg-danger-bg disabled:opacity-60"
+                  >
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </button>
+                  {project.isPublic ? (
                     <button
                       type="button"
-                      onClick={() => void handleDeleteProject()}
-                      disabled={isDeleting}
-                      className="rounded-full bg-danger-bg px-3 py-1 text-xs font-semibold text-danger hover:bg-danger-bg disabled:opacity-60"
+                      onClick={() => setBoostOpen(true)}
+                      className="inline-flex items-center gap-2 rounded-full bg-accent-blue px-5 py-2.5 text-sm font-semibold text-accent-fg transition hover:opacity-90"
                     >
-                      {isDeleting ? "Deleting..." : "Delete"}
+                      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" /></svg>
+                      {project.featured ? "Extend boost" : "Boost project"}
                     </button>
                   ) : null}
                 </div>
-                <div className="mt-3 flex min-w-0 items-center gap-2.5">
-                  <div className="h-6.5 w-6.5 shrink-0 overflow-hidden rounded-full bg-dark-tertiary">
-                    {project.avatarUrl ? (
-                      <Image src={project.avatarUrl} alt="" width={26} height={26} className="h-full w-full object-cover" />
+              ) : (
+                <ReportButton targetType="project" targetId={project.id} targetLabel={project.name} />
+              )}
+            </div>
+
+            {project.isOwner ? (
+              <>
+                <div className="mt-8 flex gap-6 border-b border-dark-subtle" role="tablist" aria-label="Project sections">
+                  {([
+                    ["overview", "Overview"],
+                    ["applications", `Applications${applications.length > 0 ? ` · ${applications.length}` : ""}`],
+                    ["insights", "Insights"],
+                  ] as const).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="tab"
+                      aria-selected={tab === value}
+                      onClick={() => setTab(value)}
+                      className={`-mb-px border-b-2 pb-3 text-sm font-medium transition ${
+                        tab === value ? "border-[var(--text)] text-fg" : "border-transparent text-fg-secondary hover:text-fg"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-8">
+                  {tab === "overview" ? (
+                    <div className="grid gap-10 lg:grid-cols-[2fr_1fr] lg:items-start">
+                      <div className="flex flex-col gap-10">
+                        {aboutBlock}
+                        {rolesBlock}
+                      </div>
+                      <div className="rounded-2xl border border-dark-subtle p-5">
+                        <p className="label-eyebrow">Project info</p>
+                        <dl className="mt-4 space-y-3 text-sm">
+                          <div className="flex justify-between"><dt className="text-dark-muted">Created</dt><dd className="text-fg-secondary">{new Date(project.createdAt).toLocaleDateString()}</dd></div>
+                          <div className="flex justify-between"><dt className="text-dark-muted">Open spots</dt><dd className="text-fg-secondary">{openSpots}</dd></div>
+                          <div className="flex justify-between"><dt className="text-dark-muted">Visibility</dt><dd className="text-fg-secondary">{project.isPublic ? "Public" : "Private"}</dd></div>
+                          {project.category ? <div className="flex justify-between"><dt className="text-dark-muted">Category</dt><dd className="text-fg-secondary">{project.category}</dd></div> : null}
+                        </dl>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {tab === "applications" ? (
+                    applications.length === 0 ? (
+                      <div className="rounded-2xl bg-dark-secondary p-10 text-center text-sm text-fg-secondary">
+                        No applications yet. People who apply to your roles will show up here.
+                      </div>
                     ) : (
-                      <span className="flex h-full w-full items-center justify-center text-[11px] font-semibold text-fg-secondary">
-                        {(project.userFullName ?? project.clerkUserId).slice(0, 2)}
-                      </span>
-                    )}
-                  </div>
-                  <Link href={`/profile/${encodeURIComponent(project.clerkUserId)}`} className="min-w-0 truncate text-sm text-fg-secondary hover:text-accent-blue">
-                    {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId.slice(0, 12)}
-                  </Link>
-                  {project.ownerVerified ? <VerifiedBadge className="h-3.5 w-3.5" /> : null}
-                  <span className="shrink-0 text-xs text-dark-muted">&middot; Owner</span>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2.5">
-                <span className="whitespace-nowrap rounded-full bg-dark-tertiary px-3.5 py-2 text-[13px] text-fg-secondary">
-                  {project.isPublic ? "Public project" : "Private project"}
-                </span>
-                {project.featured ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-blue/12 px-3 py-1.5 text-xs font-semibold text-accent-blue">
-                    Featured
-                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" /></svg>
-                  </span>
-                ) : null}
-                {!project.isOwner ? <ReportButton targetType="project" targetId={project.id} targetLabel={project.name} /> : null}
-              </div>
-            </div>
+                      <div className="flex max-w-3xl flex-col gap-3">
+                        {applications.map((app) => (
+                          <div key={app.id} className="rounded-2xl border border-dark-subtle p-5">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="min-w-0">
+                                <Link href={`/profile/${encodeURIComponent(app.clerkUserId)}`} className="block truncate text-[15px] font-semibold text-fg hover:text-accent-blue">
+                                  {app.applicantFullName?.trim() ? app.applicantFullName.trim() : app.clerkUserId.slice(0, 12)}
+                                </Link>
+                                <p className="mt-0.5 text-[13px] text-dark-muted">Applied for {app.roleTitle ?? "a role"}</p>
+                              </div>
+                              {app.status === "pending" ? (
+                                <div className="flex shrink-0 gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleApplicationUpdate(app.id, "rejected")}
+                                    disabled={actionLoading === app.id}
+                                    className="btn-secondary !px-4 !py-2 text-[13px] disabled:opacity-60"
+                                  >
+                                    Decline
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleApplicationUpdate(app.id, "accepted")}
+                                    disabled={actionLoading === app.id}
+                                    className="btn-primary !px-4 !py-2 text-[13px] disabled:opacity-60"
+                                  >
+                                    Accept
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${app.status === "accepted" ? "bg-success-bg text-success" : "bg-dark-tertiary text-fg-secondary"}`}>
+                                  {app.status}
+                                </span>
+                              )}
+                            </div>
+                            {app.message ? <p className="mt-3 text-sm leading-relaxed text-fg-secondary">{app.message}</p> : null}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  ) : null}
 
-            <div className="mt-10 grid gap-10 lg:grid-cols-[2fr_1fr] lg:items-start">
-              <div className="flex flex-col gap-10">
-                <div>
-                  <p className="label-eyebrow">About this project</p>
-                  <p className="mt-3.5 text-[15px] leading-relaxed text-fg-secondary">
-                    {project.description ?? "No description provided."}
+                  {tab === "insights" ? (
+                    <ProjectInsights
+                      projectId={project.id}
+                      applications={applications.length}
+                      pendingApplications={pending}
+                      spotsFilled={accepted}
+                      spotsTotal={openSpots + accepted}
+                      featured={Boolean(project.featured)}
+                      onBoost={() => setBoostOpen(true)}
+                    />
+                  ) : null}
+                </div>
+              </>
+            ) : (
+              <div className="mt-10 grid gap-10 lg:grid-cols-[2fr_1fr] lg:items-start">
+                <div className="flex flex-col gap-10">
+                  {aboutBlock}
+                  {rolesBlock}
+                </div>
+
+                <div className="rounded-2xl border border-dark-subtle p-6 shadow-[var(--shadow-card)] lg:sticky lg:top-20">
+                  <p className="text-2xl font-bold tracking-tight text-fg">
+                    {openSpots} spot{openSpots === 1 ? "" : "s"} open
                   </p>
-                </div>
-
-                <div>
-                  <p className="label-eyebrow">Open roles</p>
-                  {project.rolesNeeded.length === 0 ? (
-                    <p className="mt-3.5 text-sm text-fg-secondary">No roles are currently open for this project.</p>
+                  <p className="mt-1 text-[13px] text-dark-muted">
+                    Across {project.rolesNeeded.length} role{project.rolesNeeded.length === 1 ? "" : "s"}
+                  </p>
+                  {project.rolesNeeded.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const first = project.rolesNeeded[0];
+                        if (first) startApplying(first.id);
+                        setTimeout(() => document.getElementById(`apply-${first?.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 60);
+                      }}
+                      className="btn-primary mt-5 w-full"
+                    >
+                      Apply to join
+                    </button>
                   ) : (
-                    <div className="mt-4 flex flex-col gap-3">
-                      {project.rolesNeeded.map((role) => (
-                        <div key={role.id} className="card-raised p-5">
-                          <div className="flex items-center justify-between gap-4">
-                            <div>
-                              <p className="text-[15px] font-semibold text-fg">{role.title}</p>
-                              <p className="mt-1 text-sm text-fg-secondary">{role.description ?? "No details provided."} {role.slotsNeeded} spot{role.slotsNeeded !== 1 ? "s" : ""}.</p>
-                            </div>
-                            {!project.isOwner ? (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (isLoaded && !isSignedIn) {
-                                    openSignIn({ forceRedirectUrl: window.location.href });
-                                    return;
-                                  }
-                                  setSelectedRoleId(role.id);
-                                }}
-                                className="btn-primary shrink-0 !px-4.5 !py-2.5 text-sm"
-                              >
-                                Apply for this role
-                              </button>
-                            ) : null}
-                          </div>
-
-                          {selectedRoleId === role.id && !project.isOwner ? (
-                            <div className="mt-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4">
-                              <label className="text-sm font-medium text-fg">Message</label>
-                              <textarea
-                                value={applicationMessage}
-                                onChange={(e) => setApplicationMessage(e.target.value)}
-                                rows={3}
-                                className="mt-2 w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-fg outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
-                                placeholder="Optional note for the project owner"
-                              />
-                              <div className="mt-3.5 flex justify-end gap-3">
-                                <button
-                                  type="button"
-                                  onClick={() => { setSelectedRoleId(null); setApplicationMessage(""); }}
-                                  className="btn-secondary !px-4 !py-2 text-sm"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => void handleApply()}
-                                  disabled={isSubmittingApplication}
-                                  className="btn-primary !px-4 !py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
-                                >
-                                  {isSubmittingApplication ? "Applying..." : "Submit application"}
-                                </button>
-                              </div>
-                            </div>
-                          ) : null}
-                        </div>
-                      ))}
-                    </div>
+                    <p className="mt-5 rounded-xl bg-dark-secondary p-3 text-sm text-fg-secondary">This project isn&apos;t looking for anyone right now.</p>
                   )}
+                  <div className="my-5 h-px bg-dark-subtle" />
+                  <ul className="space-y-3 text-sm text-fg-secondary">
+                    <li className="flex items-center gap-2.5">
+                      <svg className="h-4 w-4 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+                      Posted {timeAgo(project.createdAt)}
+                    </li>
+                    {project.category ? (
+                      <li className="flex items-center gap-2.5">
+                        <svg className="h-4 w-4 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" /></svg>
+                        Category: {project.category}
+                      </li>
+                    ) : null}
+                  </ul>
                 </div>
-
-                {project.isOwner ? <ProjectInsights projectId={project.id} /> : null}
-
-                {project.isOwner && project.applications && project.applications.length > 0 ? (
-                  <div>
-                    <p className="label-eyebrow">Applicants &middot; {project.applications.length}</p>
-                    <div className="mt-4 flex flex-col gap-3">
-                      {project.applications.map((app) => (
-                        <div key={app.id} className="card-raised p-5">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="min-w-0">
-                              <Link href={`/profile/${encodeURIComponent(app.clerkUserId)}`} className="block truncate text-[15px] font-semibold text-fg hover:text-accent-blue">
-                                {app.applicantFullName?.trim() ? app.applicantFullName.trim() : app.clerkUserId.slice(0, 12)}
-                              </Link>
-                              <p className="mt-0.5 text-[13px] text-dark-muted">Applied for {app.roleTitle ?? "a role"}</p>
-                            </div>
-                            {app.status === "pending" ? (
-                              <div className="flex shrink-0 gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => void handleApplicationUpdate(app.id, "accepted")}
-                                  disabled={actionLoading === app.id}
-                                  className="btn-primary !px-4 !py-2 text-[13px] disabled:opacity-60"
-                                >
-                                  Accept
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => void handleApplicationUpdate(app.id, "rejected")}
-                                  disabled={actionLoading === app.id}
-                                  className="btn-secondary !px-4 !py-2 text-[13px] disabled:opacity-60"
-                                >
-                                  Decline
-                                </button>
-                              </div>
-                            ) : (
-                              <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${app.status === "accepted" ? "bg-success-bg text-success" : "bg-dark-tertiary text-fg-secondary"}`}>
-                                {app.status}
-                              </span>
-                            )}
-                          </div>
-                          {app.message ? <p className="mt-3 text-sm leading-relaxed text-fg-secondary">{app.message}</p> : null}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
               </div>
+            )}
 
-              <div className="card-raised sticky top-20 flex flex-col gap-4 p-5">
-                <p className="label-eyebrow">Project info</p>
-                <div className="flex flex-col gap-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-dark-muted">Created</span>
-                    <span className="text-sm text-fg-secondary">{new Date(project.createdAt).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-dark-muted">Open roles</span>
-                    <span className="text-sm text-fg-secondary">{project.rolesNeeded.length}</span>
-                  </div>
-                </div>
-                {project.isOwner && project.isPublic ? (
-                  <>
-                    <div className="h-px bg-dark-subtle" />
-                    <Link href="/profile/subscription" className="btn-secondary !px-4 !py-2 text-sm">
-                      {project.featured ? "Extend boost" : "Boost this project"}
-                    </Link>
-                  </>
-                ) : null}
-                {project.tags.length > 0 ? (
-                  <>
-                    <div className="h-px bg-dark-subtle" />
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag) => (
-                        <span key={tag} className="rounded-full bg-dark-tertiary px-2.5 py-1 text-xs text-fg-secondary">{tag}</span>
-                      ))}
-                    </div>
-                  </>
-                ) : null}
-              </div>
-            </div>
+            {boostOpen ? (
+              <BoostModal
+                project={{
+                  id: project.id,
+                  name: project.name,
+                  description: project.description,
+                  tags: project.tags,
+                  ownerName,
+                  openRoles: project.rolesNeeded.length,
+                }}
+                onClose={() => setBoostOpen(false)}
+              />
+            ) : null}
           </>
         )}
       </div>

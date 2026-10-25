@@ -42,7 +42,16 @@ export async function PATCH(req: Request) {
   }
 
   try {
-    const body = (await req.json()) as { id?: number };
+    const body = (await req.json()) as { id?: number; all?: boolean };
+
+    if (body?.all === true) {
+      await db
+        .update(notifications)
+        .set({ isRead: true })
+        .where(and(eq(notifications.clerkUserId, userId), eq(notifications.isRead, false)));
+      return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
+    }
+
     const id = Number(body?.id);
     if (!id || isNaN(id)) {
       return new Response("Invalid notification id", { status: 400 });

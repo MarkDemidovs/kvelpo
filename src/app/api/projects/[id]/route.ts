@@ -29,6 +29,7 @@ export async function GET(
         description: projects.description,
         isPublic: projects.isPublic,
         tags: projects.tags,
+        category: projects.category,
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
