@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { db } from "~/server/db";
 import { supportMessages } from "~/server/db/schema";
-import { sendSupportEmail } from "~/server/mail";
 import { isSupportTopic, isValidEmail, MAX_SUPPORT_MESSAGE } from "~/lib/support";
 
 const MAX_MESSAGES_PER_DAY = 5;
@@ -86,8 +85,6 @@ export async function POST(req: Request) {
         { status: 429 },
       );
     }
-    // Saved above, so a mail problem never loses the message or fails the request.
-    await sendSupportEmail({ name: name || null, email, topic, message, signedIn: Boolean(userId) });
     return Response.json({ ok: true }, { status: 201 });
   } catch (error) {
     console.error("Error saving support message:", error);
