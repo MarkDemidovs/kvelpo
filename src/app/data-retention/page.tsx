@@ -11,7 +11,7 @@ export default function DataRetentionPage() {
   return (
     <LegalPageShell title="Data Retention Policy">
           <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: September 26, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: October 28, 2026</h2>
             <p className="text-sm">
               This Data Retention Policy explains how long kvelpo retains your personal information and the criteria we use for deletion.
             </p>
@@ -49,10 +49,31 @@ export default function DataRetentionPage() {
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-fg mb-2">Messages and Applications</h3>
+                <h3 className="font-semibold text-fg mb-2">Project Chat Messages and Applications</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> Until account deletion, then indefinitely in anonymized form</p>
                 <p><strong>Purpose:</strong> Preserving the other party's conversation or application history</p>
                 <p><strong>Deletion:</strong> Immediately disassociated from your identity when you delete your account. The message or application text remains, but is no longer linked to you</p>
+              </div>
+
+              <div className="p-4 bg-dark-tertiary rounded-lg">
+                <h3 className="font-semibold text-fg mb-2">Direct Messages</h3>
+                <p className="mb-2"><strong>Retention Period:</strong> While both people&apos;s accounts exist</p>
+                <p><strong>Purpose:</strong> Letting two members talk privately</p>
+                <p><strong>Deletion:</strong> The whole conversation is deleted, for both people, when either person deletes their account. You can also ask us to delete a conversation at privacy@kvelpo.com</p>
+              </div>
+
+              <div className="p-4 bg-dark-tertiary rounded-lg">
+                <h3 className="font-semibold text-fg mb-2">Project Views</h3>
+                <p className="mb-2"><strong>Retention Period:</strong> While the project exists</p>
+                <p><strong>Purpose:</strong> Showing project owners how many people viewed their project and, for owners on Pro, who</p>
+                <p><strong>Deletion:</strong> Views you made are deleted when you delete your account. Views of a project are deleted with the project</p>
+              </div>
+
+              <div className="p-4 bg-dark-tertiary rounded-lg">
+                <h3 className="font-semibold text-fg mb-2">Boost Purchase Records</h3>
+                <p className="mb-2"><strong>Retention Period:</strong> Up to 7 years (accounting requirements)</p>
+                <p><strong>Purpose:</strong> Applying the Boost to the right project and keeping accounting records</p>
+                <p><strong>Deletion:</strong> Disconnected from your identity when you delete your account. The record itself is kept</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
@@ -71,7 +92,7 @@ export default function DataRetentionPage() {
             </div>
 
             <p className="mt-4 text-sm">
-              We do not currently collect analytics or usage-tracking data, so no separate analytics retention period applies. If that changes, we will update this policy first.
+              Apart from the project view records described above, we do not collect analytics or usage-tracking data, so no separate analytics retention period applies. If that changes, we will update this policy first.
             </p>
           </section>
 

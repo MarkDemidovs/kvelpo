@@ -11,7 +11,7 @@ export default function TermsPage() {
   return (
     <LegalPageShell title="Terms of Service">
           <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: September 27, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: October 28, 2026</h2>
             <p className="text-sm">
               These Terms of Service ("Terms") govern your use of the kvelpo platform ("Service," "Platform," or "App"), operated by Kvelpo SIA, a company registered in Latvia. 
               By accessing or using kvelpo, you agree to be bound by these Terms. If you disagree with any part of these terms, 
@@ -66,6 +66,8 @@ export default function TermsPage() {
                   <li>Attempting to gain unauthorized access to the Service or other users' accounts</li>
                   <li>Interfering with or disrupting the Service or servers</li>
                   <li>Using the Service to distribute malware or malicious code</li>
+                  <li>Sending spam, unsolicited promotions, or harassing or abusive messages, including direct messages and team chat messages</li>
+                  <li>Trying to identify people who chose to browse privately, or using information from project view insights for anything other than getting in touch about the project</li>
                   <li>Violating any applicable laws or regulations</li>
                 </ul>
               </div>
@@ -81,6 +83,7 @@ export default function TermsPage() {
                 <li>The right to modify, adapt, and create derivative works from your content as necessary for technical operations</li>
               </ul>
               <p className="mt-4">You represent and warrant that you own all rights to your content or have the necessary permissions to grant these licenses.</p>
+              <p className="mt-4"><strong>Messages.</strong> Each project has a team chat for the people on its team, and any two members can send each other direct messages. Direct messages are visible only to the two people in the conversation. We do not read them as a matter of course, but we may access them where needed to keep the Service secure, to investigate abuse you report to us through the support page, or to comply with the law. If either person deletes their account, the conversation is deleted for both.</p>
               <p className="mt-4"><strong>Moderation.</strong> Other users can report projects and profiles they believe break these Terms. The kvelpo team may review reported content, or content we otherwise become aware of, and may edit, hide, or remove projects and other content that violates these Terms. When we edit or remove your content, we notify you in the app and tell you why.</p>
             </div>
           </section>
@@ -103,15 +106,51 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-fg mb-4">7. Paid Services and Subscriptions</h2>
-            <div className="space-y-3 text-sm">
-              <p>kvelpo offers subscription plans with enhanced features. By subscribing to a paid plan, you agree to:</p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>Pay all applicable fees and charges</li>
-                <li>Provide accurate billing information</li>
-                <li>Understand that subscriptions auto-renew unless cancelled</li>
-                <li>Accept that refunds are handled at our discretion</li>
-              </ul>
-              <p className="mt-4">Payment processing is provided by Stripe, subject to their terms and conditions.</p>
+            <div className="space-y-4 text-sm">
+              <div>
+                <h3 className="font-semibold text-fg mb-2">7.1 Plans and Boosts</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li><strong>Free:</strong> up to 2 active projects, applying to any project, a public profile, and a count of how many people viewed your projects.</li>
+                  <li><strong>Pro:</strong> &euro;8 per month or &euro;72 per year. Includes unlimited projects, seeing who viewed your projects (subject to Section 7.5), a verified badge on your profile, priority support, and placement of your projects ahead of non-boosted projects in Explore during their first 30 days.</li>
+                  <li><strong>Boost:</strong> a one-time payment for one project: &euro;4 for 7 days or &euro;7 for 14 days. During that time the project is shown at the top of Explore and search with a &quot;Featured&quot; label. Boosting a project that is already boosted adds the new days after the current period ends. Only public projects can be boosted.</li>
+                </ul>
+                <p className="mt-3">We do not promise any number of views, applications, or teammates from Pro or a Boost. Features and prices can change; the plans page shows what is current.</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-fg mb-2">7.2 Prices and Taxes</h3>
+                <p>Prices are in euros and include any applicable taxes, such as VAT. The price you see at checkout is the price you pay.</p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-fg mb-2">7.3 Billing, Renewal and Cancellation</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Pro renews automatically every month or year, at the price in force at the time, until you cancel.</li>
+                  <li>You can cancel at any time under Membership, then Manage billing. Cancellation takes effect at the end of the period you have already paid for, and you keep Pro until then.</li>
+                  <li>If you switch between monthly and yearly billing, the difference is calculated proportionally.</li>
+                  <li>If we change the price of a plan, we will tell you before it takes effect. The new price applies from your next renewal, and you can cancel before then.</li>
+                  <li>Deleting your account cancels your subscription immediately. The unused part of the paid period is not refunded unless the law requires it.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-fg mb-2">7.4 Right of Withdrawal and Refunds</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>If you are a consumer in the EU or EEA, you generally have the right to withdraw from a purchase within 14 days without giving a reason.</li>
+                  <li>When you buy Pro or a Boost, you ask us to start providing it immediately. If you withdraw from a Pro subscription within the 14 days, you pay for the service provided until then, proportionally, and we refund the rest.</li>
+                  <li>For a Boost, you acknowledge that you lose your right of withdrawal once the Boost has been fully provided.</li>
+                  <li>Apart from that, payments are not refundable, except where the law requires it or where we decide to, for example if a Boost did not take effect because of an error on our side.</li>
+                  <li>If a boosted project is deleted, made private, or removed under Section 4 or Section 8 while a Boost is running, the rest of the Boost is not refunded, unless we removed it in error.</li>
+                  <li>To make a request, contact us through the support page or at legal@kvelpo.com.</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-fg mb-2">7.5 Project View Insights</h3>
+                <p>When a signed-in person opens someone else&apos;s public project, we record that visit. Every project owner sees how many people viewed their project. Owners on Pro also see who viewed it. A person who has switched on &quot;Browse privately&quot; in Settings is shown to the owner only as someone with their first listed skill, for example &quot;Someone with design skills&quot;, and not by name. See our Privacy Policy for details.</p>
+              </div>
+
+              <p>Payment processing is provided by Stripe, subject to their terms and conditions. We never see or store your card details.</p>
             </div>
           </section>
 

@@ -79,6 +79,12 @@ export async function POST(req: Request) {
         membership,
       },
       client_reference_id: userId,
+      // Shown above the pay button: agreement to the Terms and the request to start straight away.
+      custom_text: {
+        submit: {
+          message: `By subscribing you agree to the [Terms of Service](${origin}/terms) and [Privacy Policy](${origin}/privacy). Your plan renews automatically until you cancel it under Membership. You ask us to start the service immediately.`,
+        },
+      },
       success_url: `${origin}/profile/subscription?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/profile/subscription`,
     });
@@ -134,6 +140,11 @@ async function createBoostCheckout(userId: string, rawProjectId: unknown, rawDay
     line_items: [{ price: priceId, quantity: 1 }],
     metadata: { type: "boost", userId, projectId: String(project.id), days: String(days) },
     client_reference_id: userId,
+    custom_text: {
+      submit: {
+        message: `By paying you agree to the [Terms of Service](${origin}/terms). You ask us to start your Boost immediately and acknowledge that you lose your right of withdrawal once the Boost has been fully provided.`,
+      },
+    },
     success_url: `${origin}/profile/subscription?boost_session={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/profile/subscription`,
   });

@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "./db";
 import { auth } from "@clerk/nextjs/server";
-import { profiles, projects, applications, projectRolesNeeded, projectMembers, messages, notifications, userConsent, experiences, reports, supportMessages, moderationActions, dmThreads } from "./db/schema";
+import { profiles, projects, applications, projectRolesNeeded, projectMembers, messages, notifications, userConsent, experiences, reports, supportMessages, moderationActions, dmThreads, projectViews, boostPurchases } from "./db/schema";
 import { eq, and, or } from "drizzle-orm";
 import { getStripe } from "./stripe";
 
@@ -83,8 +83,9 @@ export async function canAccessProjectChat(projectId: number, userId: string): P
  *   applications, project memberships) are anonymized rather than deleted, so
  *   the remaining participants don't lose their conversation/roster history.
  * - Rows that belong exclusively to the user (their own notifications,
- *   experience timeline, support messages, consent record, profile) are
- *   hard-deleted.
+ *   direct messages, project views, experience timeline, support messages,
+ *   consent record, profile) are hard-deleted. Boost purchase records are
+ *   kept for accounting but anonymized.
  * - Any active Stripe subscription is canceled so deleting an account also
  *   stops billing; the Stripe customer object itself is left alone since
  *   invoice/billing records have their own retention requirements.
@@ -118,6 +119,12 @@ export async function eraseUserAccountData(clerkUserId: string): Promise<void> {
     await tx.update(moderationActions).set({ adminClerkUserId: DELETED_USER_SENTINEL }).where(eq(moderationActions.adminClerkUserId, clerkUserId));
 
     await tx.delete(notifications).where(eq(notifications.clerkUserId, clerkUserId));
+    // Notifications other people received about this user ("X applied...") lose the link to them.
+    await tx.update(notifications).set({ actorClerkUserId: null }).where(eq(notifications.actorClerkUserId, clerkUserId));
+    // Which projects they looked at. (Views of their own projects went with the projects above.)
+    await tx.delete(projectViews).where(eq(projectViews.viewerClerkUserId, clerkUserId));
+    // Boost purchase records are kept for accounting, without the link to the person.
+    await tx.update(boostPurchases).set({ clerkUserId: DELETED_USER_SENTINEL }).where(eq(boostPurchases.clerkUserId, clerkUserId));
     // Direct messages: deleting the thread removes both people's copy (messages cascade).
     await tx.delete(dmThreads).where(or(eq(dmThreads.userA, clerkUserId), eq(dmThreads.userB, clerkUserId)));
     await tx.delete(experiences).where(eq(experiences.clerkUserId, clerkUserId));

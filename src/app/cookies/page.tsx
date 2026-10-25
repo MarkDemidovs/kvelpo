@@ -12,7 +12,7 @@ export default function CookiesPage() {
   return (
     <LegalPageShell title="Cookie Policy">
           <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: September 26, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: October 28, 2026</h2>
             <p className="text-sm">
               This Cookie Policy explains how kvelpo uses cookies and similar technologies to collect, store, and process your information. 
               This policy is designed to comply with the General Data Protection Regulation (GDPR) and ePrivacy Directive.
@@ -25,7 +25,7 @@ export default function CookiesPage() {
               <p>Cookies are small text files that are stored on your device when you visit websites. They are widely used to make websites work more efficiently and to provide information to website owners.</p>
               <p>Similar technologies we use include:</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>Local Storage:</strong> Browser storage for application data</li>
+                <li><strong>Local Storage:</strong> Browser storage on your own device. We use it to remember your light or dark theme choice and whether you hid the &quot;how it works&quot; tips. This information stays on your device and is not sent to us</li>
                 <li><strong>Session Storage:</strong> Temporary browser storage for session data</li>
               </ul>
             </div>

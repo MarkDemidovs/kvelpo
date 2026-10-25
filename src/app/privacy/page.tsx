@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <LegalPageShell title="Privacy Policy">
           <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: September 27, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: October 28, 2026</h2>
             <p className="text-sm">
               This Privacy Policy explains how kvelpo ("we," "our," or "us") collects, uses, and protects your personal information. 
               This policy applies to our service and complies with the General Data Protection Regulation (GDPR) and other applicable privacy laws.
@@ -34,20 +34,30 @@ export default function PrivacyPage() {
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Email address and user identifier (via Clerk authentication)</li>
                   <li>Profile information: full name, profile picture (from your sign-in account), bio, skills, links, and work experience (job titles, organizations, locations, dates, and descriptions you add)</li>
-                  <li>Membership and subscription details</li>
+                  <li>Membership and subscription details: your plan, billing period dates, and your Stripe customer and subscription identifiers</li>
+                  <li>A record of each Boost you buy (the project, amount, and date). Your card details are handled by Stripe and never reach us</li>
+                  <li>Your privacy settings, such as whether you browse privately</li>
                   <li>Messages you send us through the support form (your name, email address, topic, and message)</li>
                 </ul>
               </div>
               <div>
                 <h3 className="font-semibold text-fg mb-2">2.2 Project Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li>Project names, descriptions, and tags</li>
+                  <li>Project names, descriptions, categories, and tags, including drafts that only you can see</li>
                   <li>Role requirements and applications</li>
                   <li>Project collaboration data</li>
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-fg mb-2">2.3 Safety and Moderation Information</h3>
+                <h3 className="font-semibold text-fg mb-2">2.3 Messages and Activity</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Messages you send in project team chats and direct messages you send to other members</li>
+                  <li>Project views: when you are signed in and open another person&apos;s public project, we record one entry per project per day, containing the project, your account, the date, your first listed skill, and whether you were browsing privately. We do not record views by signed-out visitors, and we do not record owners viewing their own projects</li>
+                  <li>In-app notifications about applications, decisions on your applications, and a weekly summary for project owners</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-fg mb-2">2.4 Safety and Moderation Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Reports you submit about projects or profiles, and reports other users submit about your projects or profile</li>
                   <li>Warnings sent to you and whether your account is suspended, with the reason</li>
@@ -55,7 +65,7 @@ export default function PrivacyPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-fg mb-2">2.4 Technical Information</h3>
+                <h3 className="font-semibold text-fg mb-2">2.5 Technical Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>IP address and location data (for EU compliance detection)</li>
                   <li>Device and browser information</li>
@@ -79,7 +89,10 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-fg mb-4">4. How We Use Your Information</h2>
             <ul className="list-disc pl-5 space-y-2 text-sm">
               <li>Provide and maintain our platform services</li>
-              <li>Process payments and manage subscriptions (via Stripe)</li>
+              <li>Process payments and manage subscriptions and Boosts (via Stripe)</li>
+              <li>Show project owners how many people viewed their project and, for owners on Pro, who viewed it</li>
+              <li>Order and label projects in Explore, including boosted projects and the first 30 days of Pro members&apos; projects</li>
+              <li>Send owners a weekly in-app summary of the views and applications their projects received</li>
               <li>Authenticate users and secure accounts (via Clerk)</li>
               <li>Facilitate project collaboration and communication</li>
               <li>Send service-related notifications and updates</li>
@@ -99,6 +112,14 @@ export default function PrivacyPage() {
                 <li><strong>Vercel:</strong> Hosting and infrastructure services</li>
               </ul>
               <p>We do not sell your personal information to third parties for their marketing purposes.</p>
+              <div>
+                <h3 className="font-semibold text-fg mb-2">Information other kvelpo users can see</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Your public profile, and the projects you make public, are visible to other members and to visitors.</li>
+                  <li>Owners of a project you viewed can see that someone viewed it. If the owner is on Pro, they also see your name and the date. If you switched on <strong>Browse privately</strong> in Settings, they see only your first listed skill (for example &quot;Someone with design skills&quot;) and no name or profile link. The setting applies to views recorded after you turn it on.</li>
+                  <li>Direct messages are visible only to you and the person you are writing with. Team chat messages are visible to the members of that project.</li>
+                </ul>
+              </div>
             </div>
           </section>
 
@@ -118,7 +139,10 @@ export default function PrivacyPage() {
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Account and Profile Data:</strong> Retained while your account is active</li>
                 <li><strong>Project Data:</strong> Retained until you delete the project or your account</li>
-                <li><strong>Messages and Applications:</strong> Anonymized (disassociated from your identity) immediately when your account is deleted, rather than deleted outright, so the other party's conversation or application history stays intact</li>
+                <li><strong>Project Team Chat Messages and Applications:</strong> Anonymized (disassociated from your identity) immediately when your account is deleted, rather than deleted outright, so the other party's conversation or application history stays intact</li>
+                <li><strong>Direct Messages:</strong> Deleted, for both people, when either person deletes their account. You can also ask us to delete a conversation at privacy@kvelpo.com</li>
+                <li><strong>Project Views:</strong> Kept while the project exists. Views you made are deleted when you delete your account, and views of a project are deleted with the project</li>
+                <li><strong>Boost Purchase Records:</strong> Kept for accounting, for up to 7 years. When you delete your account they are disconnected from your identity</li>
                 <li><strong>Consent Records:</strong> Deleted immediately when your account is deleted</li>
                 <li><strong>Reports and Moderation Records:</strong> Kept while needed to keep the platform safe. When you delete your account, reports about your profile are deleted, and reports you submitted and moderation records are disassociated from your identity</li>
                 <li><strong>Payment Data:</strong> Held by our payment processor, Stripe, as required by financial regulations (typically 7 years); we do not store your card details ourselves</li>
@@ -139,7 +163,7 @@ export default function PrivacyPage() {
                 <li><strong>Right to Restrict Processing:</strong> Limit how we use your data</li>
                 <li><strong>Right to Object:</strong> Object to certain types of processing</li>
               </ul>
-              <p className="mt-4">You can exercise these rights through your profile settings or by contacting privacy@kvelpo.com.</p>
+              <p className="mt-4">You can exercise these rights through your profile settings or by contacting privacy@kvelpo.com. You can switch on <strong>Browse privately</strong> in Settings at any time to stop owners from seeing your name when you view their projects.</p>
             </div>
           </section>
 
