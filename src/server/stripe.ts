@@ -13,21 +13,26 @@ export function getStripe() {
 
 export default getStripe;
 
-export type PaidMembership = "pro" | "team";
+export type PaidMembership = "pro";
 
 /**
- * Maps a Stripe price ID to the membership tier it grants. Built from the
- * public price env vars so the client and server stay in sync. The membership
- * is derived on the server so the client can never tamper with which tier a
- * checkout grants.
+ * Maps a Stripe price ID to the membership it grants. Both Pro prices (monthly
+ * and yearly) grant "pro". Built from the public price env vars so the client
+ * and server stay in sync; the membership is derived on the server so the
+ * client can never tamper with what a checkout grants.
  */
 export function getPriceMembershipMap(): Record<string, PaidMembership> {
   const map: Record<string, PaidMembership> = {};
-  const proPrice = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO;
-  const teamPrice = process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM;
-  if (proPrice) map[proPrice] = "pro";
-  if (teamPrice) map[teamPrice] = "team";
+  const monthly = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY;
+  const yearly = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY;
+  if (monthly) map[monthly] = "pro";
+  if (yearly) map[yearly] = "pro";
   return map;
+}
+
+/** The one-time Boost price, or null when it isn't configured. */
+export function getBoostPriceId(): string | null {
+  return process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST ?? null;
 }
 
 /**

@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import CreateProjectModal from './CreateProjectModal';
 import Landing from './_components/landing/Landing';
+import VerifiedBadge from './_components/VerifiedBadge';
 import { ProjectCardSkeletonGrid } from './_components/Skeleton';
 
 interface Project {
@@ -21,6 +22,10 @@ interface Project {
   createdAt: Date;
   updatedAt: Date;
   rolesNeededCount?: number;
+  /** Currently boosted: sorts first and shows the Featured label. */
+  featured?: boolean;
+  /** Owner is on Pro. */
+  ownerVerified?: boolean;
 }
 
 type ApiError = {
@@ -49,6 +54,8 @@ function HomeFeedContent() {
   const [projectsError, setProjectsError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const fetchProjects = useCallback(async (pageNum: number, isLoadMore = false) => {
@@ -60,7 +67,7 @@ function HomeFeedContent() {
     setProjectsError(null);
 
     try {
-      const res = await fetch(`/api/projects?mode=public&page=${pageNum}&limit=12`);
+      const res = await fetch(`/api/projects?mode=public&page=${pageNum}&limit=12${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`);
       const data = (await res.json().catch(() => null)) as unknown;
 
       if (!res.ok) {
@@ -96,9 +103,16 @@ function HomeFeedContent() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, []);
+  }, [searchQuery]);
+
+  // Debounce typing so every keystroke doesn't hit the API.
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchQuery(searchInput.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
+    setPage(1);
     void fetchProjects(1, false);
   }, [fetchProjects]);
 
@@ -176,7 +190,22 @@ function HomeFeedContent() {
             </button>
           </div>
 
-          {!bannerDismissed && (
+          <div className="relative mt-7">
+            <svg className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
+            </svg>
+            <input
+              type="search"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder="Search projects, skills or roles"
+              aria-label="Search projects"
+              className="w-full rounded-full border border-dark-subtle bg-dark-card py-3 pl-11 pr-4 text-[15px] text-fg outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
+            />
+          </div>
+
+          {!bannerDismissed && !searchQuery && (
             <div className="card-raised mt-7 flex items-center justify-between gap-4 !border-dark-subtle p-4">
               <p className="text-sm text-fg-secondary">
                 <span className="font-semibold text-fg">New here?</span>{' '}
@@ -216,7 +245,7 @@ function HomeFeedContent() {
               <section>
                 <p className="label-eyebrow">Open projects</p>
                 {otherProjects.length === 0 ? (
-                  <div className="card-raised mt-5 p-10 text-center text-fg-secondary">No open projects yet. Be the first to post one.</div>
+                  <div className="card-raised mt-5 p-10 text-center text-fg-secondary">{searchQuery ? `No projects match "${searchQuery}".` : 'No open projects yet. Be the first to post one.'}</div>
                 ) : (
                   <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {otherProjects.map((project) => (
@@ -280,6 +309,13 @@ function ProjectCard({
         >
           {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId.slice(0, 12)}
         </Link>
+        {project.ownerVerified ? <VerifiedBadge className="h-3.5 w-3.5" /> : null}
+        {project.featured ? (
+          <span className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-blue/12 px-2.5 py-1 text-[11px] font-semibold text-accent-blue">
+            Featured
+            <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" /></svg>
+          </span>
+        ) : null}
       </div>
 
       <div>

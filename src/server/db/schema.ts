@@ -1,6 +1,7 @@
 import {
   index,
   pgTableCreator,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -32,6 +33,9 @@ export const profiles = createTable("profile", (d) => ({
   bannedAt: d.timestamp({ withTimezone: true }),
   bannedReason: d.text(),
   skills: d.jsonb().notNull().default([]),
+  // When true, project owners see "Someone with <skill> skills" instead of this
+  // person's name in their project's viewer list.
+  browsePrivately: d.boolean().notNull().default(false),
   createdAt: d
     .timestamp({ withTimezone: true })
     .$defaultFn(() => new Date())
@@ -149,6 +153,8 @@ export const projects = createTable("project", (d) => ({
   description: d.text(),
   isPublic: d.boolean().notNull().default(true),
   tags: d.jsonb().notNull().default([]),
+  // Pushed to the top of Explore (with a "Featured" label) until this time.
+  boostedUntil: d.timestamp({ withTimezone: true }),
   createdAt: d
     .timestamp({ withTimezone: true })
     .$defaultFn(() => new Date())
@@ -160,6 +166,7 @@ export const projects = createTable("project", (d) => ({
   index("projects_clerk_user_id_idx").on(t.clerkUserId),
   index("name_idx").on(t.name),
   index("projects_is_public_idx").on(t.isPublic),
+  index("projects_boosted_until_idx").on(t.boostedUntil),
 ]);
 
 export const projectRolesNeeded = createTable("project_role_needed", (d) => ({
@@ -217,6 +224,10 @@ export const notifications = createTable("notification", (d) => ({
   projectId: d.integer().references(() => projects.id, { onDelete: "cascade" }),
   type: d.varchar({ length: 100 }).notNull(),
   message: d.text().notNull(),
+  // Set for application notifications so the inbox can offer Review / Decline inline.
+  applicationId: d.integer(),
+  // Who the notification is about (e.g. the applicant); not shown when they browse privately.
+  actorClerkUserId: d.varchar({ length: 256 }),
   isRead: d.boolean().notNull().default(false),
   createdAt: d
     .timestamp({ withTimezone: true })
@@ -241,6 +252,77 @@ export const messages = createTable("message", (d) => ({
   index("messages_project_id_idx").on(t.projectId),
   index("messages_clerk_user_id_idx").on(t.clerkUserId),
   index("messages_created_at_idx").on(t.createdAt),
+]);
+
+/** One row per signed-in viewer per project per day. Owners' own views are not recorded. */
+export const projectViews = createTable("project_view", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  projectId: d.integer().notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  viewerClerkUserId: d.varchar({ length: 256 }).notNull(),
+  viewedOn: d.date().notNull(),
+  // Viewer had "browse privately" on: the owner only sees viewerSkill, not who it was.
+  isPrivate: d.boolean().notNull().default(false),
+  viewerSkill: d.varchar({ length: 128 }),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+}), (t) => [
+  uniqueIndex("project_view_unique_idx").on(t.projectId, t.viewerClerkUserId, t.viewedOn),
+  index("project_view_project_idx").on(t.projectId, t.viewedOn),
+  index("project_view_viewer_idx").on(t.viewerClerkUserId),
+]);
+
+/** One row per paid Boost Checkout session: makes the webhook idempotent and keeps a purchase history. */
+export const boostPurchases = createTable("boost_purchase", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  stripeSessionId: d.varchar({ length: 256 }).notNull(),
+  // No FK on purpose: the record outlives the project it was bought for.
+  projectId: d.integer().notNull(),
+  clerkUserId: d.varchar({ length: 256 }).notNull(),
+  amountTotal: d.integer(),
+  currency: d.varchar({ length: 8 }),
+  boostedUntil: d.timestamp({ withTimezone: true }).notNull(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+}), (t) => [
+  uniqueIndex("boost_purchase_session_idx").on(t.stripeSessionId),
+  index("boost_purchase_user_idx").on(t.clerkUserId),
+]);
+
+/** A direct-message conversation between two people. userA is always the smaller Clerk id. */
+export const dmThreads = createTable("dm_thread", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  userA: d.varchar({ length: 256 }).notNull(),
+  userB: d.varchar({ length: 256 }).notNull(),
+  lastMessageAt: d.timestamp({ withTimezone: true }),
+  userALastReadAt: d.timestamp({ withTimezone: true }),
+  userBLastReadAt: d.timestamp({ withTimezone: true }),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+}), (t) => [
+  uniqueIndex("dm_thread_pair_idx").on(t.userA, t.userB),
+  index("dm_thread_user_a_idx").on(t.userA),
+  index("dm_thread_user_b_idx").on(t.userB),
+]);
+
+export const dmMessages = createTable("dm_message", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  threadId: d.integer().notNull()
+    .references(() => dmThreads.id, { onDelete: "cascade" }),
+  senderClerkUserId: d.varchar({ length: 256 }).notNull(),
+  message: d.text().notNull(),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .$defaultFn(() => new Date())
+    .notNull(),
+}), (t) => [
+  index("dm_message_thread_idx").on(t.threadId, t.createdAt),
 ]);
 
 /* -------------------------

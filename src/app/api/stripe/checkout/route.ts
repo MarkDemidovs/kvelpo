@@ -1,8 +1,11 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { profiles } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
-import { getStripe, getPriceMembershipMap, resolveOrigin, syncMembershipFromSubscription } from "~/server/stripe";
+import { profiles, projects } from "~/server/db/schema";
+import { and, eq } from "drizzle-orm";
+import { getBoostPriceId, getStripe, getPriceMembershipMap, resolveOrigin, syncMembershipFromSubscription } from "~/server/stripe";
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
 const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing", "past_due"]);
 
@@ -13,8 +16,13 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
     }
 
-    const body = await req.json();
-    const { priceId } = body as { priceId?: string };
+    const body = (await req.json()) as { priceId?: string; type?: string; projectId?: unknown };
+
+    if (body.type === "boost") {
+      return await createBoostCheckout(userId, body.projectId);
+    }
+
+    const { priceId } = body;
 
     if (!priceId) {
       return new Response(JSON.stringify({ error: "Missing priceId" }), { status: 400, headers: { "Content-Type": "application/json" } });
@@ -79,4 +87,50 @@ export async function POST(req: Request) {
     const message = err instanceof Error ? err.message : String(err);
     return new Response(JSON.stringify({ error: message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
+}
+
+/** One-time payment that boosts one of the caller's own projects. */
+async function createBoostCheckout(userId: string, rawProjectId: unknown): Promise<Response> {
+  const projectId = typeof rawProjectId === "number" ? rawProjectId : Number(rawProjectId);
+  if (!Number.isInteger(projectId)) {
+    return json({ error: "Missing projectId" }, 400);
+  }
+
+  const priceId = getBoostPriceId();
+  if (!priceId) {
+    return json({ error: "Boost isn't available yet." }, 400);
+  }
+
+  // Only the owner can boost, and only a project that is visible in Explore.
+  const project = await db
+    .select({ id: projects.id, name: projects.name, isPublic: projects.isPublic })
+    .from(projects)
+    .where(and(eq(projects.id, projectId), eq(projects.clerkUserId, userId)))
+    .then((rows) => rows[0]);
+
+  if (!project) {
+    return json({ error: "Project not found" }, 404);
+  }
+  if (!project.isPublic) {
+    return json({ error: "Only public projects can be boosted." }, 400);
+  }
+
+  const profile = await db
+    .select({ stripeCustomerId: profiles.stripeCustomerId })
+    .from(profiles)
+    .where(eq(profiles.clerkUserId, userId))
+    .then((rows) => rows[0]);
+
+  const origin = resolveOrigin();
+  const session = await getStripe().checkout.sessions.create({
+    mode: "payment",
+    customer: profile?.stripeCustomerId ?? undefined,
+    line_items: [{ price: priceId, quantity: 1 }],
+    metadata: { type: "boost", userId, projectId: String(project.id) },
+    client_reference_id: userId,
+    success_url: `${origin}/profile/subscription?boost_session={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${origin}/profile/subscription`,
+  });
+
+  return json({ url: session.url });
 }

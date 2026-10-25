@@ -13,16 +13,36 @@ export default function SettingsPage() {
   const { isSignedIn } = useAuth();
   const [deletePending, setDeletePending] = useState(false);
   const [membership, setMembership] = useState<string | null>(null);
+  const [browsePrivately, setBrowsePrivately] = useState(false);
 
   useEffect(() => {
     if (!isSignedIn) return;
     const controller = new AbortController();
     fetch('/api/profile', { signal: controller.signal })
-      .then((res) => (res.ok ? (res.json() as Promise<{ membership?: string | null }>) : null))
-      .then((data) => setMembership(data?.membership ?? null))
+      .then((res) => (res.ok ? (res.json() as Promise<{ membership?: string | null; browsePrivately?: boolean }>) : null))
+      .then((data) => {
+        setMembership(data?.membership ?? null);
+        setBrowsePrivately(Boolean(data?.browsePrivately));
+      })
       .catch(() => undefined);
     return () => controller.abort();
   }, [isSignedIn]);
+
+  const togglePrivateBrowsing = async () => {
+    const next = !browsePrivately;
+    setBrowsePrivately(next);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ browsePrivately: next }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+    } catch (err) {
+      console.error('Failed to update private browsing:', err);
+      setBrowsePrivately(!next);
+    }
+  };
 
   const handleDeleteAccount = async () => {
     if (!window.confirm('This will delete your account and associated project data. Continue?')) {
@@ -89,6 +109,27 @@ export default function SettingsPage() {
         </MenuGroup>
 
         <MenuGroup title="Privacy and legal">
+          <MenuControlRow
+            label="Browse privately"
+            description="Project owners on Pro won't see your name when you view their project, only your top skill."
+            icon={
+              <svg {...iconProps}>
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            }
+          >
+            <button
+              type="button"
+              role="switch"
+              aria-checked={browsePrivately}
+              aria-label="Browse privately"
+              onClick={() => void togglePrivateBrowsing()}
+              className={`relative h-6 w-11 shrink-0 rounded-full transition ${browsePrivately ? 'bg-accent-blue' : 'bg-dark-tertiary'}`}
+            >
+              <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${browsePrivately ? 'translate-x-5' : ''}`} />
+            </button>
+          </MenuControlRow>
           <MenuRow
             href="/consent"
             label="Consent center"

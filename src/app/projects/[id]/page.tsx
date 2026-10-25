@@ -8,6 +8,8 @@ import Image from "next/image";
 import { ProjectDetailSkeleton } from "~/app/_components/Skeleton";
 import ReportButton from "~/app/_components/ReportButton";
 import { AdminProjectBar } from "~/app/_components/AdminControls";
+import ProjectInsights from "~/app/_components/ProjectInsights";
+import VerifiedBadge from "~/app/_components/VerifiedBadge";
 
 interface RoleNeeded {
   id: number;
@@ -40,6 +42,9 @@ interface ProjectDetails {
   createdAt: string;
   rolesNeeded: RoleNeeded[];
   isOwner: boolean;
+  featured?: boolean;
+  ownerVerified?: boolean;
+  boostedUntil?: string | null;
   applications?: Application[];
   /** Only present for admins. */
   viewerIsAdmin?: boolean;
@@ -213,6 +218,7 @@ export default function ProjectDetailPage() {
                   <Link href={`/profile/${encodeURIComponent(project.clerkUserId)}`} className="min-w-0 truncate text-sm text-fg-secondary hover:text-accent-blue">
                     {project.userFullName?.trim() ? project.userFullName.trim() : project.clerkUserId.slice(0, 12)}
                   </Link>
+                  {project.ownerVerified ? <VerifiedBadge className="h-3.5 w-3.5" /> : null}
                   <span className="shrink-0 text-xs text-dark-muted">&middot; Owner</span>
                 </div>
               </div>
@@ -220,6 +226,12 @@ export default function ProjectDetailPage() {
                 <span className="whitespace-nowrap rounded-full bg-dark-tertiary px-3.5 py-2 text-[13px] text-fg-secondary">
                   {project.isPublic ? "Public project" : "Private project"}
                 </span>
+                {project.featured ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-blue/12 px-3 py-1.5 text-xs font-semibold text-accent-blue">
+                    Featured
+                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" /></svg>
+                  </span>
+                ) : null}
                 {!project.isOwner ? <ReportButton targetType="project" targetId={project.id} targetLabel={project.name} /> : null}
               </div>
             </div>
@@ -298,6 +310,8 @@ export default function ProjectDetailPage() {
                   )}
                 </div>
 
+                {project.isOwner ? <ProjectInsights projectId={project.id} /> : null}
+
                 {project.isOwner && project.applications && project.applications.length > 0 ? (
                   <div>
                     <p className="label-eyebrow">Applicants &middot; {project.applications.length}</p>
@@ -356,6 +370,14 @@ export default function ProjectDetailPage() {
                     <span className="text-sm text-fg-secondary">{project.rolesNeeded.length}</span>
                   </div>
                 </div>
+                {project.isOwner && project.isPublic ? (
+                  <>
+                    <div className="h-px bg-dark-subtle" />
+                    <Link href="/profile/subscription" className="btn-secondary !px-4 !py-2 text-sm">
+                      {project.featured ? "Extend boost" : "Boost this project"}
+                    </Link>
+                  </>
+                ) : null}
                 {project.tags.length > 0 ? (
                   <>
                     <div className="h-px bg-dark-subtle" />

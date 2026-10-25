@@ -1,15 +1,9 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { and, desc, eq, isNull, or, sql } from "drizzle-orm";
-
-type MembershipStatus = "free" | "pro" | "team";
-
-const membershipProjectLimits: Record<MembershipStatus, number> = {
-  free: 1,
-  pro: 3,
-  team: 10,
-};
+import { and, desc, eq, ilike, isNull, or, sql, type SQL } from "drizzle-orm";
+import { isPro, normalizeMembership, projectLimitFor } from "~/lib/membership";
+import { isBoosted } from "~/server/boost";
 
 const MAX_TITLE_LENGTH = 256;
 const MAX_ROLE_SLOTS = 100;
@@ -37,9 +31,24 @@ type ProjectListItem = {
   userFullName: string | null;
   avatarUrl: string | null;
   rolesNeededCount: number;
+  boostedUntil: Date | null;
+  ownerMembership: string | null;
 };
 
-async function attachClerkAvatars(projects: ProjectListItem[]): Promise<ProjectListItem[]> {
+/** What the list endpoint returns: the row plus the derived Explore flags. */
+type ProjectListResponseItem = Omit<ProjectListItem, "ownerMembership"> & {
+  /** Currently boosted: shows the "Featured" label and sorts first. */
+  featured: boolean;
+  /** Owner is on Pro: shows the verified badge. */
+  ownerVerified: boolean;
+};
+
+function toListResponse(project: ProjectListItem): ProjectListResponseItem {
+  const { ownerMembership, ...rest } = project;
+  return { ...rest, featured: isBoosted(project.boostedUntil), ownerVerified: isPro(ownerMembership) };
+}
+
+async function attachClerkAvatars<T extends { clerkUserId: string; avatarUrl: string | null }>(projects: T[]): Promise<T[]> {
   if (projects.length === 0) {
     return projects.map((project) => ({ ...project, avatarUrl: null }));
   }
@@ -57,6 +66,11 @@ async function attachClerkAvatars(projects: ProjectListItem[]): Promise<ProjectL
   }
 }
 
+/** Escapes the characters that are special inside a LIKE/ILIKE pattern. */
+function escapeLike(value: string): string {
+  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
+}
+
 export async function GET(request: Request) {
   const { userId } = await auth();
 
@@ -66,6 +80,17 @@ export async function GET(request: Request) {
     const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") ?? "12", 10) || 12));
     const offset = (page - 1) * limit;
+
+    const search = url.searchParams.get("q")?.trim().slice(0, 100) ?? "";
+    const searchCondition: SQL | undefined = search
+      ? or(
+          ilike(projects.name, `%${escapeLike(search)}%`),
+          ilike(projects.description, `%${escapeLike(search)}%`),
+          sql`${projects.tags}::text ilike ${`%${escapeLike(search)}%`}`,
+        )
+      : undefined;
+
+    const featuredRank = sql<number>`case when ${projects.boostedUntil} > now() then 2 when ${profiles.membership} in ('pro', 'team') and ${projects.createdAt} > now() - interval '30 days' then 1 else 0 end`;
 
     const baseQuery = db
       .select({
@@ -79,13 +104,16 @@ export async function GET(request: Request) {
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
         rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
+        boostedUntil: projects.boostedUntil,
+        ownerMembership: profiles.membership,
       })
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
       .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId))
       // Order in SQL (not after fetching) so pages are stable and don't
-      // repeat or skip projects during infinite scroll.
-      .orderBy(desc(projects.createdAt), desc(projects.id))
+      // repeat or skip projects during infinite scroll. Boosted projects come
+      // first, then fresh Pro projects ("featured placement"), then newest.
+      .orderBy(desc(featuredRank), desc(projects.createdAt), desc(projects.id))
       .limit(limit)
       .offset(offset);
 
@@ -94,15 +122,15 @@ export async function GET(request: Request) {
       if (!userId) {
         return Response.json({ error: "Unauthorized" }, { status: 401 });
       }
-      projectsData = await baseQuery.where(() => eq(projects.clerkUserId, userId)).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(eq(projects.clerkUserId, userId), searchCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     } else if (userId) {
-      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), isNull(profiles.bannedAt))).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), isNull(profiles.bannedAt), searchCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     } else {
       // Projects of banned users are hidden from everyone browsing.
-      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), isNull(profiles.bannedAt))).groupBy(projects.id, profiles.fullName) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), isNull(profiles.bannedAt), searchCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     }
 
-    return Response.json(await attachClerkAvatars(projectsData));
+    return Response.json(await attachClerkAvatars(projectsData.map(toListResponse)));
   } catch (error) {
     console.error("Full error:", error);
     return Response.json(
@@ -176,8 +204,9 @@ export async function POST(request: Request) {
 
       const existingProjects = await tx.select({ id: projects.id }).from(projects).where(eq(projects.clerkUserId, userId));
 
-      const membership = (await tx.select({ status: profiles.membership }).from(profiles).where(eq(profiles.clerkUserId, userId)).limit(1))?.[0]?.status as MembershipStatus ?? "free";
-      const limit = membershipProjectLimits[membership];
+      const storedMembership = (await tx.select({ status: profiles.membership }).from(profiles).where(eq(profiles.clerkUserId, userId)).limit(1))?.[0]?.status;
+      const membership = normalizeMembership(storedMembership);
+      const limit = projectLimitFor(membership);
 
       if (existingProjects.length >= limit) {
         return { limitReached: true as const, membership, limit };
@@ -202,10 +231,7 @@ export async function POST(request: Request) {
 
     if (result.limitReached) {
       const planLabel = result.membership.charAt(0).toUpperCase() + result.membership.slice(1);
-      const nextTip =
-        result.membership === "team"
-          ? "Delete an existing project to free up a slot."
-          : "Delete an existing project, or upgrade your plan to create more.";
+      const nextTip = "Delete an existing project, or upgrade to Pro for unlimited projects.";
 
       return Response.json(
         {

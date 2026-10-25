@@ -45,19 +45,6 @@ export async function GET() {
   return NextResponse.json(profile);
 }
 
-type MembershipType = "free" | "pro" | "team";
-
-type ProfileUpdateRequest = {
-  fullName?: string | null;
-  bio?: string | null;
-  isPublic?: boolean;
-  membership?: MembershipType;
-  link1?: string | null;
-  link2?: string | null;
-  link3?: string | null;
-  skills?: string[] | null;
-};
-
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -94,12 +81,21 @@ export async function PATCH(req: Request) {
     return new NextResponse("One or more selected skills are invalid", { status: 400 });
   }
 
-  const links = [body.link1, body.link2, body.link3].map((link) =>
-    typeof link === "string" && link.trim() ? link.trim() : null,
-  );
+  // Partial updates: only fields present in the body are changed, so a request
+  // that sends just { browsePrivately: true } doesn't wipe the name, bio or links.
+  const has = (key: string) => Object.prototype.hasOwnProperty.call(body, key);
+
+  const linkKeys = ["link1", "link2", "link3"] as const;
+  const parsedLinks: Partial<Record<(typeof linkKeys)[number], string | null>> = {};
+  for (const key of linkKeys) {
+    if (!has(key)) continue;
+    const raw = body[key];
+    parsedLinks[key] = typeof raw === "string" && raw.trim() ? raw.trim() : null;
+  }
+
   // Links are rendered as <a href> on the public profile, so only allow web
   // URLs (no javascript:/data: etc.).
-  if (links.some((link) => link && (link.length > 512 || !isHttpUrl(link)))) {
+  if (Object.values(parsedLinks).some((link) => link && (link.length > 512 || !isHttpUrl(link)))) {
     return new NextResponse("Links must be http(s) URLs of at most 512 characters", { status: 400 });
   }
 
@@ -107,31 +103,17 @@ export async function PATCH(req: Request) {
     return new NextResponse("Name must be at most 256 characters", { status: 400 });
   }
 
-  const parsedBody: ProfileUpdateRequest = {
-    fullName: typeof body.fullName === "string" ? body.fullName : null,
-    bio: typeof body.bio === "string" ? body.bio : null,
-    isPublic: typeof body.isPublic === "boolean" ? body.isPublic : undefined,
-    link1: links[0] ?? null,
-    link2: links[1] ?? null,
-    link3: links[2] ?? null,
-    skills: uniqueSkills,
-  };
+  const updateData: Record<string, unknown> = { ...parsedLinks };
 
-  const updateData: Record<string, unknown> = {
-    fullName: parsedBody.fullName,
-    bio: parsedBody.bio,
-    isPublic: parsedBody.isPublic,
-    link1: parsedBody.link1,
-    link2: parsedBody.link2,
-    link3: parsedBody.link3,
-  };
+  if (has("fullName")) updateData.fullName = typeof body.fullName === "string" ? body.fullName : null;
+  if (has("bio")) updateData.bio = typeof body.bio === "string" ? body.bio : null;
+  if (typeof body.isPublic === "boolean") updateData.isPublic = body.isPublic;
+  if (typeof body.browsePrivately === "boolean") updateData.browsePrivately = body.browsePrivately;
+  if (uniqueSkills !== undefined) updateData.skills = uniqueSkills;
 
-  if (parsedBody.membership !== undefined) {
-    updateData.membership = parsedBody.membership;
-  }
-
-  if (parsedBody.skills !== undefined) {
-    updateData.skills = parsedBody.skills;
+  if (Object.keys(updateData).length === 0) {
+    const current = await db.query.profiles.findFirst({ where: (p, { eq }) => eq(p.clerkUserId, userId) });
+    return current ? NextResponse.json(current) : new NextResponse("Profile not found", { status: 404 });
   }
 
   const result = await db.update(profiles)

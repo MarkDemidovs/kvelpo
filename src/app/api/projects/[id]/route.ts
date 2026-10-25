@@ -3,6 +3,9 @@ import { db } from "~/server/db";
 import { applications, projects, profiles, projectRolesNeeded } from "~/server/db/schema";
 import { eq, sql, and, gt } from "drizzle-orm";
 import { getAdminUserId } from "~/server/admin";
+import { isBoosted } from "~/server/boost";
+import { recordProjectView } from "~/server/views";
+import { isPro } from "~/lib/membership";
 
 export async function GET(
   request: Request,
@@ -30,13 +33,15 @@ export async function GET(
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
         ownerBannedAt: profiles.bannedAt,
+        ownerMembership: profiles.membership,
+        boostedUntil: projects.boostedUntil,
         rolesNeededCount: sql<number>`coalesce(sum(${projectRolesNeeded.slotsNeeded}), 0)`,
       })
       .from(projects)
       .leftJoin(profiles, eq(projects.clerkUserId, profiles.clerkUserId))
       .leftJoin(projectRolesNeeded, eq(projects.id, projectRolesNeeded.projectId))
       .where(eq(projects.id, projectId))
-      .groupBy(projects.id, profiles.fullName, profiles.bannedAt);
+      .groupBy(projects.id, profiles.fullName, profiles.bannedAt, profiles.membership);
 
     const project = projectData[0];
     if (!project) {
@@ -67,6 +72,16 @@ export async function GET(
     }
 
     const isOwner = projectOwnerId === userId;
+
+    // Count the visit (signed-in, non-owner, non-admin viewers only). A failure
+    // here must never break loading the project.
+    if (userId && !isOwner && !viewerIsAdmin) {
+      try {
+        await recordProjectView(projectId, userId);
+      } catch (error) {
+        console.error("Failed to record project view:", error);
+      }
+    }
 
     const rolesNeeded = await db
       .select({
@@ -111,9 +126,11 @@ export async function GET(
         .where(eq(projectRolesNeeded.projectId, projectId));
     }
 
-    const { ownerBannedAt, ...publicProject } = project;
+    const { ownerBannedAt, ownerMembership, ...publicProject } = project;
     return Response.json({
       ...publicProject,
+      featured: isBoosted(project.boostedUntil),
+      ownerVerified: isPro(ownerMembership),
       // Only admins learn about moderation state.
       ...(viewerIsAdmin ? { viewerIsAdmin: true, ownerBanned: Boolean(ownerBannedAt) } : {}),
       avatarUrl,

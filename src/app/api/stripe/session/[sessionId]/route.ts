@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import getStripe, { syncMembershipFromSubscription } from "~/server/stripe";
+import { applyBoostFromSession } from "~/server/boost";
 import type Stripe from "stripe";
 
 export async function GET(
@@ -32,6 +33,11 @@ export async function GET(
 
     if (sessionUserId !== userId) {
       return new NextResponse("Session not found", { status: 404 });
+    }
+
+    // A paid Boost: apply it now rather than waiting for the webhook (idempotent).
+    if (session.mode === "payment" && session.metadata?.type === "boost") {
+      await applyBoostFromSession(session);
     }
 
     // Persist the membership on the success redirect. This makes the upgrade

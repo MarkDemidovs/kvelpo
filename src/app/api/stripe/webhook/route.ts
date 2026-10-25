@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import { NextResponse } from "next/server";
 import getStripe, { syncMembershipFromSubscription } from "~/server/stripe";
+import { applyBoostFromSession } from "~/server/boost";
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature") ?? "";
@@ -20,8 +21,17 @@ export async function POST(req: Request) {
     console.log(`Received Stripe webhook: ${event.type}`);
 
     switch (event.type) {
-      case "checkout.session.completed": {
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        // One-time Boost purchase (mode "payment"), not a subscription.
+        if (session.mode === "payment") {
+          const result = await applyBoostFromSession(session);
+          console.log(`ℹ️ Boost session ${session.id}: ${result.applied ? "applied" : result.reason}`);
+          break;
+        }
+
         const userId = session.metadata?.userId;
         const subscriptionRef = session.subscription;
 
