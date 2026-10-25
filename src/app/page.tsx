@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState, Suspense, useRef, useCallback } from 'react';
-import { useAuth, SignInButton } from '@clerk/nextjs';
+import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import CreateProjectModal from './CreateProjectModal';
-import Reveal from './_components/Reveal';
+import Landing from './_components/landing/Landing';
 import { ProjectCardSkeletonGrid } from './_components/Skeleton';
 
 interface Project {
@@ -34,229 +34,6 @@ function isApiError(value: unknown): value is ApiError {
     value !== null &&
     (typeof (value as ApiError).error === 'string' ||
       typeof (value as ApiError).message === 'string')
-  );
-}
-
-function LandingView() {
-  return (
-    <main className="min-h-screen overflow-x-hidden bg-dark-primary text-fg">
-      {/* HERO */}
-      <div className="relative overflow-hidden">
-        <div
-          className="pointer-events-none absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full opacity-60 blur-2xl sm:h-[820px] sm:w-[820px]"
-          style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--accent) 16%, transparent), transparent 68%)' }}
-        />
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 pb-16 pt-16 sm:flex-row sm:items-center sm:justify-between sm:pb-20 sm:pt-24">
-          <Reveal className="max-w-xl text-center sm:text-left">
-            <h1 className="text-5xl font-extrabold leading-[0.98] tracking-tight text-fg sm:text-7xl">
-              Stop building<br />alone.
-            </h1>
-            <p className="mx-auto mt-7 max-w-md text-lg leading-relaxed text-fg-secondary sm:mx-0">
-              Post a project, list the roles you need, and review who applies. No cold outreach, no group chats full of strangers.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5 sm:justify-start">
-              <SignInButton mode="modal">
-                <button type="button" className="btn-primary">Create a project</button>
-              </SignInButton>
-              <Link href="/projects" className="btn-secondary">Browse open projects</Link>
-            </div>
-          </Reveal>
-
-          <Reveal delayMs={150} className="flex flex-col items-center gap-7 sm:items-end">
-            <div className="relative h-[220px] w-[260px] sm:h-[320px] sm:w-[300px]">
-              {[
-                { left: 250, top: 6, size: 16, accent: false },
-                { left: 205, top: 44, size: 13, accent: false },
-                { left: 160, top: 82, size: 17, accent: true },
-                { left: 112, top: 120, size: 13, accent: false },
-                { left: 78, top: 154, size: 11, accent: false },
-                { left: 44, top: 104, size: 13, accent: false },
-                { left: 52, top: 148, size: 9, accent: false },
-                { left: 52, top: 192, size: 9, accent: false },
-                { left: 44, top: 236, size: 13, accent: false },
-                { left: 78, top: 186, size: 11, accent: false },
-                { left: 112, top: 220, size: 13, accent: false },
-                { left: 160, top: 258, size: 17, accent: true },
-                { left: 205, top: 296, size: 13, accent: false },
-                { left: 250, top: 334, size: 16, accent: false },
-              ].map((dot, i) => (
-                <span
-                  key={i}
-                  className="absolute rounded-full"
-                  style={{
-                    left: dot.left * 0.87,
-                    top: dot.top * 0.87,
-                    width: dot.size,
-                    height: dot.size,
-                    background: dot.accent ? 'var(--accent)' : 'var(--text)',
-                    boxShadow: dot.accent
-                      ? `0 0 ${dot.size * 1.4}px ${dot.size * 0.35}px color-mix(in oklab, var(--accent) 55%, transparent)`
-                      : `0 0 ${dot.size * 1.4}px ${dot.size * 0.3}px color-mix(in oklab, var(--text) 35%, transparent)`,
-                    animation: `kvelpo-twinkle 4s ease-in-out ${(i % 7) * 0.4}s infinite`,
-                  }}
-                />
-              ))}
-            </div>
-            <div className="flex flex-col items-center gap-2.5 text-center sm:items-end sm:text-right">
-              <p className="text-sm text-dark-muted">Post what you&apos;re building.</p>
-              <p className="text-sm text-dark-muted">Get real applicants, not just views.</p>
-              <p className="text-sm text-dark-muted">Chat once they&apos;re in.</p>
-            </div>
-          </Reveal>
-        </div>
-      </div>
-
-      {/* HOW IT WORKS */}
-      <section className="border-t border-dark-subtle">
-        <div className="mx-auto max-w-6xl px-4 py-20">
-          <Reveal>
-            <p className="label-eyebrow">How it works</p>
-            <div className="mt-11 grid gap-14 sm:grid-cols-3">
-              {[
-                { n: '01', title: 'Post your project', body: 'Name it, describe it, and list the roles you need, with how many people and what for.' },
-                { n: '02', title: 'Review applicants', body: 'Anyone can apply with a short message. Accept who fits, decline the rest.' },
-                { n: '03', title: 'Work in one place', body: "Accepted members get a project chat automatically, with no extra tools to set up." },
-              ].map((step) => (
-                <div key={step.n}>
-                  <span className="text-sm font-semibold text-accent-blue">{step.n}</span>
-                  <h3 className="mt-3.5 text-xl font-semibold tracking-tight text-fg">{step.title}</h3>
-                  <p className="mt-3.5 text-[15px] leading-relaxed text-fg-secondary">{step.body}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* BOTH SIDES */}
-      <section className="border-t border-dark-subtle">
-        <div className="mx-auto max-w-6xl px-4 py-20">
-          <Reveal>
-            <div className="grid gap-16 sm:grid-cols-2">
-              <div>
-                <p className="label-eyebrow">If you&apos;re starting something</p>
-                <h3 className="mt-4.5 text-[28px] font-bold leading-tight tracking-tight text-fg">Post it, and say what you need</h3>
-                <p className="mt-4 text-[15px] leading-relaxed text-fg-secondary">Describe what you&apos;re building and list the roles you&apos;re missing, like a designer or a backend developer, with however many spots each one has open. Applicants come to you.</p>
-                <div className="card-raised mt-7 flex items-center justify-between gap-4 p-5">
-                  <div>
-                    <p className="text-sm font-semibold text-fg">Product designer</p>
-                    <p className="mt-0.5 text-xs text-dark-muted">1 spot open</p>
-                  </div>
-                  <span className="btn-secondary shrink-0 !px-4 !py-2 text-xs">Apply</span>
-                </div>
-              </div>
-              <div>
-                <p className="label-eyebrow">If you want in on one</p>
-                <h3 className="mt-4.5 text-[28px] font-bold leading-tight tracking-tight text-fg">Apply, and hear back directly</h3>
-                <p className="mt-4 text-[15px] leading-relaxed text-fg-secondary">Browse open projects, apply to the roles that fit with a short message, and hear back from the person actually running it, not a form that goes nowhere.</p>
-                <div className="card-raised mt-7 flex items-center justify-between gap-4 p-5">
-                  <div>
-                    <p className="text-sm font-semibold text-fg">Your application</p>
-                    <p className="mt-0.5 text-xs text-dark-muted">Weekend recipe app &middot; Designer</p>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-dark-tertiary px-4 py-2 text-xs font-semibold text-accent-blue">Pending</span>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* CHAT */}
-      <section className="border-t border-dark-subtle">
-        <div className="mx-auto max-w-6xl px-4 py-20">
-          <Reveal className="grid gap-16 sm:grid-cols-[1.1fr_1fr] sm:items-center">
-            <div>
-              <p className="label-eyebrow">Once you&apos;re in</p>
-              <h3 className="mt-4.5 text-3xl font-bold leading-tight tracking-tight text-fg">No extra tools to set up</h3>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-fg-secondary">Every project gets its own chat the moment someone&apos;s accepted. Members talk, share updates, and coordinate right there. No separate Discord, no group chat full of strangers.</p>
-            </div>
-            <div className="card-raised flex flex-col gap-3.5 p-6">
-              <div className="flex flex-col items-start gap-1">
-                <span className="text-xs text-dark-muted">Sara K.</span>
-                <span className="rounded-2xl rounded-bl-md bg-dark-tertiary px-3.5 py-2 text-sm text-fg-secondary">Just pushed the new onboarding screens</span>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-xs text-dark-muted">You</span>
-                <span className="rounded-2xl rounded-br-md bg-accent-blue px-3.5 py-2 text-sm text-accent-fg">Looks great, testing now</span>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* PRICING TEASER */}
-      <section className="border-t border-dark-subtle">
-        <div className="mx-auto max-w-6xl px-4 py-20">
-          <Reveal>
-            <div className="flex items-baseline justify-between">
-              <p className="label-eyebrow">Plans</p>
-              <Link href="/profile/subscription" className="text-sm text-fg-secondary hover:text-fg">See full pricing &rarr;</Link>
-            </div>
-            <div className="mt-9 grid gap-5 sm:grid-cols-3">
-              {[
-                { name: 'Free', price: '$0', note: '1 active project' },
-                { name: 'Pro', price: '$10/mo', note: '3 active projects' },
-                { name: 'Team', price: '$25/mo', note: '10 active projects' },
-              ].map((plan) => (
-                <div key={plan.name} className="card-raised p-8">
-                  <p className="text-[15px] font-semibold text-fg">{plan.name}</p>
-                  <p className="mt-2.5 text-[32px] font-bold text-fg">{plan.price}</p>
-                  <p className="mt-2 text-sm text-fg-secondary">{plan.note}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="border-t border-dark-subtle">
-        <div className="mx-auto max-w-6xl px-4 py-20">
-          <Reveal>
-            <p className="label-eyebrow">A few things people ask</p>
-            <div className="mt-9 grid gap-9 sm:grid-cols-2">
-              {[
-                { q: 'Does it cost anything to post a project?', a: 'No. Posting a project and applying to roles is free. Paid plans only raise how many active projects you can run at once.' },
-                { q: 'What happens after I apply?', a: "The project owner sees your message and accepts or declines. You'll see the status update in your inbox either way." },
-                { q: 'Can I be part of more than one project?', a: "Yes, there's no limit on how many projects you can join as a member. Plan limits only apply to projects you own." },
-                { q: 'Do I need another app to talk to my team?', a: 'No. Accepted members get a project chat built in from day one.' },
-              ].map((item) => (
-                <div key={item.q}>
-                  <h4 className="text-base font-semibold text-fg">{item.q}</h4>
-                  <p className="mt-2.5 text-sm leading-relaxed text-fg-secondary">{item.a}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* FINAL CTA */}
-      <section className="relative overflow-hidden border-t border-dark-subtle">
-        <div
-          className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full opacity-60 blur-2xl"
-          style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--accent) 15%, transparent), transparent 68%)' }}
-        />
-        <div className="relative mx-auto max-w-6xl px-4 py-24 text-center">
-          <Reveal>
-            <h2 className="text-4xl font-bold tracking-tight text-fg">Ready to stop building alone?</h2>
-            <div className="mt-7">
-              <SignInButton mode="modal">
-                <button type="button" className="btn-primary">Create a project</button>
-              </SignInButton>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <style jsx global>{`
-        @keyframes kvelpo-twinkle {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
-    </main>
   );
 }
 
@@ -542,7 +319,7 @@ function ProjectCard({
 
 function HomePageContent() {
   const { isSignedIn } = useAuth();
-  return isSignedIn ? <HomeFeedContent /> : <LandingView />;
+  return isSignedIn ? <HomeFeedContent /> : <Landing />;
 }
 
 export default function HomePage() {
