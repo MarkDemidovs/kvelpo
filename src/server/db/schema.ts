@@ -155,6 +155,8 @@ export const projects = createTable("project", (d) => ({
   tags: d.jsonb().notNull().default([]),
   // One of PROJECT_CATEGORIES (src/lib/categories.ts); null for projects posted before categories existed.
   category: d.varchar({ length: 32 }),
+  // Saved but not posted yet: hidden from everyone except the owner.
+  isDraft: d.boolean().notNull().default(false),
   // Pushed to the top of Explore (with a "Featured" label) until this time.
   boostedUntil: d.timestamp({ withTimezone: true }),
   createdAt: d

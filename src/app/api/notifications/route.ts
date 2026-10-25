@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
-import { notifications } from "~/server/db/schema";
+import { applications, notifications } from "~/server/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 
 export async function GET() {
@@ -18,8 +18,11 @@ export async function GET() {
         message: notifications.message,
         isRead: notifications.isRead,
         createdAt: notifications.createdAt,
+        applicationId: notifications.applicationId,
+        applicationStatus: applications.status,
       })
       .from(notifications)
+      .leftJoin(applications, eq(notifications.applicationId, applications.id))
       .where(eq(notifications.clerkUserId, userId))
       .orderBy(desc(notifications.createdAt));
 

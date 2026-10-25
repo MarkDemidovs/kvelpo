@@ -30,9 +30,10 @@ export function getPriceMembershipMap(): Record<string, PaidMembership> {
   return map;
 }
 
-/** The one-time Boost price, or null when it isn't configured. */
-export function getBoostPriceId(): string | null {
-  return process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST ?? null;
+/** The one-time Boost price for a length in days, or null when it isn't configured. */
+export function getBoostPriceId(days = 7): string | null {
+  const id = days === 14 ? process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST_14 : process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST;
+  return id ?? null;
 }
 
 /**

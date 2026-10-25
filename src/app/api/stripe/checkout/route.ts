@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { profiles, projects } from "~/server/db/schema";
 import { and, eq } from "drizzle-orm";
+import { BOOST_OPTIONS, isBoostDays } from "~/lib/pricing";
 import { getBoostPriceId, getStripe, getPriceMembershipMap, resolveOrigin, syncMembershipFromSubscription } from "~/server/stripe";
 
 const json = (body: unknown, status = 200) =>
@@ -16,10 +17,10 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
     }
 
-    const body = (await req.json()) as { priceId?: string; type?: string; projectId?: unknown };
+    const body = (await req.json()) as { priceId?: string; type?: string; projectId?: unknown; days?: unknown };
 
     if (body.type === "boost") {
-      return await createBoostCheckout(userId, body.projectId);
+      return await createBoostCheckout(userId, body.projectId, body.days);
     }
 
     const { priceId } = body;
@@ -90,13 +91,18 @@ export async function POST(req: Request) {
 }
 
 /** One-time payment that boosts one of the caller's own projects. */
-async function createBoostCheckout(userId: string, rawProjectId: unknown): Promise<Response> {
+async function createBoostCheckout(userId: string, rawProjectId: unknown, rawDays: unknown): Promise<Response> {
+  const days = rawDays === undefined ? BOOST_OPTIONS[0].days : rawDays;
+  if (!isBoostDays(days)) {
+    return json({ error: "Unknown Boost length" }, 400);
+  }
+
   const projectId = typeof rawProjectId === "number" ? rawProjectId : Number(rawProjectId);
   if (!Number.isInteger(projectId)) {
     return json({ error: "Missing projectId" }, 400);
   }
 
-  const priceId = getBoostPriceId();
+  const priceId = getBoostPriceId(days);
   if (!priceId) {
     return json({ error: "Boost isn't available yet." }, 400);
   }
@@ -126,7 +132,7 @@ async function createBoostCheckout(userId: string, rawProjectId: unknown): Promi
     mode: "payment",
     customer: profile?.stripeCustomerId ?? undefined,
     line_items: [{ price: priceId, quantity: 1 }],
-    metadata: { type: "boost", userId, projectId: String(project.id) },
+    metadata: { type: "boost", userId, projectId: String(project.id), days: String(days) },
     client_reference_id: userId,
     success_url: `${origin}/profile/subscription?boost_session={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/profile/subscription`,

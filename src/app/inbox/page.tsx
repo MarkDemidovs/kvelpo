@@ -11,6 +11,7 @@ type Filter = 'all' | 'applications' | 'updates';
 
 const isApplication = (notification: NotificationItem) => notification.type.startsWith('application');
 
+
 const timeAgo = (value: string) => {
   const minutes = Math.floor((Date.now() - new Date(value).getTime()) / 60_000);
   if (minutes < 1) return 'Just now';
@@ -25,8 +26,21 @@ const timeAgo = (value: string) => {
 
 const isToday = (value: string) => new Date(value).toDateString() === new Date().toDateString();
 
-function NotificationRow({ notification, onOpen }: { notification: NotificationItem; onOpen: (notification: NotificationItem) => void }) {
+function NotificationRow({
+  notification,
+  onOpen,
+  onDecline,
+  busy,
+}: {
+  notification: NotificationItem;
+  onOpen: (notification: NotificationItem, tab?: string) => void;
+  onDecline: (notification: NotificationItem) => void;
+  busy: boolean;
+}) {
   const application = isApplication(notification);
+  // Applications received by the owner can be answered right here.
+  const answerable = notification.type === 'application' && Boolean(notification.applicationId) && Boolean(notification.projectId);
+  const weekly = notification.type === 'weekly_summary';
   return (
     <div className={`flex items-start gap-4 p-5 ${notification.isRead ? '' : 'bg-accent-blue/[0.07]'}`}>
       <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${application ? 'bg-accent-blue/12 text-accent-blue' : 'bg-success-bg text-success'}`}>
@@ -45,13 +59,35 @@ function NotificationRow({ notification, onOpen }: { notification: NotificationI
         <p className="mt-1 text-xs text-dark-muted">
           {timeAgo(notification.createdAt)} &middot; {application ? 'Application' : 'Project update'}
         </p>
-        {notification.projectId ? (
+        {answerable && notification.applicationStatus === 'pending' ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => onDecline(notification)}
+              disabled={busy}
+              className="rounded-full border border-dark-subtle px-4 py-1.5 text-[13px] font-medium text-fg transition hover:border-dark-muted disabled:opacity-60"
+            >
+              {busy ? 'Declining...' : 'Decline'}
+            </button>
+            <button
+              type="button"
+              onClick={() => onOpen(notification, 'applications')}
+              className="rounded-full bg-[var(--btn-primary-bg)] px-4 py-1.5 text-[13px] font-medium text-[var(--btn-primary-fg)] transition hover:opacity-90"
+            >
+              Review application
+            </button>
+          </div>
+        ) : answerable && notification.applicationStatus ? (
+          <span className={`mt-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${notification.applicationStatus === 'accepted' ? 'bg-success-bg text-success' : 'bg-dark-tertiary text-fg-secondary'}`}>
+            {notification.applicationStatus === 'accepted' ? 'Accepted' : 'Declined'}
+          </span>
+        ) : notification.projectId ? (
           <button
             type="button"
-            onClick={() => onOpen(notification)}
+            onClick={() => onOpen(notification, weekly ? 'insights' : application ? 'applications' : undefined)}
             className="mt-3 rounded-full border border-dark-subtle px-4 py-1.5 text-[13px] font-medium text-fg transition hover:border-dark-muted"
           >
-            {application ? 'Review application' : 'View project'}
+            {weekly ? 'See insights' : application ? 'Review application' : 'View project'}
           </button>
         ) : null}
       </div>
@@ -62,7 +98,8 @@ function NotificationRow({ notification, onOpen }: { notification: NotificationI
 
 export default function InboxPage() {
   const { isLoaded, isSignedIn } = useAuth();
-  const { notifications, applications, unreadCount, markRead, markAllRead } = useInbox();
+  const { notifications, applications, unreadCount, markRead, markAllRead, refresh } = useInbox();
+  const [decliningId, setDecliningId] = useState<number | null>(null);
   const router = useRouter();
   const [filter, setFilter] = useState<Filter>('all');
 
@@ -85,10 +122,29 @@ export default function InboxPage() {
     return <SignInRequired title="Sign in to access your inbox" message="You need to be signed in to view your inbox." />;
   }
 
-  const open = (notification: NotificationItem) => {
+  const open = (notification: NotificationItem, tab?: string) => {
     void markRead(notification.id);
     if (notification.projectId) {
-      router.push(`/projects/${notification.projectId}${isApplication(notification) ? '?tab=applications' : ''}`);
+      router.push(`/projects/${notification.projectId}${tab ? `?tab=${tab}` : ''}`);
+    }
+  };
+
+  const decline = async (notification: NotificationItem) => {
+    if (!notification.projectId || !notification.applicationId) return;
+    setDecliningId(notification.id);
+    try {
+      const res = await fetch(`/api/projects/${notification.projectId}/applications/${notification.applicationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'rejected' }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      void markRead(notification.id);
+      await refresh();
+    } catch (err) {
+      console.error('Failed to decline application:', err);
+    } finally {
+      setDecliningId(null);
     }
   };
 
@@ -155,7 +211,7 @@ export default function InboxPage() {
                 <div>
                   <p className="mb-2 text-xs font-medium text-fg-secondary">Today</p>
                   <div className="divide-y divide-dark-subtle overflow-hidden rounded-2xl border border-dark-subtle">
-                    {today.map((notification) => <NotificationRow key={notification.id} notification={notification} onOpen={open} />)}
+                    {today.map((notification) => <NotificationRow key={notification.id} notification={notification} onOpen={open} onDecline={(item) => void decline(item)} busy={decliningId === notification.id} />)}
                   </div>
                 </div>
               ) : null}
@@ -163,7 +219,7 @@ export default function InboxPage() {
                 <div>
                   <p className="mb-2 text-xs font-medium text-fg-secondary">Earlier</p>
                   <div className="divide-y divide-dark-subtle overflow-hidden rounded-2xl border border-dark-subtle">
-                    {earlier.map((notification) => <NotificationRow key={notification.id} notification={notification} onOpen={open} />)}
+                    {earlier.map((notification) => <NotificationRow key={notification.id} notification={notification} onOpen={open} onDecline={(item) => void decline(item)} busy={decliningId === notification.id} />)}
                   </div>
                 </div>
               ) : null}

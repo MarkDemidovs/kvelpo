@@ -28,6 +28,7 @@ type ProjectListItem = {
   isPublic: boolean;
   tags: unknown;
   category: string | null;
+  isDraft: boolean;
   createdAt: Date;
   updatedAt: Date;
   userFullName: string | null;
@@ -110,6 +111,7 @@ export async function GET(request: Request) {
         isPublic: projects.isPublic,
         tags: projects.tags,
         category: projects.category,
+        isDraft: projects.isDraft,
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
@@ -134,10 +136,10 @@ export async function GET(request: Request) {
       }
       projectsData = await baseQuery.where(() => and(eq(projects.clerkUserId, userId), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     } else if (userId) {
-      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), isNull(profiles.bannedAt), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(or(eq(projects.isPublic, true), eq(projects.clerkUserId, userId)), eq(projects.isDraft, false), isNull(profiles.bannedAt), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     } else {
       // Projects of banned users are hidden from everyone browsing.
-      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), isNull(profiles.bannedAt), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
+      projectsData = await baseQuery.where(() => and(eq(projects.isPublic, true), eq(projects.isDraft, false), isNull(profiles.bannedAt), searchCondition, categoryCondition)).groupBy(projects.id, profiles.fullName, profiles.membership) as ProjectListItem[];
     }
 
     return Response.json(await attachClerkAvatars(projectsData.map(toListResponse)));
@@ -166,12 +168,15 @@ export async function POST(request: Request) {
       isPublic?: unknown;
       tags?: unknown;
       category?: unknown;
+      isDraft?: unknown;
       rolesNeeded?: unknown;
     };
 
     const name = typeof body.name === "string" ? body.name.trim() : undefined;
     const description = typeof body.description === "string" ? body.description.trim() || null : null;
-    const isPublic = Boolean(body.isPublic);
+    const isDraft = body.isDraft === true;
+    // A draft is never public until it is posted.
+    const isPublic = isDraft ? false : Boolean(body.isPublic);
     const rawTags = Array.isArray(body.tags) ? body.tags : [];
     const tags = rawTags.filter((tag): tag is string => typeof tag === "string").slice(0, 3);
     const category = isProjectCategory(body.category) ? body.category : null;
@@ -231,6 +236,7 @@ export async function POST(request: Request) {
         isPublic,
         tags,
         category,
+        isDraft,
       }).returning();
 
       // Same transaction as the project, so a failed role insert can't leave

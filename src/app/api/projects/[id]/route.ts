@@ -1,7 +1,8 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { db } from "~/server/db";
 import { applications, projects, profiles, projectRolesNeeded } from "~/server/db/schema";
-import { eq, sql, and, gt } from "drizzle-orm";
+import { eq, sql, and, gt, inArray } from "drizzle-orm";
+import { isProjectCategory } from "~/lib/categories";
 import { getAdminUserId } from "~/server/admin";
 import { isBoosted } from "~/server/boost";
 import { recordProjectView } from "~/server/views";
@@ -30,6 +31,7 @@ export async function GET(
         isPublic: projects.isPublic,
         tags: projects.tags,
         category: projects.category,
+        isDraft: projects.isDraft,
         createdAt: projects.createdAt,
         updatedAt: projects.updatedAt,
         userFullName: profiles.fullName,
@@ -179,6 +181,143 @@ export async function DELETE(
     return new Response(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting project:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+const MAX_TITLE_LENGTH = 256;
+const MAX_ROLE_SLOTS = 100;
+
+type RoleInput = { id?: unknown; title?: unknown; description?: unknown; slotsNeeded?: unknown };
+
+/** Owner edits: any of name, description, category, tags, visibility, draft state and the roles list. */
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { userId } = await auth();
+  if (!userId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { id } = await params;
+    const projectId = parseInt(id);
+    if (isNaN(projectId)) {
+      return Response.json({ error: "Invalid project ID" }, { status: 400 });
+    }
+
+    const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+    if (!body || typeof body !== "object") {
+      return Response.json({ error: "Invalid request body" }, { status: 400 });
+    }
+
+    const existing = await db
+      .select({ clerkUserId: projects.clerkUserId })
+      .from(projects)
+      .where(eq(projects.id, projectId))
+      .then((rows) => rows[0]);
+
+    // Same answer for "missing" and "not yours" so ids can't be probed.
+    if (existing?.clerkUserId !== userId) {
+      return Response.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    const updates: Partial<typeof projects.$inferInsert> = {};
+
+    if ("name" in body) {
+      const name = typeof body.name === "string" ? body.name.trim() : "";
+      if (!name) return Response.json({ error: "Name is required" }, { status: 400 });
+      if (name.length > MAX_TITLE_LENGTH) {
+        return Response.json({ error: `Name must be at most ${MAX_TITLE_LENGTH} characters` }, { status: 400 });
+      }
+      updates.name = name;
+    }
+    if ("description" in body) {
+      updates.description = typeof body.description === "string" ? body.description.trim() || null : null;
+    }
+    if ("category" in body) {
+      updates.category = isProjectCategory(body.category) ? body.category : null;
+    }
+    if (Array.isArray(body.tags)) {
+      updates.tags = body.tags.filter((tag): tag is string => typeof tag === "string").slice(0, 3);
+    }
+    if (typeof body.isPublic === "boolean") {
+      updates.isPublic = body.isPublic;
+    }
+    if (typeof body.isDraft === "boolean") {
+      updates.isDraft = body.isDraft;
+      // Posting a draft makes it public unless the owner said otherwise.
+      if (!body.isDraft && typeof body.isPublic !== "boolean") updates.isPublic = true;
+      if (body.isDraft) updates.isPublic = false;
+    }
+
+    let roleInputs: Array<{ id: number | null; title: string; description: string | null; slotsNeeded: number }> | null = null;
+    if (Array.isArray(body.rolesNeeded)) {
+      roleInputs = [];
+      for (const raw of body.rolesNeeded as RoleInput[]) {
+        if (typeof raw !== "object" || raw === null) continue;
+        const title = typeof raw.title === "string" ? raw.title.trim() : "";
+        if (!title) continue;
+        if (title.length > MAX_TITLE_LENGTH) {
+          return Response.json({ error: `Role titles must be at most ${MAX_TITLE_LENGTH} characters` }, { status: 400 });
+        }
+        roleInputs.push({
+          id: typeof raw.id === "number" && Number.isInteger(raw.id) ? raw.id : null,
+          title,
+          description: typeof raw.description === "string" ? raw.description.trim() || null : null,
+          slotsNeeded: Math.min(MAX_ROLE_SLOTS, Math.max(1, Math.floor(Number(raw.slotsNeeded)) || 1)),
+        });
+      }
+    }
+
+    await db.transaction(async (tx) => {
+      if (Object.keys(updates).length > 0) {
+        await tx.update(projects).set(updates).where(eq(projects.id, projectId));
+      }
+
+      if (roleInputs) {
+        const current = await tx
+          .select({ id: projectRolesNeeded.id })
+          .from(projectRolesNeeded)
+          .where(eq(projectRolesNeeded.projectId, projectId));
+        const currentIds = new Set(current.map((role) => role.id));
+        const keptIds = new Set(roleInputs.filter((role) => role.id !== null && currentIds.has(role.id)).map((role) => role.id!));
+
+        for (const role of roleInputs) {
+          if (role.id !== null && currentIds.has(role.id)) {
+            await tx
+              .update(projectRolesNeeded)
+              .set({ title: role.title, description: role.description, slotsNeeded: role.slotsNeeded })
+              .where(and(eq(projectRolesNeeded.id, role.id), eq(projectRolesNeeded.projectId, projectId)));
+          } else {
+            await tx.insert(projectRolesNeeded).values({ projectId, title: role.title, description: role.description, slotsNeeded: role.slotsNeeded });
+          }
+        }
+
+        // Roles left out are closed (0 spots) if people already applied, so their
+        // applications survive; otherwise they are deleted.
+        const removed = [...currentIds].filter((roleId) => !keptIds.has(roleId));
+        if (removed.length > 0) {
+          const withApplications = await tx
+            .select({ roleId: applications.projectRoleNeededId })
+            .from(applications)
+            .where(inArray(applications.projectRoleNeededId, removed));
+          const protectedIds = new Set(withApplications.map((row) => row.roleId));
+          const toClose = removed.filter((roleId) => protectedIds.has(roleId));
+          const toDelete = removed.filter((roleId) => !protectedIds.has(roleId));
+          if (toClose.length > 0) {
+            await tx.update(projectRolesNeeded).set({ slotsNeeded: 0 }).where(inArray(projectRolesNeeded.id, toClose));
+          }
+          if (toDelete.length > 0) {
+            await tx.delete(projectRolesNeeded).where(inArray(projectRolesNeeded.id, toDelete));
+          }
+        }
+      }
+    });
+
+    return Response.json({ ok: true });
+  } catch (error) {
+    console.error("Error updating project:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

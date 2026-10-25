@@ -20,6 +20,9 @@ export interface NotificationItem {
   message: string;
   isRead: boolean;
   createdAt: string;
+  /** Set on application notifications, with the application's current status. */
+  applicationId?: number | null;
+  applicationStatus?: string | null;
 }
 
 interface InboxContextValue {

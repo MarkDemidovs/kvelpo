@@ -1,42 +1,81 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import SignInRequired from '~/app/_components/SignInRequired';
 import { SYSTEM_SENDER_ID } from '~/server/chat';
 
-interface Conversation {
+interface ProjectConversation {
   id: number;
   name: string | null;
 }
 
-interface Message {
+interface DirectThread {
   id: number;
-  projectId: number;
+  otherUserId: string;
+  otherName: string;
+  lastMessageAt: string | null;
+  unread: boolean;
+}
+
+/** One row in the list: a project's team chat, or a direct message with one person. */
+interface ChatItem {
+  key: string;
+  kind: 'team' | 'direct';
+  id: number;
+  name: string;
+  unread: boolean;
+  otherUserId?: string;
+}
+
+/** A message in either kind of chat, normalised for display. */
+interface ChatMessage {
+  id: number;
+  mine: boolean;
+  system: boolean;
+  senderName: string | null;
+  message: string;
+  createdAt: string;
+}
+
+interface TeamMessage {
+  id: number;
   clerkUserId: string;
   message: string;
   createdAt: string;
   senderName: string | null;
 }
 
+interface DirectMessageRow {
+  id: number;
+  mine: boolean;
+  message: string;
+  createdAt: string;
+}
+
 const initialsOf = (name: string) =>
   name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || '?';
 
-export default function MessagesPage() {
+function MessagesContent() {
   const { isLoaded, isSignedIn, userId } = useAuth();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const searchParams = useSearchParams();
+  const requestedDm = Number.parseInt(searchParams.get('dm') ?? '', 10);
+  const [items, setItems] = useState<ChatItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   // Phones show either the list or one chat.
   const [showThread, setShowThread] = useState(false);
   const [filter, setFilter] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+
+  const selected = items.find((item) => item.key === selectedKey) ?? null;
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -44,66 +83,129 @@ export default function MessagesPage() {
       return;
     }
     const controller = new AbortController();
-    fetch('/api/conversations', { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Failed to load your chats');
-        const data = (await res.json()) as Conversation[];
-        setConversations(data);
-        // On wide screens open the first chat straight away.
-        if (data[0] && window.matchMedia('(min-width: 768px)').matches) setSelectedId(data[0].id);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error && err.name === 'AbortError') return;
-        setError(err instanceof Error ? err.message : 'Failed to load your chats');
-      })
-      .finally(() => setLoading(false));
-    return () => controller.abort();
-  }, [isSignedIn]);
-
-  useEffect(() => {
-    if (!selectedId || !isSignedIn) return;
-    setMessagesLoading(true);
-    const controller = new AbortController();
 
     const load = async () => {
       try {
-        const res = await fetch(`/api/messages?projectId=${selectedId}`, { signal: controller.signal });
-        if (!res.ok) throw new Error(await res.text());
-        const data = (await res.json()) as Message[];
-        setMessages(data.reverse());
+        const dmUrl = Number.isNaN(requestedDm) ? '/api/dm' : `/api/dm?include=${requestedDm}`;
+        const [teamRes, dmRes] = await Promise.all([
+          fetch('/api/conversations', { signal: controller.signal }),
+          fetch(dmUrl, { signal: controller.signal }),
+        ]);
+        if (!teamRes.ok) throw new Error('Failed to load your chats');
+
+        const teams = ((await teamRes.json()) as ProjectConversation[]).map<ChatItem>((conversation) => ({
+          key: `team-${conversation.id}`,
+          kind: 'team',
+          id: conversation.id,
+          name: conversation.name ?? 'Untitled project',
+          unread: false,
+        }));
+        const directs = dmRes.ok
+          ? ((await dmRes.json()) as DirectThread[]).map<ChatItem>((thread) => ({
+              key: `dm-${thread.id}`,
+              kind: 'direct',
+              id: thread.id,
+              name: thread.otherName,
+              unread: thread.unread,
+              otherUserId: thread.otherUserId,
+            }))
+          : [];
+
+        const all = [...directs, ...teams];
+        setItems(all);
+
+        const wanted = !Number.isNaN(requestedDm) ? `dm-${requestedDm}` : null;
+        if (wanted && all.some((item) => item.key === wanted)) {
+          setSelectedKey(wanted);
+          setShowThread(true);
+        } else if (all[0] && window.matchMedia('(min-width: 768px)').matches) {
+          // On wide screens open the first chat straight away.
+          setSelectedKey((current) => current ?? all[0]!.key);
+        }
       } catch (err) {
-        if (err instanceof Error && err.name !== 'AbortError') console.error('Failed to load messages:', err);
+        if (err instanceof Error && err.name === 'AbortError') return;
+        setError(err instanceof Error ? err.message : 'Failed to load your chats');
+      } finally {
+        setLoading(false);
       }
     };
 
-    void load().finally(() => setMessagesLoading(false));
-    const interval = setInterval(() => void load(), 3000);
+    void load();
+    return () => controller.abort();
+  }, [isSignedIn, requestedDm]);
+
+  const loadMessages = useCallback(
+    async (item: ChatItem, signal?: AbortSignal) => {
+      try {
+        if (item.kind === 'team') {
+          const res = await fetch(`/api/messages?projectId=${item.id}`, { signal });
+          if (!res.ok) throw new Error(await res.text());
+          const data = (await res.json()) as TeamMessage[];
+          setMessages(
+            data.reverse().map((message) => ({
+              id: message.id,
+              mine: message.clerkUserId === userId,
+              system: message.clerkUserId === SYSTEM_SENDER_ID,
+              senderName: message.senderName ?? message.clerkUserId.slice(0, 8),
+              message: message.message,
+              createdAt: message.createdAt,
+            })),
+          );
+        } else {
+          const res = await fetch(`/api/dm/${item.id}`, { signal });
+          if (!res.ok) throw new Error(await res.text());
+          const data = (await res.json()) as DirectMessageRow[];
+          setMessages(data.map((message) => ({ ...message, system: false, senderName: item.name })));
+          setItems((prev) => prev.map((entry) => (entry.key === item.key ? { ...entry, unread: false } : entry)));
+        }
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') console.error('Failed to load messages:', err);
+      }
+    },
+    [userId],
+  );
+
+  useEffect(() => {
+    if (!selected || !isSignedIn) return;
+    setMessages([]);
+    setMessagesLoading(true);
+    const controller = new AbortController();
+    void loadMessages(selected, controller.signal).finally(() => setMessagesLoading(false));
+    const interval = setInterval(() => void loadMessages(selected, controller.signal), 3000);
     return () => {
       controller.abort();
       clearInterval(interval);
     };
-  }, [selectedId, isSignedIn]);
+    // Reload when the chosen chat changes, not when its unread flag flips.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected?.key, isSignedIn, loadMessages]);
 
   // Only scroll when a new message arrives, so reading older ones isn't interrupted by polling.
   const lastMessageId = messages[messages.length - 1]?.id;
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [lastMessageId, selectedId]);
+  }, [lastMessageId, selectedKey]);
 
   const send = async (event: FormEvent) => {
     event.preventDefault();
-    if (!selectedId || !input.trim() || sending) return;
+    if (!selected || !input.trim() || sending) return;
     setSending(true);
     try {
-      const res = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId: selectedId, message: input }),
-      });
+      const res =
+        selected.kind === 'team'
+          ? await fetch('/api/messages', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ projectId: selected.id, message: input }),
+            })
+          : await fetch(`/api/dm/${selected.id}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ message: input }),
+            });
       if (!res.ok) throw new Error(await res.text());
       setInput('');
-      const refreshed = await fetch(`/api/messages?projectId=${selectedId}`);
-      if (refreshed.ok) setMessages(((await refreshed.json()) as Message[]).reverse());
+      await loadMessages(selected);
     } catch (err) {
       console.error('Failed to send message:', err);
     } finally {
@@ -115,9 +217,8 @@ export default function MessagesPage() {
     return <SignInRequired title="Sign in to see your messages" message="Every project you own or join gets a team chat here." />;
   }
 
-  const selected = conversations.find((conversation) => conversation.id === selectedId) ?? null;
-  const visible = conversations.filter((conversation) => (conversation.name ?? '').toLowerCase().includes(filter.trim().toLowerCase()));
-  const participants = new Set(messages.filter((message) => message.clerkUserId !== SYSTEM_SENDER_ID).map((message) => message.clerkUserId));
+  const visible = items.filter((item) => item.name.toLowerCase().includes(filter.trim().toLowerCase()));
+  const participants = new Set(messages.filter((message) => !message.system).map((message) => (message.mine ? 'me' : message.senderName)));
 
   return (
     <main className="bg-dark-primary pt-14 text-fg">
@@ -152,34 +253,40 @@ export default function MessagesPage() {
             ) : error ? (
               <p className="px-3 py-4 text-sm text-danger">{error}</p>
             ) : visible.length === 0 ? (
-              <p className="px-3 py-4 text-sm text-fg-secondary">{conversations.length === 0 ? 'No chats yet.' : 'No chats match.'}</p>
+              <p className="px-3 py-4 text-sm text-fg-secondary">{items.length === 0 ? 'No chats yet.' : 'No chats match.'}</p>
             ) : (
-              visible.map((conversation) => {
-                const name = conversation.name ?? 'Untitled project';
-                const active = conversation.id === selectedId;
+              visible.map((item) => {
+                const active = item.key === selectedKey;
                 return (
                   <button
-                    key={conversation.id}
+                    key={item.key}
                     type="button"
                     onClick={() => {
-                      setSelectedId(conversation.id);
+                      setSelectedKey(item.key);
                       setShowThread(true);
                     }}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition ${active ? 'bg-dark-tertiary' : 'hover:bg-dark-secondary'}`}
                   >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--btn-primary-bg)] text-[13px] font-semibold text-[var(--btn-primary-fg)]">
-                      {initialsOf(name)}
+                    <span
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center text-[13px] font-semibold ${
+                        item.kind === 'team'
+                          ? 'rounded-lg bg-[var(--btn-primary-bg)] text-[var(--btn-primary-fg)]'
+                          : 'rounded-full bg-accent-blue/12 text-accent-blue'
+                      }`}
+                    >
+                      {initialsOf(item.name)}
                     </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-semibold text-fg">{name}</span>
-                      <span className="block text-xs text-dark-muted">Team chat</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-fg">{item.name}</span>
+                      <span className="block text-xs text-dark-muted">{item.kind === 'team' ? 'Team chat' : 'Direct message'}</span>
                     </span>
+                    {item.unread ? <span className="h-2 w-2 shrink-0 rounded-full bg-accent-blue" aria-label="Unread" /> : null}
                   </button>
                 );
               })
             )}
             <p className="px-3 pt-4 text-xs leading-relaxed text-dark-muted">
-              Every project gets its own team chat.
+              Every project gets its own team chat. Direct messages with people show up here too.
             </p>
           </div>
         </aside>
@@ -194,15 +301,23 @@ export default function MessagesPage() {
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </button>
                   <div className="min-w-0">
-                    <p className="truncate text-[15px] font-semibold text-fg">{selected.name ?? 'Untitled project'}</p>
+                    <p className="truncate text-[15px] font-semibold text-fg">{selected.name}</p>
                     <p className="text-xs text-dark-muted">
-                      Team chat{participants.size > 0 ? ` · ${participants.size} member${participants.size === 1 ? '' : 's'}` : ''}
+                      {selected.kind === 'direct'
+                        ? 'Direct message'
+                        : `Team chat${participants.size > 0 ? ` · ${participants.size} member${participants.size === 1 ? '' : 's'}` : ''}`}
                     </p>
                   </div>
                 </div>
-                <Link href={`/projects/${selected.id}`} className="btn-secondary !px-4 !py-2 text-[13px]">
-                  View project
-                </Link>
+                {selected.kind === 'team' ? (
+                  <Link href={`/projects/${selected.id}`} className="btn-secondary !px-4 !py-2 text-[13px]">
+                    View project
+                  </Link>
+                ) : (
+                  <Link href={`/profile/${encodeURIComponent(selected.otherUserId ?? '')}`} className="btn-secondary !px-4 !py-2 text-[13px]">
+                    View profile
+                  </Link>
+                )}
               </header>
 
               <div className="flex-1 overflow-y-auto px-4 py-5 md:px-6">
@@ -218,22 +333,25 @@ export default function MessagesPage() {
                         <path d="M21 12c0 4.4-4 8-9 8a9.9 9.9 0 01-4.3-.9L3 20l1.4-3.7C3.5 15 3 13.6 3 12c0-4.4 4-8 9-8s9 3.6 9 8z" />
                       </svg>
                     </span>
-                    <p className="mt-4 text-lg font-semibold tracking-tight text-fg">Your team chat starts here</p>
+                    <p className="mt-4 text-lg font-semibold tracking-tight text-fg">
+                      {selected.kind === 'direct' ? `Say hi to ${selected.name}` : 'Your team chat starts here'}
+                    </p>
                     <p className="mt-2 max-w-xs text-sm leading-relaxed text-fg-secondary">
-                      When people join {selected.name ?? 'this project'}, you can all talk in this chat.
+                      {selected.kind === 'direct'
+                        ? 'Only the two of you can see this conversation.'
+                        : `When people join ${selected.name}, you can all talk in this chat.`}
                     </p>
                   </div>
                 ) : (
                   <div className="mx-auto flex max-w-3xl flex-col gap-3">
                     {messages.map((message) => {
-                      if (message.clerkUserId === SYSTEM_SENDER_ID) {
+                      if (message.system) {
                         return <p key={message.id} className="py-1 text-center text-xs text-dark-muted">{message.message}</p>;
                       }
-                      const mine = message.clerkUserId === userId;
                       return (
-                        <div key={message.id} className={`flex max-w-[80%] flex-col gap-1 ${mine ? 'items-end self-end' : 'items-start self-start'}`}>
-                          {!mine ? <p className="px-1 text-xs font-medium text-dark-muted">{message.senderName ?? message.clerkUserId.slice(0, 8)}</p> : null}
-                          <p className={`break-words rounded-2xl px-4 py-2.5 text-sm ${mine ? 'rounded-br-md bg-[var(--btn-primary-bg)] text-[var(--btn-primary-fg)]' : 'rounded-bl-md bg-dark-tertiary text-fg'}`}>
+                        <div key={message.id} className={`flex max-w-[80%] flex-col gap-1 ${message.mine ? 'items-end self-end' : 'items-start self-start'}`}>
+                          {!message.mine && selected.kind === 'team' ? <p className="px-1 text-xs font-medium text-dark-muted">{message.senderName}</p> : null}
+                          <p className={`break-words rounded-2xl px-4 py-2.5 text-sm ${message.mine ? 'rounded-br-md bg-[var(--btn-primary-bg)] text-[var(--btn-primary-fg)]' : 'rounded-bl-md bg-dark-tertiary text-fg'}`}>
                             {message.message}
                           </p>
                           <p className="px-1 text-[11px] text-dark-muted">
@@ -272,16 +390,24 @@ export default function MessagesPage() {
             </>
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-              <p className="text-lg font-semibold tracking-tight text-fg">{conversations.length === 0 && !loading ? 'No chats yet' : 'Select a chat'}</p>
+              <p className="text-lg font-semibold tracking-tight text-fg">{items.length === 0 && !loading ? 'No chats yet' : 'Select a chat'}</p>
               <p className="mt-2 max-w-xs text-sm text-fg-secondary">
-                {conversations.length === 0 && !loading
+                {items.length === 0 && !loading
                   ? 'Post a project or join one to get a team chat.'
-                  : 'Pick a project on the left to see its team chat.'}
+                  : 'Pick a chat on the left to read it.'}
               </p>
             </div>
           )}
         </section>
       </div>
     </main>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className="p-10 pt-24 text-center text-fg-secondary">Loading...</div>}>
+      <MessagesContent />
+    </Suspense>
   );
 }

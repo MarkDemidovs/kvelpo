@@ -27,6 +27,7 @@ export const env = createEnv({
     NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
     NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY: z.string().optional(),
     NEXT_PUBLIC_STRIPE_PRICE_BOOST: z.string().optional(),
+    NEXT_PUBLIC_STRIPE_PRICE_BOOST_14: z.string().optional(),
   },
 
   /**
@@ -45,6 +46,7 @@ export const env = createEnv({
     NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY,
     NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY,
     NEXT_PUBLIC_STRIPE_PRICE_BOOST: process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST,
+    NEXT_PUBLIC_STRIPE_PRICE_BOOST_14: process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST_14,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

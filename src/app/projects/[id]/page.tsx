@@ -9,6 +9,8 @@ import { ProjectDetailSkeleton } from "~/app/_components/Skeleton";
 import ReportButton from "~/app/_components/ReportButton";
 import { AdminProjectBar } from "~/app/_components/AdminControls";
 import BoostModal from "~/app/_components/BoostModal";
+import EditProjectModal from "~/app/_components/EditProjectModal";
+import MessageButton from "~/app/_components/MessageButton";
 import ProjectInsights from "~/app/_components/ProjectInsights";
 import VerifiedBadge from "~/app/_components/VerifiedBadge";
 
@@ -41,6 +43,7 @@ interface ProjectDetails {
   isPublic: boolean;
   tags: string[];
   category?: string | null;
+  isDraft?: boolean;
   createdAt: string;
   rolesNeeded: RoleNeeded[];
   isOwner: boolean;
@@ -83,6 +86,8 @@ export default function ProjectDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [tab, setTab] = useState<Tab>("overview");
   const [boostOpen, setBoostOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [publishing, setPublishing] = useState(false);
 
   // Deep link: /projects/12?tab=insights
   useEffect(() => {
@@ -172,6 +177,27 @@ export default function ProjectDetailPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setIsDeleting(false);
+    }
+  };
+
+  const publishDraft = async () => {
+    setPublishing(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/projects/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isDraft: false }),
+      });
+      if (!response.ok) {
+        const data = (await response.json()) as ApiErrorResponse;
+        throw new Error(data.error ?? data.message ?? "Unable to post this project");
+      }
+      await loadProject();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -302,6 +328,18 @@ export default function ProjectDetailPage() {
               </div>
             ) : null}
 
+            {project.isOwner && project.isDraft ? (
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-warning-bg p-4">
+                <div>
+                  <p className="text-sm font-semibold text-warning">This project is a draft</p>
+                  <p className="mt-0.5 text-sm text-fg-secondary">Only you can see it. Post it when you&apos;re ready for people to apply.</p>
+                </div>
+                <button type="button" onClick={() => void publishDraft()} disabled={publishing} className="btn-primary !px-5 !py-2.5 text-sm disabled:opacity-60">
+                  {publishing ? "Posting..." : "Post project"}
+                </button>
+              </div>
+            ) : null}
+
             {chips.length > 0 ? (
               <div className="mt-6 flex flex-wrap gap-2">
                 {chips.map((chip) => (
@@ -316,7 +354,9 @@ export default function ProjectDetailPage() {
 
                 {project.isOwner ? (
                   <div className="mt-4 flex flex-wrap items-center gap-2.5 text-sm text-fg-secondary">
-                    {project.isPublic && openSpots > 0 ? (
+                    {project.isDraft ? (
+                      <span className="rounded-full bg-warning-bg px-2.5 py-1 text-[11px] font-medium text-warning">Draft</span>
+                    ) : project.isPublic && openSpots > 0 ? (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-2.5 py-1 text-[11px] font-medium text-success">
                         <span className="h-1.5 w-1.5 rounded-full bg-current" />
                         Recruiting
@@ -359,7 +399,7 @@ export default function ProjectDetailPage() {
               </div>
 
               {project.isOwner ? (
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex w-full flex-wrap items-center gap-2.5 sm:w-auto">
                   <button
                     type="button"
                     onClick={() => void handleDeleteProject()}
@@ -368,11 +408,14 @@ export default function ProjectDetailPage() {
                   >
                     {isDeleting ? "Deleting..." : "Delete"}
                   </button>
-                  {project.isPublic ? (
+                  <button type="button" onClick={() => setEditOpen(true)} className="btn-secondary !px-5 !py-2.5 text-sm">
+                    Edit project
+                  </button>
+                  {project.isPublic && !project.isDraft ? (
                     <button
                       type="button"
                       onClick={() => setBoostOpen(true)}
-                      className="inline-flex items-center gap-2 rounded-full bg-accent-blue px-5 py-2.5 text-sm font-semibold text-accent-fg transition hover:opacity-90"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-accent-blue px-5 py-2.5 text-sm font-semibold text-accent-fg transition hover:opacity-90 sm:flex-none"
                     >
                       <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" /></svg>
                       {project.featured ? "Extend boost" : "Boost project"}
@@ -383,6 +426,13 @@ export default function ProjectDetailPage() {
                 <ReportButton targetType="project" targetId={project.id} targetLabel={project.name} />
               )}
             </div>
+
+            {!project.isOwner ? (
+              <p className="mt-5 flex items-center gap-2.5 rounded-xl bg-dark-secondary px-4 py-3 text-sm text-fg-secondary lg:hidden">
+                <svg className="h-4 w-4 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1M9.5 11a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM21 20v-1a4 4 0 00-3-3.9M16 4.1a3.5 3.5 0 010 6.8" /></svg>
+                {openSpots} spot{openSpots === 1 ? "" : "s"} open across {project.rolesNeeded.length} role{project.rolesNeeded.length === 1 ? "" : "s"}
+              </p>
+            ) : null}
 
             {project.isOwner ? (
               <>
@@ -494,7 +544,7 @@ export default function ProjectDetailPage() {
                   {rolesBlock}
                 </div>
 
-                <div className="rounded-2xl border border-dark-subtle p-6 shadow-[var(--shadow-card)] lg:sticky lg:top-20">
+                <div className="hidden rounded-2xl border border-dark-subtle p-6 shadow-[var(--shadow-card)] lg:sticky lg:top-20 lg:block">
                   <p className="text-2xl font-bold tracking-tight text-fg">
                     {openSpots} spot{openSpots === 1 ? "" : "s"} open
                   </p>
@@ -516,6 +566,9 @@ export default function ProjectDetailPage() {
                   ) : (
                     <p className="mt-5 rounded-xl bg-dark-secondary p-3 text-sm text-fg-secondary">This project isn&apos;t looking for anyone right now.</p>
                   )}
+                  <div className="mt-3">
+                    <MessageButton userId={project.clerkUserId} name={ownerName.split(" ")[0] ?? ownerName} />
+                  </div>
                   <div className="my-5 h-px bg-dark-subtle" />
                   <ul className="space-y-3 text-sm text-fg-secondary">
                     <li className="flex items-center gap-2.5">
@@ -532,6 +585,40 @@ export default function ProjectDetailPage() {
                 </div>
               </div>
             )}
+
+            {!project.isOwner && project.rolesNeeded.length > 0 ? (
+              <>
+                {/* Phones: the actions stay reachable above the tab bar. */}
+                <div aria-hidden="true" className="h-24 lg:hidden" />
+                <div className={`fixed inset-x-0 z-30 flex gap-3 border-t border-dark-subtle bg-dark-primary px-4 py-3 lg:hidden ${isSignedIn ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom))]" : "bottom-0"}`}>
+                  <div className="flex-1">
+                    <MessageButton userId={project.clerkUserId} name="" className="btn-secondary w-full !py-2.5 text-sm" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const first = project.rolesNeeded[0];
+                      if (first) startApplying(first.id);
+                      setTimeout(() => document.getElementById(`apply-${first?.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 60);
+                    }}
+                    className="btn-primary flex-1 !py-2.5 text-sm"
+                  >
+                    Apply to join
+                  </button>
+                </div>
+              </>
+            ) : null}
+
+            {editOpen ? (
+              <EditProjectModal
+                project={project}
+                onClose={() => setEditOpen(false)}
+                onSaved={() => {
+                  setEditOpen(false);
+                  void loadProject();
+                }}
+              />
+            ) : null}
 
             {boostOpen ? (
               <BoostModal

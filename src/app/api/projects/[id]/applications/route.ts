@@ -121,6 +121,8 @@ export async function POST(
           projectId,
           type: "application",
           message: `${applicantName} applied for ${role.title} on ${project.name}`,
+          applicationId: created!.id,
+          actorClerkUserId: userId,
           isRead: false,
         },
         {
@@ -128,6 +130,7 @@ export async function POST(
           projectId,
           type: "application_sent",
           message: `You applied for ${role.title} on ${project.name}. We'll let you know when the owner responds.`,
+          applicationId: created!.id,
           isRead: false,
         },
       ]);

@@ -53,24 +53,24 @@ export default function ProjectInsights({ projectId, applications, pendingApplic
   return (
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr] lg:items-start">
       <div className="flex min-w-0 flex-col gap-6">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl bg-dark-secondary p-5">
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+          <div className="rounded-2xl bg-dark-secondary p-3.5 sm:p-5">
             <p className="text-xs text-fg-secondary">Views this week</p>
-            <p className="mt-2 text-[32px] font-bold leading-none text-fg">{insights ? weekTotal : "-"}</p>
+            <p className="mt-2 text-[24px] font-bold leading-none text-fg sm:text-[32px]">{insights ? weekTotal : "-"}</p>
             <p className={`mt-2 text-xs ${delta > 0 ? "text-success" : "text-dark-muted"}`}>
               {!insights ? " " : delta > 0 ? `${delta} more than last week` : delta < 0 ? `${-delta} fewer than last week` : "Same as last week"}
             </p>
           </div>
-          <div className="rounded-2xl bg-dark-secondary p-5">
+          <div className="rounded-2xl bg-dark-secondary p-3.5 sm:p-5">
             <p className="text-xs text-fg-secondary">Applications</p>
-            <p className="mt-2 text-[32px] font-bold leading-none text-fg">{applications}</p>
+            <p className="mt-2 text-[24px] font-bold leading-none text-fg sm:text-[32px]">{applications}</p>
             <p className={`mt-2 text-xs ${pendingApplications > 0 ? "text-accent-blue" : "text-dark-muted"}`}>
               {pendingApplications > 0 ? `${pendingApplications} waiting for your reply` : "Nothing waiting"}
             </p>
           </div>
-          <div className="rounded-2xl bg-dark-secondary p-5">
+          <div className="rounded-2xl bg-dark-secondary p-3.5 sm:p-5">
             <p className="text-xs text-fg-secondary">Spots filled</p>
-            <p className="mt-2 text-[32px] font-bold leading-none text-fg">{spotsFilled} of {spotsTotal}</p>
+            <p className="mt-2 text-[24px] font-bold leading-none text-fg sm:text-[32px]">{spotsFilled} of {spotsTotal}</p>
             <p className="mt-2 text-xs text-dark-muted">Accept applicants to fill spots</p>
           </div>
         </div>

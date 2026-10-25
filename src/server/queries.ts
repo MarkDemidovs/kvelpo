@@ -1,8 +1,8 @@
 import "server-only";
 import { db } from "./db";
 import { auth } from "@clerk/nextjs/server";
-import { profiles, projects, applications, projectRolesNeeded, projectMembers, messages, notifications, userConsent, experiences, reports, supportMessages, moderationActions } from "./db/schema";
-import { eq, and } from "drizzle-orm";
+import { profiles, projects, applications, projectRolesNeeded, projectMembers, messages, notifications, userConsent, experiences, reports, supportMessages, moderationActions, dmThreads } from "./db/schema";
+import { eq, and, or } from "drizzle-orm";
 import { getStripe } from "./stripe";
 
 const DELETED_USER_SENTINEL = "deleted-user";
@@ -118,6 +118,8 @@ export async function eraseUserAccountData(clerkUserId: string): Promise<void> {
     await tx.update(moderationActions).set({ adminClerkUserId: DELETED_USER_SENTINEL }).where(eq(moderationActions.adminClerkUserId, clerkUserId));
 
     await tx.delete(notifications).where(eq(notifications.clerkUserId, clerkUserId));
+    // Direct messages: deleting the thread removes both people's copy (messages cascade).
+    await tx.delete(dmThreads).where(or(eq(dmThreads.userA, clerkUserId), eq(dmThreads.userB, clerkUserId)));
     await tx.delete(experiences).where(eq(experiences.clerkUserId, clerkUserId));
     await tx.delete(supportMessages).where(eq(supportMessages.clerkUserId, clerkUserId));
     await tx.delete(userConsent).where(eq(userConsent.userId, clerkUserId));

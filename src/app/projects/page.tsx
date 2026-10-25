@@ -12,6 +12,7 @@ interface Project {
   name: string;
   description: string | null;
   isPublic: boolean;
+  isDraft?: boolean;
   tags: string[];
   createdAt: string;
   rolesNeededCount?: number;
@@ -96,7 +97,9 @@ export default function MyProjectsPage() {
                   <Link key={project.id} href={`/projects/${project.id}`} className="card-raised flex min-w-0 flex-col gap-3 p-5">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded-full bg-dark-tertiary px-2.5 py-1 text-[11px] font-medium text-fg-secondary">Owner</span>
-                      {!project.isPublic ? (
+                      {project.isDraft ? (
+                        <span className="rounded-full bg-warning-bg px-2.5 py-1 text-[11px] font-medium text-warning">Draft</span>
+                      ) : !project.isPublic ? (
                         <span className="rounded-full bg-dark-tertiary px-2.5 py-1 text-[11px] font-medium text-fg-secondary">Private</span>
                       ) : open > 0 ? (
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-success-bg px-2.5 py-1 text-[11px] font-medium text-success">

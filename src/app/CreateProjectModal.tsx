@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import skillsConfig from "~/data/skills.json";
 import { PROJECT_CATEGORIES, type ProjectCategory } from "~/lib/categories";
 
@@ -41,6 +42,7 @@ const inputClass =
 /** Three-step "post a project" flow: the idea, the roles, then review. */
 export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProjectModalProps) {
   const { user } = useUser();
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -82,7 +84,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
     onClose();
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (asDraft = false) => {
     setSaving(true);
     setError(null);
     setLimitReached(false);
@@ -94,7 +96,8 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         body: JSON.stringify({
           name: name.trim(),
           description: description.trim() || null,
-          isPublic: true,
+          isPublic: !asDraft,
+          isDraft: asDraft,
           category,
           tags,
           rolesNeeded: filledRoles.map((role) => ({
@@ -112,8 +115,14 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       }
 
       const newProject = (await response.json()) as Project;
-      onProjectCreated(newProject);
-      handleClose();
+      if (asDraft) {
+        // Drafts stay out of Explore; open it so the owner can keep going.
+        handleClose();
+        router.push(`/projects/${newProject.id}`);
+      } else {
+        onProjectCreated(newProject);
+        handleClose();
+      }
     } catch (err) {
       setError(String(err instanceof Error ? err.message : err));
     } finally {
@@ -179,11 +188,12 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
 
         <div className="mt-8 grid gap-12 lg:grid-cols-[minmax(0,1.4fr)_1fr]">
           <div className="min-w-0">
+            <p className="mb-3 text-xs text-dark-muted sm:hidden">Step {step + 1} of 3 &middot; {STEPS[step]}</p>
             <ol className="grid grid-cols-3 gap-3" aria-label="Progress">
               {STEPS.map((label, index) => (
                 <li key={label}>
                   <div className={`h-1 rounded-full ${index <= step ? "bg-[var(--text)]" : "bg-dark-tertiary"}`} />
-                  <p className={`mt-2 text-xs ${index === step ? "font-medium text-fg" : "text-dark-muted"}`}>
+                  <p className={`mt-2 hidden text-xs sm:block ${index === step ? "font-medium text-fg" : "text-dark-muted"}`}>
                     {index + 1}&nbsp; {label}
                   </p>
                 </li>
@@ -283,9 +293,12 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                   </div>
                 </div>
 
-                <div className="mt-8 flex items-center justify-end border-t border-dark-subtle pt-6">
-                  <button type="button" onClick={() => setStep(1)} disabled={!name.trim()} className="btn-primary disabled:cursor-not-allowed disabled:opacity-50">
-                    Continue to roles
+                <div className="sticky bottom-0 -mx-4 mt-8 flex items-center justify-between gap-3 border-t border-dark-subtle bg-dark-primary px-4 py-4 sm:mx-0 sm:px-0 sm:pb-0 sm:pt-6">
+                  <button type="button" onClick={() => void handleSubmit(true)} disabled={saving || !name.trim()} className="btn-secondary flex-1 !py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:!border-0 sm:!bg-transparent sm:!px-0 sm:!text-accent-blue sm:hover:underline">
+                    {saving ? "Saving..." : "Save as draft"}
+                  </button>
+                  <button type="button" onClick={() => setStep(1)} disabled={!name.trim()} className="btn-primary flex-1 !py-2.5 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:!py-3">
+                    Continue<span className="hidden sm:inline">&nbsp;to roles</span>
                   </button>
                 </div>
               </div>
@@ -336,9 +349,12 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                   </button>
                 </div>
 
-                <div className="mt-8 flex items-center justify-end border-t border-dark-subtle pt-6">
-                  <button type="button" onClick={() => setStep(2)} className="btn-primary">
-                    Continue to review
+                <div className="sticky bottom-0 -mx-4 mt-8 flex items-center justify-between gap-3 border-t border-dark-subtle bg-dark-primary px-4 py-4 sm:mx-0 sm:px-0 sm:pb-0 sm:pt-6">
+                  <button type="button" onClick={() => void handleSubmit(true)} disabled={saving || !name.trim()} className="btn-secondary flex-1 !py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:!border-0 sm:!bg-transparent sm:!px-0 sm:!text-accent-blue sm:hover:underline">
+                    {saving ? "Saving..." : "Save as draft"}
+                  </button>
+                  <button type="button" onClick={() => setStep(2)} className="btn-primary flex-1 !py-2.5 sm:flex-none sm:!py-3">
+                    Continue<span className="hidden sm:inline">&nbsp;to review</span>
                   </button>
                 </div>
               </div>
@@ -376,8 +392,11 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                   </div>
                 </dl>
 
-                <div className="mt-8 flex items-center justify-end gap-3 border-t border-dark-subtle pt-6">
-                  <button type="button" onClick={() => void handleSubmit()} disabled={saving || !name.trim()} className="btn-primary disabled:cursor-not-allowed disabled:opacity-50">
+                <div className="sticky bottom-0 -mx-4 mt-8 flex items-center justify-between gap-3 border-t border-dark-subtle bg-dark-primary px-4 py-4 sm:mx-0 sm:px-0 sm:pb-0 sm:pt-6">
+                  <button type="button" onClick={() => void handleSubmit(true)} disabled={saving || !name.trim()} className="btn-secondary flex-1 !py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:!border-0 sm:!bg-transparent sm:!px-0 sm:!text-accent-blue sm:hover:underline">
+                    Save as draft
+                  </button>
+                  <button type="button" onClick={() => void handleSubmit(false)} disabled={saving || !name.trim()} className="btn-primary flex-1 !py-2.5 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:!py-3">
                     {saving ? "Posting..." : "Post project"}
                   </button>
                 </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatPrice, PRICING } from "~/lib/pricing";
+import { BOOST_OPTIONS, formatPrice, type BoostDays } from "~/lib/pricing";
 
 export interface BoostableProject {
   id: number;
@@ -16,7 +16,11 @@ export interface BoostableProject {
 export default function BoostModal({ project, onClose }: { project: BoostableProject; onClose: () => void }) {
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [days, setDays] = useState<BoostDays>(BOOST_OPTIONS[0].days);
   const available = Boolean(process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST);
+  // The 14-day length only shows once its Stripe price is configured.
+  const options = BOOST_OPTIONS.filter((option) => option.days === BOOST_OPTIONS[0].days || Boolean(process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST_14));
+  const chosen = options.find((option) => option.days === days) ?? options[0]!;
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -33,7 +37,7 @@ export default function BoostModal({ project, onClose }: { project: BoostablePro
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "boost", projectId: project.id }),
+        body: JSON.stringify({ type: "boost", projectId: project.id, days: chosen.days }),
       });
       const data = (await res.json().catch(() => null)) as { url?: string; error?: string } | null;
       if (!res.ok || !data?.url) throw new Error(data?.error ?? "Couldn't start checkout. Please try again.");
@@ -61,13 +65,27 @@ export default function BoostModal({ project, onClose }: { project: BoostablePro
           {project.name} moves to the top of Explore and search, with a Featured label.
         </p>
 
-        <div className="mt-5 flex items-center gap-3 rounded-2xl border-2 border-[var(--btn-primary-bg)] p-4">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full border-[6px] border-[var(--btn-primary-bg)]" aria-hidden="true" />
-          <div className="flex-1">
-            <p className="text-[15px] font-semibold text-fg">{PRICING.boostDays} days</p>
-            <p className="text-xs text-fg-secondary">About a week at the top</p>
-          </div>
-          <p className="text-lg font-bold text-fg">{formatPrice(PRICING.boost)}</p>
+        <div className="mt-5 space-y-3" role="radiogroup" aria-label="Boost length">
+          {options.map((option) => {
+            const selected = option.days === chosen.days;
+            return (
+              <button
+                key={option.days}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => setDays(option.days)}
+                className={`flex w-full items-center gap-3 rounded-2xl p-4 text-left transition ${selected ? "border-2 border-[var(--btn-primary-bg)]" : "border border-dark-subtle hover:border-dark-muted"}`}
+              >
+                <span className={`flex h-5 w-5 shrink-0 rounded-full border-[6px] ${selected ? "border-[var(--btn-primary-bg)]" : "border-dark-subtle"}`} aria-hidden="true" />
+                <span className="flex-1">
+                  <span className="block text-[15px] font-semibold text-fg">{option.days} days</span>
+                  <span className="block text-xs text-fg-secondary">{option.blurb}</span>
+                </span>
+                <span className="text-lg font-bold text-fg">{formatPrice(option.price)}</span>
+              </button>
+            );
+          })}
         </div>
 
         <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.14em] text-dark-muted">How it will look in Explore</p>
@@ -102,7 +120,7 @@ export default function BoostModal({ project, onClose }: { project: BoostablePro
             Cancel
           </button>
           <button type="button" onClick={() => void pay()} disabled={paying || !available} className="btn-primary !px-5 !py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-50">
-            {available ? (paying ? "Opening checkout..." : `Pay ${formatPrice(PRICING.boost)}`) : "Coming soon"}
+            {available ? (paying ? "Opening checkout..." : `Pay ${formatPrice(chosen.price)}`) : "Coming soon"}
           </button>
         </div>
         <p className="mt-4 text-center text-xs text-dark-muted">One time payment through Stripe. No subscription.</p>

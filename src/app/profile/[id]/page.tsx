@@ -5,6 +5,7 @@ import { experienceColumns } from "~/server/experience";
 import { sortExperiences, type Experience } from "~/lib/experience";
 import ExperienceTimeline from "~/app/_components/ExperienceTimeline";
 import ReportButton from "~/app/_components/ReportButton";
+import MessageButton from "~/app/_components/MessageButton";
 import { AdminUserBar } from "~/app/_components/AdminControls";
 import { getAdminUserId } from "~/server/admin";
 import { eq } from "drizzle-orm";
@@ -112,7 +113,10 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
                 {isOwner ? (
                   <Link href="/profile" className="btn-secondary !px-4 !py-2 text-sm">Edit your profile</Link>
                 ) : (
-                  <ReportButton targetType="profile" targetId={profileId} targetLabel={displayName} />
+                  <div className="flex flex-col items-end gap-2.5">
+                    <MessageButton userId={profileId} name={displayName.split(" ")[0] ?? displayName} className="btn-primary !px-4 !py-2 text-sm" />
+                    <ReportButton targetType="profile" targetId={profileId} targetLabel={displayName} />
+                  </div>
                 )}
               </div>
 
