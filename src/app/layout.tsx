@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Link from "next/link";
 
-import { type Metadata } from "next";
+import { type Metadata, type Viewport } from "next";
 import { Geist } from "next/font/google";
 import TopNav from "./_components/topnav";
 import { siteDescription, siteName, siteTagline, siteUrl } from "~/lib/site";
@@ -11,6 +11,8 @@ import ConsentBanner from "./_components/ConsentBanner";
 import TermsGate from "./_components/TermsGate";
 import { ThemeProvider, themeInitScript } from "./_components/ThemeProvider";
 import { ChatProvider } from "./_components/ChatContext";
+import { InboxProvider } from "./_components/InboxContext";
+import BottomTabBar from "./_components/BottomTabBar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -35,6 +37,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Lets the tab bar pad for the iPhone home indicator (env(safe-area-inset-bottom)).
+  viewportFit: "cover",
+};
+
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans",
@@ -52,6 +61,7 @@ export default function RootLayout({
         <body suppressHydrationWarning>
           <ThemeProvider>
           <ChatProvider>
+          <InboxProvider>
             <TopNav />
             <ConsentBanner />
             <TermsGate />
@@ -70,7 +80,9 @@ export default function RootLayout({
                 </div>
               </div>
             </footer>
+            <BottomTabBar />
             <ChatPopup />
+          </InboxProvider>
           </ChatProvider>
           </ThemeProvider>
         </body>

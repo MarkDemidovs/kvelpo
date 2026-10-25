@@ -101,6 +101,23 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Navigation Links */}
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-2">
+              <Link href="/" className={navLinkClass(pathname === "/")} onClick={onClose}>
+                <svg
+                  className={navIconClass(pathname === "/")}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 21a9 9 0 100-18 9 9 0 000 18zM15.5 8.5l-2 5-5 2 2-5 5-2z"
+                  />
+                </svg>
+                Explore
+              </Link>
+
               <Link
                 href="/profile"
                 className={navLinkClass(pathname === "/profile")}

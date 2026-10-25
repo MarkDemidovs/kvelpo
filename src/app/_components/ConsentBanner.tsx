@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { cookies, headers } from "next/headers";
 import { saveConsentAction } from "~/app/actions/consent";
 
@@ -10,6 +11,7 @@ export default async function ConsentBanner() {
   const consentStatus = cookieStore.get("app-consent-status")?.value;
   const country = (await headers()).get("x-vercel-ip-country")?.toUpperCase() ?? "";
   const isEuResident = euCountries.has(country);
+  const { userId } = await auth();
   const hasConsented = consentStatus === "accepted" || consentStatus === "rejected";
 
   if (!isEuResident || hasConsented) {
@@ -17,7 +19,7 @@ export default async function ConsentBanner() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-dark-subtle bg-dark-card px-4 py-4 text-sm text-fg shadow-lg">
+    <div className={`fixed left-0 right-0 z-50 ${userId ? "bottom-[calc(4.75rem+env(safe-area-inset-bottom))] md:bottom-0" : "bottom-0"} border-t border-dark-subtle bg-dark-card px-4 py-4 text-sm text-fg shadow-lg`}>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex-1">
           <p className="font-semibold text-fg mb-1">Privacy & Cookie Consent</p>

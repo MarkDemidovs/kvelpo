@@ -1,35 +1,18 @@
 'use client';
 
-import { SignInButton, Show, UserButton, useAuth } from "@clerk/nextjs";
+import { SignInButton, Show, UserButton, useAuth, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useInbox } from "./InboxContext";
 import Logo from "./Logo";
 import Sidebar from "./Sidebar";
-
-interface ApplicationStatus {
-  id: number;
-  status: string;
-  projectName: string | null;
-  roleTitle: string | null;
-  message: string | null;
-  appliedAt: string;
-}
-
-interface NotificationItem {
-  id: number;
-  projectId: number | null;
-  type: string;
-  message: string;
-  isRead: boolean;
-  createdAt: string;
-}
 
 export default function TopNav() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
-  const [applications, setApplications] = useState<ApplicationStatus[]>([]);
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const { user } = useUser();
+  const { applications, notifications, unreadCount, markRead } = useInbox();
   const [isStatusPanelOpen, setIsStatusPanelOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const statusMenuRef = useRef<HTMLDivElement | null>(null);
@@ -37,61 +20,7 @@ export default function TopNav() {
   const unreadNotifications = notifications.filter((n) => !n.isRead);
 
   useEffect(() => {
-    if (!isSignedIn) {
-      setApplications([]);
-      setNotifications([]);
-      setIsStatusPanelOpen(false);
-      return;
-    }
-
-    const controller = new AbortController();
-
-    const fetchStatus = async () => {
-      try {
-        const [applicationsRes, notificationsRes] = await Promise.all([
-          fetch("/api/applications", { signal: controller.signal }),
-          fetch("/api/notifications", { signal: controller.signal }),
-        ]);
-
-        if (!applicationsRes.ok || !notificationsRes.ok) {
-          const errorText = await Promise.all([
-            applicationsRes.text().catch(() => ""),
-            notificationsRes.text().catch(() => ""),
-          ]);
-          throw new Error(errorText.filter(Boolean).join(" | "));
-        }
-
-        const contentType = applicationsRes.headers.get("content-type") ?? "";
-        if (!contentType.includes("application/json")) {
-          throw new Error("Unexpected response format");
-        }
-
-        const applicationData = (await applicationsRes.json()) as ApplicationStatus[];
-        const notificationData = (await notificationsRes.json()) as NotificationItem[];
-
-        setApplications(applicationData);
-        setNotifications(notificationData);
-      } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-          return;
-        }
-        console.error("Failed to load inbox data:", error);
-      }
-    };
-
-    void fetchStatus();
-
-    // Pick up notifications created by other users (new applicants,
-    // accept/reject decisions) without needing a page reload.
-    const interval = setInterval(() => void fetchStatus(), 30_000);
-    const onFocus = () => void fetchStatus();
-    window.addEventListener("focus", onFocus);
-
-    return () => {
-      controller.abort();
-      clearInterval(interval);
-      window.removeEventListener("focus", onFocus);
-    };
+    if (!isSignedIn) setIsStatusPanelOpen(false);
   }, [isSignedIn]);
 
   useEffect(() => {
@@ -117,7 +46,8 @@ export default function TopNav() {
           <button
             type="button"
             onClick={() => setIsSidebarOpen(true)}
-            className="rounded-full border border-dark-subtle bg-dark-tertiary p-2 text-fg transition hover:border-accent-blue hover:bg-dark-secondary"
+            aria-label="Open menu"
+            className="hidden rounded-full border border-dark-subtle bg-dark-tertiary p-2 text-fg transition hover:border-accent-blue hover:bg-dark-secondary md:block"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -125,7 +55,7 @@ export default function TopNav() {
           </button>
 
           <Show when="signed-in">
-            <div className="relative" ref={statusMenuRef}>
+            <div className="relative hidden md:block" ref={statusMenuRef}>
               <button
                 type="button"
                 onClick={() => setIsStatusPanelOpen((open) => !open)}
@@ -135,9 +65,9 @@ export default function TopNav() {
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-18 8h18V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8z" />
                 </svg>
-                {unreadNotifications.length + applications.length > 0 ? (
+                {unreadCount > 0 ? (
                   <span className="absolute -top-1 -right-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[0.65rem] font-semibold text-white">
-                    {unreadNotifications.length + applications.length}
+                    {unreadCount}
                   </span>
                 ) : null}
               </button>
@@ -150,7 +80,7 @@ export default function TopNav() {
                       <p className="text-xs text-fg-secondary">Notifications and sent request updates</p>
                     </div>
                     <span className="rounded-full bg-dark-tertiary px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-fg-secondary">
-                      {unreadNotifications.length + applications.length}
+                      {unreadCount}
                     </span>
                   </div>
 
@@ -167,20 +97,8 @@ export default function TopNav() {
                             <button
                               key={notification.id}
                               type="button"
-                              onClick={async () => {
-                                try {
-                                  // Mark notification read on the server
-                                  await fetch("/api/notifications", {
-                                    method: "PATCH",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ id: notification.id }),
-                                  });
-                                } catch (err) {
-                                  console.error("Failed to mark notification read:", err);
-                                }
-
-                                // Optimistically update UI
-                                setNotifications((prev) => prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n)));
+                              onClick={() => {
+                                void markRead(notification.id);
 
                                 if (notification.projectId) {
                                   setIsStatusPanelOpen(false);
@@ -253,7 +171,20 @@ export default function TopNav() {
           </Show>
 
           <Show when="signed-in">
-            <UserButton userProfileUrl="/profile" />
+            <div className="hidden md:block">
+              <UserButton userProfileUrl="/profile" />
+            </div>
+            {/* Phones: the avatar opens the Account page (tab bar covers the rest) */}
+            <Link
+              href="/account"
+              aria-label="Account"
+              className="block h-9 w-9 overflow-hidden rounded-full border border-dark-subtle bg-dark-tertiary md:hidden"
+            >
+              {user?.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.imageUrl} alt="" className="h-full w-full object-cover" />
+              ) : null}
+            </Link>
           </Show>
         </div>
       </div>

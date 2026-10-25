@@ -188,7 +188,7 @@ export default function ChatPopup() {
       {!isOpen ? (
         <button
           onClick={() => openChat()}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-blue text-accent-fg shadow-lg transition hover:opacity-90"
+          className="hidden h-14 w-14 items-center justify-center rounded-full bg-accent-blue text-accent-fg shadow-lg transition hover:opacity-90 md:flex"
           aria-label="Open chat"
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
