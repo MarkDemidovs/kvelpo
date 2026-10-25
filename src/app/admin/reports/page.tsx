@@ -67,22 +67,22 @@ export default async function AdminReportsPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-red-900/40 px-2.5 py-0.5 text-xs font-semibold text-red-400">
+              <span className="rounded-full bg-danger-bg px-2.5 py-0.5 text-xs font-semibold text-danger">
                 {isReportReason(report.reason) ? REPORT_REASONS[report.reason] : report.reason}
               </span>
               <span className="text-xs uppercase tracking-wide text-dark-muted">{isProject ? "Project" : "Profile"}</span>
               {report.status === "open" && openCount > 1 ? (
-                <span className="text-xs font-semibold text-yellow-400">{openCount} open reports</span>
+                <span className="text-xs font-semibold text-warning">{openCount} open reports</span>
               ) : null}
             </div>
             {targetName === undefined ? (
               <p className="text-[15px] font-semibold text-dark-muted">Deleted project #{report.targetId}</p>
             ) : (
-              <Link href={targetHref} target="_blank" className="block truncate text-[15px] font-semibold text-dark-primary hover:text-accent-blue">
+              <Link href={targetHref} target="_blank" className="block truncate text-[15px] font-semibold text-fg hover:text-accent-blue">
                 {targetName} ↗
               </Link>
             )}
-            {report.details ? <p className="whitespace-pre-line text-sm text-dark-secondary">{report.details}</p> : null}
+            {report.details ? <p className="whitespace-pre-line text-sm text-fg-secondary">{report.details}</p> : null}
             <p className="text-xs text-dark-muted">
               Reported by{" "}
               <Link href={`/profile/${encodeURIComponent(report.reporterClerkUserId)}`} target="_blank" className="hover:text-accent-blue">
@@ -102,8 +102,8 @@ export default async function AdminReportsPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Reports</h1>
-      <p className="mt-2 text-dark-secondary">
+      <h1 className="text-3xl font-bold tracking-tight text-fg">Reports</h1>
+      <p className="mt-2 text-fg-secondary">
         Review what people have flagged. Open the item, take action if needed (e.g. contact the owner or delete it from the
         database), then mark the report resolved.
       </p>
@@ -111,7 +111,7 @@ export default async function AdminReportsPage() {
       <section className="mt-8">
         <p className="label-eyebrow">Open ({openReports.length})</p>
         {openReports.length === 0 ? (
-          <div className="card-raised mt-4 p-8 text-center text-dark-secondary">No open reports. 🎉</div>
+          <div className="card-raised mt-4 p-8 text-center text-fg-secondary">No open reports. 🎉</div>
         ) : (
           <ul className="mt-4 space-y-3">{openReports.map(renderReport)}</ul>
         )}

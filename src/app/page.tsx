@@ -39,19 +39,19 @@ function isApiError(value: unknown): value is ApiError {
 
 function LandingView() {
   return (
-    <main className="min-h-screen overflow-x-hidden bg-dark-primary text-dark-primary">
+    <main className="min-h-screen overflow-x-hidden bg-dark-primary text-fg">
       {/* HERO */}
       <div className="relative overflow-hidden">
         <div
           className="pointer-events-none absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full opacity-60 blur-2xl sm:h-[820px] sm:w-[820px]"
-          style={{ background: 'radial-gradient(circle, oklch(68% 0.18 240 / 0.16), transparent 68%)' }}
+          style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--accent) 16%, transparent), transparent 68%)' }}
         />
         <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 pb-16 pt-16 sm:flex-row sm:items-center sm:justify-between sm:pb-20 sm:pt-24">
           <Reveal className="max-w-xl text-center sm:text-left">
-            <h1 className="text-5xl font-extrabold leading-[0.98] tracking-tight text-dark-primary sm:text-7xl">
+            <h1 className="text-5xl font-extrabold leading-[0.98] tracking-tight text-fg sm:text-7xl">
               Stop building<br />alone.
             </h1>
-            <p className="mx-auto mt-7 max-w-md text-lg leading-relaxed text-dark-secondary sm:mx-0">
+            <p className="mx-auto mt-7 max-w-md text-lg leading-relaxed text-fg-secondary sm:mx-0">
               Post a project, list the roles you need, and review who applies. No cold outreach, no group chats full of strangers.
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5 sm:justify-start">
@@ -88,10 +88,10 @@ function LandingView() {
                     top: dot.top * 0.87,
                     width: dot.size,
                     height: dot.size,
-                    background: dot.accent ? 'oklch(68% 0.18 240)' : '#ffffff',
+                    background: dot.accent ? 'var(--accent)' : 'var(--text)',
                     boxShadow: dot.accent
-                      ? `0 0 ${dot.size * 1.4}px ${dot.size * 0.35}px oklch(68% 0.18 240 / 0.55)`
-                      : `0 0 ${dot.size * 1.4}px ${dot.size * 0.3}px rgba(255,255,255,0.35)`,
+                      ? `0 0 ${dot.size * 1.4}px ${dot.size * 0.35}px color-mix(in oklab, var(--accent) 55%, transparent)`
+                      : `0 0 ${dot.size * 1.4}px ${dot.size * 0.3}px color-mix(in oklab, var(--text) 35%, transparent)`,
                     animation: `kvelpo-twinkle 4s ease-in-out ${(i % 7) * 0.4}s infinite`,
                   }}
                 />
@@ -119,8 +119,8 @@ function LandingView() {
               ].map((step) => (
                 <div key={step.n}>
                   <span className="text-sm font-semibold text-accent-blue">{step.n}</span>
-                  <h3 className="mt-3.5 text-xl font-semibold tracking-tight text-dark-primary">{step.title}</h3>
-                  <p className="mt-3.5 text-[15px] leading-relaxed text-dark-secondary">{step.body}</p>
+                  <h3 className="mt-3.5 text-xl font-semibold tracking-tight text-fg">{step.title}</h3>
+                  <p className="mt-3.5 text-[15px] leading-relaxed text-fg-secondary">{step.body}</p>
                 </div>
               ))}
             </div>
@@ -135,11 +135,11 @@ function LandingView() {
             <div className="grid gap-16 sm:grid-cols-2">
               <div>
                 <p className="label-eyebrow">If you&apos;re starting something</p>
-                <h3 className="mt-4.5 text-[28px] font-bold leading-tight tracking-tight text-dark-primary">Post it, and say what you need</h3>
-                <p className="mt-4 text-[15px] leading-relaxed text-dark-secondary">Describe what you&apos;re building and list the roles you&apos;re missing, like a designer or a backend developer, with however many spots each one has open. Applicants come to you.</p>
+                <h3 className="mt-4.5 text-[28px] font-bold leading-tight tracking-tight text-fg">Post it, and say what you need</h3>
+                <p className="mt-4 text-[15px] leading-relaxed text-fg-secondary">Describe what you&apos;re building and list the roles you&apos;re missing, like a designer or a backend developer, with however many spots each one has open. Applicants come to you.</p>
                 <div className="card-raised mt-7 flex items-center justify-between gap-4 p-5">
                   <div>
-                    <p className="text-sm font-semibold text-dark-primary">Product designer</p>
+                    <p className="text-sm font-semibold text-fg">Product designer</p>
                     <p className="mt-0.5 text-xs text-dark-muted">1 spot open</p>
                   </div>
                   <span className="btn-secondary shrink-0 !px-4 !py-2 text-xs">Apply</span>
@@ -147,11 +147,11 @@ function LandingView() {
               </div>
               <div>
                 <p className="label-eyebrow">If you want in on one</p>
-                <h3 className="mt-4.5 text-[28px] font-bold leading-tight tracking-tight text-dark-primary">Apply, and hear back directly</h3>
-                <p className="mt-4 text-[15px] leading-relaxed text-dark-secondary">Browse open projects, apply to the roles that fit with a short message, and hear back from the person actually running it, not a form that goes nowhere.</p>
+                <h3 className="mt-4.5 text-[28px] font-bold leading-tight tracking-tight text-fg">Apply, and hear back directly</h3>
+                <p className="mt-4 text-[15px] leading-relaxed text-fg-secondary">Browse open projects, apply to the roles that fit with a short message, and hear back from the person actually running it, not a form that goes nowhere.</p>
                 <div className="card-raised mt-7 flex items-center justify-between gap-4 p-5">
                   <div>
-                    <p className="text-sm font-semibold text-dark-primary">Your application</p>
+                    <p className="text-sm font-semibold text-fg">Your application</p>
                     <p className="mt-0.5 text-xs text-dark-muted">Weekend recipe app &middot; Designer</p>
                   </div>
                   <span className="shrink-0 rounded-full bg-dark-tertiary px-4 py-2 text-xs font-semibold text-accent-blue">Pending</span>
@@ -168,17 +168,17 @@ function LandingView() {
           <Reveal className="grid gap-16 sm:grid-cols-[1.1fr_1fr] sm:items-center">
             <div>
               <p className="label-eyebrow">Once you&apos;re in</p>
-              <h3 className="mt-4.5 text-3xl font-bold leading-tight tracking-tight text-dark-primary">No extra tools to set up</h3>
-              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-dark-secondary">Every project gets its own chat the moment someone&apos;s accepted. Members talk, share updates, and coordinate right there. No separate Discord, no group chat full of strangers.</p>
+              <h3 className="mt-4.5 text-3xl font-bold leading-tight tracking-tight text-fg">No extra tools to set up</h3>
+              <p className="mt-4 max-w-md text-[15px] leading-relaxed text-fg-secondary">Every project gets its own chat the moment someone&apos;s accepted. Members talk, share updates, and coordinate right there. No separate Discord, no group chat full of strangers.</p>
             </div>
             <div className="card-raised flex flex-col gap-3.5 p-6">
               <div className="flex flex-col items-start gap-1">
                 <span className="text-xs text-dark-muted">Sara K.</span>
-                <span className="rounded-2xl rounded-bl-md bg-dark-tertiary px-3.5 py-2 text-sm text-dark-secondary">Just pushed the new onboarding screens</span>
+                <span className="rounded-2xl rounded-bl-md bg-dark-tertiary px-3.5 py-2 text-sm text-fg-secondary">Just pushed the new onboarding screens</span>
               </div>
               <div className="flex flex-col items-end gap-1">
                 <span className="text-xs text-dark-muted">You</span>
-                <span className="rounded-2xl rounded-br-md bg-accent-blue px-3.5 py-2 text-sm text-white">Looks great, testing now</span>
+                <span className="rounded-2xl rounded-br-md bg-accent-blue px-3.5 py-2 text-sm text-accent-fg">Looks great, testing now</span>
               </div>
             </div>
           </Reveal>
@@ -191,7 +191,7 @@ function LandingView() {
           <Reveal>
             <div className="flex items-baseline justify-between">
               <p className="label-eyebrow">Plans</p>
-              <Link href="/profile/subscription" className="text-sm text-dark-secondary hover:text-dark-primary">See full pricing &rarr;</Link>
+              <Link href="/profile/subscription" className="text-sm text-fg-secondary hover:text-fg">See full pricing &rarr;</Link>
             </div>
             <div className="mt-9 grid gap-5 sm:grid-cols-3">
               {[
@@ -200,9 +200,9 @@ function LandingView() {
                 { name: 'Team', price: '$25/mo', note: '10 active projects' },
               ].map((plan) => (
                 <div key={plan.name} className="card-raised p-8">
-                  <p className="text-[15px] font-semibold text-dark-primary">{plan.name}</p>
-                  <p className="mt-2.5 text-[32px] font-bold text-dark-primary">{plan.price}</p>
-                  <p className="mt-2 text-sm text-dark-secondary">{plan.note}</p>
+                  <p className="text-[15px] font-semibold text-fg">{plan.name}</p>
+                  <p className="mt-2.5 text-[32px] font-bold text-fg">{plan.price}</p>
+                  <p className="mt-2 text-sm text-fg-secondary">{plan.note}</p>
                 </div>
               ))}
             </div>
@@ -223,8 +223,8 @@ function LandingView() {
                 { q: 'Do I need another app to talk to my team?', a: 'No. Accepted members get a project chat built in from day one.' },
               ].map((item) => (
                 <div key={item.q}>
-                  <h4 className="text-base font-semibold text-dark-primary">{item.q}</h4>
-                  <p className="mt-2.5 text-sm leading-relaxed text-dark-secondary">{item.a}</p>
+                  <h4 className="text-base font-semibold text-fg">{item.q}</h4>
+                  <p className="mt-2.5 text-sm leading-relaxed text-fg-secondary">{item.a}</p>
                 </div>
               ))}
             </div>
@@ -236,11 +236,11 @@ function LandingView() {
       <section className="relative overflow-hidden border-t border-dark-subtle">
         <div
           className="pointer-events-none absolute -top-40 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full opacity-60 blur-2xl"
-          style={{ background: 'radial-gradient(circle, oklch(68% 0.18 240 / 0.15), transparent 68%)' }}
+          style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--accent) 15%, transparent), transparent 68%)' }}
         />
         <div className="relative mx-auto max-w-6xl px-4 py-24 text-center">
           <Reveal>
-            <h2 className="text-4xl font-bold tracking-tight text-dark-primary">Ready to stop building alone?</h2>
+            <h2 className="text-4xl font-bold tracking-tight text-fg">Ready to stop building alone?</h2>
             <div className="mt-7">
               <SignInButton mode="modal">
                 <button type="button" className="btn-primary">Create a project</button>
@@ -373,18 +373,18 @@ function HomeFeedContent() {
   const otherProjects = displayedProjects.filter((p) => p.clerkUserId !== userId);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-dark-primary pt-24 text-dark-primary">
+    <main className="min-h-screen overflow-x-hidden bg-dark-primary pt-24 text-fg">
       <div className="relative overflow-hidden">
         <div
           className="pointer-events-none absolute -top-56 left-1/2 h-[700px] w-[700px] -translate-x-1/2 rounded-full opacity-60 blur-2xl"
-          style={{ background: 'radial-gradient(circle, oklch(68% 0.18 240 / 0.12), transparent 68%)' }}
+          style={{ background: 'radial-gradient(circle, color-mix(in oklab, var(--accent) 12%, transparent), transparent 68%)' }}
         />
         <div className="relative mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-6 lg:px-8">
           {/* Plain-language header + one obvious action */}
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
-              <h1 className="text-[34px] font-bold tracking-tight text-dark-primary">Find people to build with</h1>
-              <p className="mt-2 text-[15px] text-dark-secondary">Browse open projects below, or start your own and pick who joins.</p>
+              <h1 className="text-[34px] font-bold tracking-tight text-fg">Find people to build with</h1>
+              <p className="mt-2 text-[15px] text-fg-secondary">Browse open projects below, or start your own and pick who joins.</p>
             </div>
             <button
               type="button"
@@ -401,15 +401,15 @@ function HomeFeedContent() {
 
           {!bannerDismissed && (
             <div className="card-raised mt-7 flex items-center justify-between gap-4 !border-dark-subtle p-4">
-              <p className="text-sm text-dark-secondary">
-                <span className="font-semibold text-dark-primary">New here?</span>{' '}
+              <p className="text-sm text-fg-secondary">
+                <span className="font-semibold text-fg">New here?</span>{' '}
                 Create a project to find teammates, or open any project below to apply.
               </p>
               <button
                 type="button"
                 aria-label="Dismiss"
                 onClick={() => setBannerDismissed(true)}
-                className="shrink-0 rounded-full p-1 text-dark-muted hover:text-dark-primary"
+                className="shrink-0 rounded-full p-1 text-dark-muted hover:text-fg"
               >
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
@@ -422,7 +422,7 @@ function HomeFeedContent() {
           {loading ? (
             <div className="mt-10"><ProjectCardSkeletonGrid /></div>
           ) : projectsError ? (
-            <div className="card-raised mt-10 p-10 text-center text-red-400">{projectsError}</div>
+            <div className="card-raised mt-10 p-10 text-center text-danger">{projectsError}</div>
           ) : (
             <div className="mt-10 space-y-12">
               {myProjects.length > 0 && (
@@ -439,7 +439,7 @@ function HomeFeedContent() {
               <section>
                 <p className="label-eyebrow">Open projects</p>
                 {otherProjects.length === 0 ? (
-                  <div className="card-raised mt-5 p-10 text-center text-dark-secondary">No open projects yet. Be the first to post one.</div>
+                  <div className="card-raised mt-5 p-10 text-center text-fg-secondary">No open projects yet. Be the first to post one.</div>
                 ) : (
                   <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {otherProjects.map((project) => (
@@ -451,7 +451,7 @@ function HomeFeedContent() {
 
               {hasMore && !loading && (
                 <div ref={observerTarget} className="py-8">
-                  {loadingMore && <div className="text-center text-dark-secondary">Loading more projects...</div>}
+                  {loadingMore && <div className="text-center text-fg-secondary">Loading more projects...</div>}
                 </div>
               )}
             </div>
@@ -491,7 +491,7 @@ function ProjectCard({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="flex h-full w-full items-center justify-center bg-dark-subtle text-[11px] font-semibold uppercase text-dark-primary">
+            <span className="flex h-full w-full items-center justify-center bg-dark-subtle text-[11px] font-semibold uppercase text-fg">
               {(project.userFullName ?? project.clerkUserId).slice(0, 2)}
             </span>
           )}
@@ -506,9 +506,9 @@ function ProjectCard({
       </div>
 
       <div>
-        <h3 className="text-[17px] font-semibold text-dark-primary">{project.name}</h3>
+        <h3 className="text-[17px] font-semibold text-fg">{project.name}</h3>
         {project.description ? (
-          <p className="mt-1.5 line-clamp-2 text-sm leading-snug text-dark-secondary">{project.description}</p>
+          <p className="mt-1.5 line-clamp-2 text-sm leading-snug text-fg-secondary">{project.description}</p>
         ) : (
           <p className="mt-1.5 text-sm text-dark-muted">No description provided.</p>
         )}
@@ -517,7 +517,7 @@ function ProjectCard({
       {project.tags.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {project.tags.slice(0, 3).map((tag) => (
-            <span key={tag} className="rounded-full bg-dark-tertiary px-2.5 py-1 text-xs text-dark-secondary">
+            <span key={tag} className="rounded-full bg-dark-tertiary px-2.5 py-1 text-xs text-fg-secondary">
               {tag}
             </span>
           ))}

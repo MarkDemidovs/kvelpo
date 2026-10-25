@@ -17,11 +17,11 @@ export default async function ConsentBanner() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-dark-subtle bg-dark-card px-4 py-4 text-sm text-dark-primary shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-dark-subtle bg-dark-card px-4 py-4 text-sm text-fg shadow-lg">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex-1">
-          <p className="font-semibold text-dark-primary mb-1">Privacy & Cookie Consent</p>
-          <p className="text-dark-secondary">
+          <p className="font-semibold text-fg mb-1">Privacy & Cookie Consent</p>
+          <p className="text-fg-secondary">
             We use cookies and process your data to provide our services and improve your experience. 
             By clicking "Accept All", you consent to our use of cookies as described in our 
             <a href="/cookies" className="text-accent-blue hover:underline">Cookie Policy</a> and 

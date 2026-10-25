@@ -13,7 +13,7 @@ interface SidebarProps {
 
 const navLinkClass = (active: boolean) =>
   `flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors ${
-    active ? "bg-dark-tertiary text-dark-primary" : "text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+    active ? "bg-dark-tertiary text-fg" : "text-fg-secondary hover:bg-dark-tertiary hover:text-fg"
   }`;
 
 const navIconClass = (active: boolean) => `h-5 w-5 ${active ? "text-accent-blue" : ""}`;
@@ -63,7 +63,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-40 bg-scrim backdrop-blur-sm"
           onClick={onClose}
         />
       )}
@@ -77,10 +77,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-dark-subtle">
-            <h2 className="text-xl font-semibold text-dark-primary">Manage</h2>
+            <h2 className="text-xl font-semibold text-fg">Manage</h2>
             <button
               onClick={onClose}
-              className="rounded-full p-2 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+              className="rounded-full p-2 text-fg-secondary hover:bg-dark-tertiary hover:text-fg"
             >
               <svg
                 className="h-6 w-6"
@@ -298,7 +298,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </svg>
                     Reports
                     {admin.openReports > 0 ? (
-                      <span className="ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
+                      <span className="ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-red-500 px-2 py-0.5 text-xs font-semibold text-accent-fg">
                         {admin.openReports}
                       </span>
                     ) : null}
@@ -323,7 +323,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </svg>
                     Support inbox
                     {admin.openSupport > 0 ? (
-                      <span className="ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-accent-blue px-2 py-0.5 text-xs font-semibold text-white">
+                      <span className="ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full bg-accent-blue px-2 py-0.5 text-xs font-semibold text-accent-fg">
                         {admin.openSupport}
                       </span>
                     ) : null}

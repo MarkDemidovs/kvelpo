@@ -73,7 +73,7 @@ export default function ReportButton({ targetType, targetId, targetLabel }: Repo
         <button
           type="button"
           onClick={open}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-dark-muted transition hover:text-red-400"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-dark-muted transition hover:text-danger"
         >
           <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 21V4m0 0h11l-1.5 4L15 12H4" />
@@ -83,7 +83,7 @@ export default function ReportButton({ targetType, targetId, targetLabel }: Repo
       )}
 
       {isOpen ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm" onClick={close}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-scrim px-4 backdrop-blur-sm" onClick={close}>
           <form
             onSubmit={handleSubmit}
             onClick={(e) => e.stopPropagation()}
@@ -93,19 +93,19 @@ export default function ReportButton({ targetType, targetId, targetLabel }: Repo
             aria-labelledby="report-dialog-title"
           >
             <div>
-              <h2 id="report-dialog-title" className="text-lg font-semibold text-dark-primary">
+              <h2 id="report-dialog-title" className="text-lg font-semibold text-fg">
                 Report {noun}
               </h2>
-              <p className="mt-1 truncate text-sm text-dark-secondary">{targetLabel}</p>
+              <p className="mt-1 truncate text-sm text-fg-secondary">{targetLabel}</p>
             </div>
 
             <fieldset className="space-y-2">
-              <legend className="mb-2 text-sm font-medium text-dark-secondary">What&apos;s wrong?</legend>
+              <legend className="mb-2 text-sm font-medium text-fg-secondary">What&apos;s wrong?</legend>
               {(Object.entries(REPORT_REASONS) as [ReportReason, string][]).map(([value, label]) => (
                 <label
                   key={value}
                   className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3.5 py-2.5 text-sm transition ${
-                    reason === value ? "border-accent-blue text-dark-primary" : "border-dark-subtle text-dark-secondary hover:bg-dark-tertiary"
+                    reason === value ? "border-accent-blue text-fg" : "border-dark-subtle text-fg-secondary hover:bg-dark-tertiary"
                   }`}
                 >
                   <input
@@ -114,7 +114,7 @@ export default function ReportButton({ targetType, targetId, targetLabel }: Repo
                     value={value}
                     checked={reason === value}
                     onChange={() => setReason(value)}
-                    className="accent-[oklch(68%_0.18_240)]"
+                    className="accent-accent-blue"
                   />
                   {label}
                 </label>
@@ -122,17 +122,17 @@ export default function ReportButton({ targetType, targetId, targetLabel }: Repo
             </fieldset>
 
             <label className="block">
-              <span className="text-sm font-medium text-dark-secondary">Anything else we should know? (optional)</span>
+              <span className="text-sm font-medium text-fg-secondary">Anything else we should know? (optional)</span>
               <textarea
                 value={details}
                 onChange={(e) => setDetails(e.target.value)}
                 rows={3}
                 maxLength={MAX_REPORT_DETAILS}
-                className="mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-sm text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
+                className="mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-sm text-fg placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
               />
             </label>
 
-            {error ? <p className="text-sm text-red-400">{error}</p> : null}
+            {error ? <p className="text-sm text-danger">{error}</p> : null}
 
             <div className="flex justify-end gap-3">
               <button type="button" onClick={close} className="btn-secondary !px-4 !py-2 text-sm">

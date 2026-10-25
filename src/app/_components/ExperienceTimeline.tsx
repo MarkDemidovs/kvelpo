@@ -22,8 +22,8 @@ export default function ExperienceTimeline({ items, renderActions }: ExperienceT
           />
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[15px] font-semibold text-dark-primary">{item.title}</p>
-              <p className="mt-0.5 text-sm text-dark-secondary">
+              <p className="text-[15px] font-semibold text-fg">{item.title}</p>
+              <p className="mt-0.5 text-sm text-fg-secondary">
                 {item.organization}
                 {item.location ? <span className="text-dark-muted"> · {item.location}</span> : null}
               </p>
@@ -32,7 +32,7 @@ export default function ExperienceTimeline({ items, renderActions }: ExperienceT
             {renderActions ? <div className="flex shrink-0 gap-2">{renderActions(item)}</div> : null}
           </div>
           {item.description ? (
-            <p className="mt-2.5 whitespace-pre-line text-sm leading-relaxed text-dark-secondary">{item.description}</p>
+            <p className="mt-2.5 whitespace-pre-line text-sm leading-relaxed text-fg-secondary">{item.description}</p>
           ) : null}
         </li>
       ))}

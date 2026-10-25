@@ -253,8 +253,8 @@ function SubscriptionPageContent() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="label-eyebrow">Subscription</p>
-            <h1 className="mt-2.5 text-[30px] font-bold tracking-tight text-dark-primary">Manage your plan</h1>
-            <p className="mt-1 max-w-2xl text-[15px] text-dark-secondary">
+            <h1 className="mt-2.5 text-[30px] font-bold tracking-tight text-fg">Manage your plan</h1>
+            <p className="mt-1 max-w-2xl text-[15px] text-fg-secondary">
               Pick a plan that matches your workflow, then complete checkout securely with Stripe.
             </p>
           </div>
@@ -272,9 +272,9 @@ function SubscriptionPageContent() {
         </div>
 
         {sessionStatus ? (
-          <div className="mt-6 rounded-2xl bg-emerald-900/25 p-5 text-dark-primary">
+          <div className="mt-6 rounded-2xl bg-success-bg p-5 text-fg">
             <p className="text-sm font-semibold">Checkout completed</p>
-            <p className="mt-2 text-sm text-dark-secondary">Your Stripe checkout was processed successfully.</p>
+            <p className="mt-2 text-sm text-fg-secondary">Your Stripe checkout was processed successfully.</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.16em] text-dark-muted">Payment status</p>
@@ -291,14 +291,14 @@ function SubscriptionPageContent() {
             </div>
           </div>
         ) : sessionError ? (
-          <div className="mt-6 rounded-2xl bg-red-900/25 p-5 text-red-400">
+          <div className="mt-6 rounded-2xl bg-danger-bg p-5 text-danger">
             <p className="font-semibold">Unable to verify checkout session</p>
-            <p className="mt-2 text-sm text-red-300">{sessionError}</p>
+            <p className="mt-2 text-sm text-danger">{sessionError}</p>
           </div>
         ) : null}
 
         {membership !== "free" && (subscriptionStart || subscriptionEnd) ? (
-          <div className="mt-6 rounded-2xl border border-dark-subtle bg-dark-tertiary p-5 text-dark-primary">
+          <div className="mt-6 rounded-2xl border border-dark-subtle bg-dark-tertiary p-5 text-fg">
             <p className="text-sm font-semibold">Subscription details</p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {subscriptionStart ? (
@@ -321,8 +321,8 @@ function SubscriptionPageContent() {
               ) : null}
               {subscriptionEnd && daysUntilRenewal !== null && daysUntilRenewal <= 7 ? (
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-red-400">⚠ Renews soon</p>
-                  <p className="mt-1 font-medium text-red-400">Update payment method</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-danger">⚠ Renews soon</p>
+                  <p className="mt-1 font-medium text-danger">Update payment method</p>
                 </div>
               ) : null}
             </div>
@@ -332,7 +332,7 @@ function SubscriptionPageContent() {
 
       <section className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
         <div className="space-y-5">
-          {error ? <div className="rounded-2xl bg-red-900/30 p-4 text-sm text-red-400">{error}</div> : null}
+          {error ? <div className="rounded-2xl bg-danger-bg p-4 text-sm text-danger">{error}</div> : null}
 
           <div className="grid gap-5 sm:grid-cols-3 sm:items-stretch">
             {plans.map((plan) => {
@@ -343,22 +343,22 @@ function SubscriptionPageContent() {
                   className={`card-raised relative flex flex-col gap-5 p-6 ${plan.highlight ? "!border-accent-blue sm:-translate-y-2.5" : ""}`}
                 >
                   {plan.highlight ? (
-                    <span className="absolute -top-3 left-6 rounded-full bg-accent-blue px-3 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-white">
+                    <span className="absolute -top-3 left-6 rounded-full bg-accent-blue px-3 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-accent-fg">
                       Most popular
                     </span>
                   ) : null}
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <h2 className="text-base font-semibold text-dark-primary">{plan.name}</h2>
-                      <p className="mt-2.5 text-[28px] font-bold text-dark-primary">{plan.price}</p>
+                      <h2 className="text-base font-semibold text-fg">{plan.name}</h2>
+                      <p className="mt-2.5 text-[28px] font-bold text-fg">{plan.price}</p>
                     </div>
                     {isCurrent ? (
                       <span className="shrink-0 rounded-full bg-dark-tertiary px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-dark-muted">Current</span>
                     ) : null}
                   </div>
-                  <p className="text-sm text-dark-secondary">{plan.description}</p>
+                  <p className="text-sm text-fg-secondary">{plan.description}</p>
                   <div className="h-px bg-dark-subtle" />
-                  <ul className="flex flex-1 flex-col gap-2.5 text-sm text-dark-secondary">
+                  <ul className="flex flex-1 flex-col gap-2.5 text-sm text-fg-secondary">
                     {plan.features.map((feature) => (
                       <li key={feature}>{feature}</li>
                     ))}
@@ -378,17 +378,17 @@ function SubscriptionPageContent() {
 
         <div className="card-raised p-6">
           <p className="label-eyebrow">Why upgrade?</p>
-          <div className="mt-5 space-y-5 text-sm text-dark-secondary">
+          <div className="mt-5 space-y-5 text-sm text-fg-secondary">
             <div>
-              <p className="font-semibold text-dark-primary">More projects, more control</p>
+              <p className="font-semibold text-fg">More projects, more control</p>
               <p className="mt-2">Pro and Team plans increase your project limits and let you keep multiple active listings.</p>
             </div>
             <div>
-              <p className="font-semibold text-dark-primary">Professional presentation</p>
+              <p className="font-semibold text-fg">Professional presentation</p>
               <p className="mt-2">Upgrade to remove basic restrictions and get access to advanced profile and sharing features.</p>
             </div>
             <div>
-              <p className="font-semibold text-dark-primary">Secure Stripe billing</p>
+              <p className="font-semibold text-fg">Secure Stripe billing</p>
               <p className="mt-2">Checkout is handled by Stripe, and your card information is never stored on this app.</p>
             </div>
           </div>
@@ -401,7 +401,7 @@ function SubscriptionPageContent() {
 export default function SubscriptionPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 bg-dark-primary">
-      <Suspense fallback={<div className="p-10 text-center text-dark-primary">Loading Subscription Details...</div>}>
+      <Suspense fallback={<div className="p-10 text-center text-fg">Loading Subscription Details...</div>}>
         <SubscriptionPageContent />
       </Suspense>
     </main>

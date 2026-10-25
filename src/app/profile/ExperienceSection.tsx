@@ -5,7 +5,7 @@ import ExperienceTimeline from "~/app/_components/ExperienceTimeline";
 import { MAX_EXPERIENCES, sortExperiences, type Experience } from "~/lib/experience";
 
 const fieldClass =
-  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-card px-3.5 py-2.5 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
+  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-card px-3.5 py-2.5 text-fg placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
 
 type Draft = {
   title: string;
@@ -129,8 +129,8 @@ export default function ExperienceSection() {
     <section className="card-raised space-y-4 p-7">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-dark-primary">Experience</p>
-          <p className="text-xs text-dark-secondary">Your work history, shown as a timeline on your public profile.</p>
+          <p className="text-sm font-medium text-fg">Experience</p>
+          <p className="text-xs text-fg-secondary">Your work history, shown as a timeline on your public profile.</p>
         </div>
         {editing === null && items.length < MAX_EXPERIENCES ? (
           <button type="button" onClick={() => openForm("new")} className="btn-secondary !px-4 !py-2 text-sm">
@@ -139,26 +139,26 @@ export default function ExperienceSection() {
         ) : null}
       </div>
 
-      {error ? <div className="rounded-xl bg-red-900/30 p-3 text-sm text-red-400">{error}</div> : null}
+      {error ? <div className="rounded-xl bg-danger-bg p-3 text-sm text-danger">{error}</div> : null}
 
       {editing !== null ? (
         <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
-          <p className="text-sm font-semibold text-dark-primary">{editing === "new" ? "Add experience" : "Edit experience"}</p>
+          <p className="text-sm font-semibold text-fg">{editing === "new" ? "Add experience" : "Edit experience"}</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="text-sm font-medium text-dark-secondary">Title *</span>
+              <span className="text-sm font-medium text-fg-secondary">Title *</span>
               <input className={fieldClass} value={draft.title} onChange={(e) => update("title", e.target.value)} placeholder="e.g. Frontend Developer" required maxLength={256} />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-dark-secondary">Company or organization *</span>
+              <span className="text-sm font-medium text-fg-secondary">Company or organization *</span>
               <input className={fieldClass} value={draft.organization} onChange={(e) => update("organization", e.target.value)} placeholder="e.g. Acme Inc." required maxLength={256} />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-dark-secondary">Start date *</span>
+              <span className="text-sm font-medium text-fg-secondary">Start date *</span>
               <input type="month" className={fieldClass} value={draft.startMonth} max={currentMonth} onChange={(e) => update("startMonth", e.target.value)} required />
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-dark-secondary">End date</span>
+              <span className="text-sm font-medium text-fg-secondary">End date</span>
               <input
                 type="month"
                 className={`${fieldClass} disabled:opacity-50`}
@@ -175,16 +175,16 @@ export default function ExperienceSection() {
               type="checkbox"
               checked={draft.isCurrent}
               onChange={(e) => update("isCurrent", e.target.checked)}
-              className="h-4 w-4 accent-[oklch(68%_0.18_240)]"
+              className="h-4 w-4 accent-accent-blue"
             />
-            <span className="text-sm text-dark-primary">I currently work here</span>
+            <span className="text-sm text-fg">I currently work here</span>
           </label>
           <label className="block">
-            <span className="text-sm font-medium text-dark-secondary">Location</span>
+            <span className="text-sm font-medium text-fg-secondary">Location</span>
             <input className={fieldClass} value={draft.location} onChange={(e) => update("location", e.target.value)} placeholder="e.g. Riga, Latvia · Remote" maxLength={256} />
           </label>
           <label className="block">
-            <span className="text-sm font-medium text-dark-secondary">Description</span>
+            <span className="text-sm font-medium text-fg-secondary">Description</span>
             <textarea className={fieldClass} rows={4} value={draft.description} onChange={(e) => update("description", e.target.value)} placeholder="What did you work on?" maxLength={2000} />
           </label>
           <div className="flex justify-end gap-3">
@@ -208,7 +208,7 @@ export default function ExperienceSection() {
               <button type="button" onClick={() => openForm(item)} className="text-xs font-semibold text-accent-blue hover:underline">
                 Edit
               </button>
-              <button type="button" onClick={() => void handleDelete(item)} className="text-xs font-semibold text-red-400 hover:underline">
+              <button type="button" onClick={() => void handleDelete(item)} className="text-xs font-semibold text-danger hover:underline">
                 Delete
               </button>
             </>

@@ -5,7 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { MAX_SUPPORT_MESSAGE, SUPPORT_TOPICS, type SupportTopic } from "~/lib/support";
 
 const fieldClass =
-  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
+  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-fg placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
 
 export default function SupportForm() {
   const { user } = useUser();
@@ -50,9 +50,9 @@ export default function SupportForm() {
   if (sent) {
     return (
       <div className="card-raised mt-8 p-7 text-center">
-        <p className="text-lg font-semibold text-dark-primary">Thanks, your message is on its way.</p>
-        <p className="mt-2 text-sm text-dark-secondary">
-          We&apos;ll reply to <span className="text-dark-primary">{email}</span>. Keep an eye on your spam folder just in case.
+        <p className="text-lg font-semibold text-fg">Thanks, your message is on its way.</p>
+        <p className="mt-2 text-sm text-fg-secondary">
+          We&apos;ll reply to <span className="text-fg">{email}</span>. Keep an eye on your spam folder just in case.
         </p>
       </div>
     );
@@ -62,11 +62,11 @@ export default function SupportForm() {
     <form onSubmit={handleSubmit} className="card-raised mt-8 space-y-5 p-7">
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-medium text-dark-secondary">Name</span>
+          <span className="text-sm font-medium text-fg-secondary">Name</span>
           <input className={fieldClass} value={name} onChange={(e) => setName(e.target.value)} maxLength={256} autoComplete="name" />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-dark-secondary">Email *</span>
+          <span className="text-sm font-medium text-fg-secondary">Email *</span>
           <input
             type="email"
             className={fieldClass}
@@ -81,7 +81,7 @@ export default function SupportForm() {
       </div>
 
       <label className="block">
-        <span className="text-sm font-medium text-dark-secondary">Topic *</span>
+        <span className="text-sm font-medium text-fg-secondary">Topic *</span>
         <select
           className={fieldClass}
           value={topic}
@@ -100,7 +100,7 @@ export default function SupportForm() {
       </label>
 
       <label className="block">
-        <span className="text-sm font-medium text-dark-secondary">Message *</span>
+        <span className="text-sm font-medium text-fg-secondary">Message *</span>
         <textarea
           className={fieldClass}
           rows={6}
@@ -120,7 +120,7 @@ export default function SupportForm() {
         </label>
       </div>
 
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
 
       <button type="submit" disabled={sending} className="btn-primary disabled:cursor-not-allowed disabled:opacity-60">
         {sending ? "Sending..." : "Send message"}

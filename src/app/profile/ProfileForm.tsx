@@ -25,7 +25,7 @@ interface ProfileData {
 }
 
 const fieldClass =
-  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
+  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-fg placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
 
 export default function ProfileForm() {
   const [loading, setLoading] = useState(true);
@@ -132,20 +132,20 @@ export default function ProfileForm() {
   }
 
   return (
-    <div className="space-y-6 text-dark-primary">
+    <div className="space-y-6 text-fg">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-[30px] font-bold tracking-tight">Profile settings</h1>
-          <p className="mt-1 text-[15px] text-dark-secondary">This is what shows up when someone views your profile.</p>
+          <p className="mt-1 text-[15px] text-fg-secondary">This is what shows up when someone views your profile.</p>
         </div>
         <UserButton />
       </div>
 
-      {error ? <div className="rounded-xl bg-red-900/30 p-3 text-sm text-red-400">{error}</div> : null}
+      {error ? <div className="rounded-xl bg-danger-bg p-3 text-sm text-danger">{error}</div> : null}
 
       <form onSubmit={handleSubmit} className="card-raised space-y-6 p-7">
         <label className="block">
-          <span className="text-sm font-medium text-dark-secondary">Full name</span>
+          <span className="text-sm font-medium text-fg-secondary">Full name</span>
           <input
             className={fieldClass}
             value={fullName}
@@ -156,7 +156,7 @@ export default function ProfileForm() {
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-dark-secondary">Bio</span>
+          <span className="text-sm font-medium text-fg-secondary">Bio</span>
           <textarea
             className={fieldClass}
             value={bio}
@@ -171,10 +171,10 @@ export default function ProfileForm() {
             type="checkbox"
             checked={isPublic}
             onChange={(event) => setIsPublic(event.target.checked)}
-            className="h-4 w-4 accent-[oklch(68%_0.18_240)]"
+            className="h-4 w-4 accent-accent-blue"
           />
           <div>
-            <p className="text-sm text-dark-primary">Public profile</p>
+            <p className="text-sm text-fg">Public profile</p>
             <p className="text-xs text-dark-muted">Anyone can view your profile and project history</p>
           </div>
         </label>
@@ -182,8 +182,8 @@ export default function ProfileForm() {
         <div className="space-y-2 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-dark-primary">Membership</p>
-              <p className="text-xs text-dark-secondary">Current: {membership?.toUpperCase()}</p>
+              <p className="text-sm font-medium text-fg">Membership</p>
+              <p className="text-xs text-fg-secondary">Current: {membership?.toUpperCase()}</p>
             </div>
             <Link href="/profile/subscription" className="btn-secondary !px-4 !py-2 text-sm">Manage subscription</Link>
           </div>
@@ -192,8 +192,8 @@ export default function ProfileForm() {
         <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-dark-primary">Skills</p>
-              <p className="text-xs text-dark-secondary">Pick from shared skill roles, up to 15.</p>
+              <p className="text-sm font-medium text-fg">Skills</p>
+              <p className="text-xs text-fg-secondary">Pick from shared skill roles, up to 15.</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-dark-muted">{skills.length}/15</span>
@@ -210,7 +210,7 @@ export default function ProfileForm() {
           {skills.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {skills.map((name) => {
-                const color = skillsConfig.find((skill) => skill.name === name)?.color ?? "#aaa";
+                const color = skillsConfig.find((skill) => skill.name === name)?.color ?? "var(--text-2)";
                 return (
                   <button
                     key={name}
@@ -268,8 +268,8 @@ export default function ProfileForm() {
                         isSelected ? "bg-dark-card font-bold border-2" : "bg-dark-card"
                       } ${disabled ? "cursor-not-allowed opacity-50" : "hover:bg-dark-tertiary"} h-10 px-4 text-sm font-medium`}
                       style={{
-                        borderColor: isSelected ? skill.color : "#333",
-                        color: isSelected ? skill.color : "#aaa",
+                        borderColor: isSelected ? skill.color : "var(--line)",
+                        color: isSelected ? skill.color : "var(--text-2)",
                       }}
                     >
                       {skill.name}
@@ -279,7 +279,7 @@ export default function ProfileForm() {
               </div>
 
               {skills.length >= 15 ? (
-                <p className="mt-4 text-sm text-red-400">Max 15 skills selected. Remove one to add another.</p>
+                <p className="mt-4 text-sm text-danger">Max 15 skills selected. Remove one to add another.</p>
               ) : null}
             </div>
           )}
@@ -303,8 +303,8 @@ export default function ProfileForm() {
 
       <div className="card-raised space-y-4 p-7">
         <div>
-          <p className="text-sm font-medium text-dark-primary">Privacy &amp; legal</p>
-          <p className="text-xs text-dark-secondary">Manage your consent and review the policies that apply to your account.</p>
+          <p className="text-sm font-medium text-fg">Privacy &amp; legal</p>
+          <p className="text-xs text-fg-secondary">Manage your consent and review the policies that apply to your account.</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -319,16 +319,16 @@ export default function ProfileForm() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-red-900/40 bg-red-950/20 p-6">
-        <p className="text-[15px] font-semibold text-red-400">Delete account</p>
-        <p className="mt-2 text-sm leading-relaxed text-dark-secondary">
+      <div className="rounded-2xl border border-danger/40 bg-danger-bg p-6">
+        <p className="text-[15px] font-semibold text-danger">Delete account</p>
+        <p className="mt-2 text-sm leading-relaxed text-fg-secondary">
           This cancels any active subscription and permanently removes your profile. Some activity in other people&apos;s projects is kept but no longer tied to your name.
         </p>
         <button
           type="button"
           onClick={() => void handleDeleteAccount()}
           disabled={deletePending}
-          className="mt-4 inline-flex items-center justify-center rounded-full border border-red-900/50 px-5 py-2.5 text-sm font-semibold text-red-400 transition hover:bg-red-900/20 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-4 inline-flex items-center justify-center rounded-full border border-danger/40 px-5 py-2.5 text-sm font-semibold text-danger transition hover:bg-danger-bg disabled:cursor-not-allowed disabled:opacity-50"
         >
           {deletePending ? "Deleting account..." : "Delete my account"}
         </button>

@@ -9,7 +9,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
  */
 
 const fieldClass =
-  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-sm text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
+  "mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-sm text-fg placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue";
 
 const barButton = "rounded-full border px-3.5 py-1.5 text-xs font-semibold transition disabled:opacity-60";
 
@@ -58,7 +58,7 @@ function Dialog({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-scrim px-4 backdrop-blur-sm" onClick={onClose}>
       <form
         onSubmit={handle}
         onClick={(e) => e.stopPropagation()}
@@ -67,12 +67,12 @@ function Dialog({
         aria-modal="true"
       >
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow-400">Admin</p>
-          <h2 className="mt-1 text-lg font-semibold text-dark-primary">{title}</h2>
-          {description ? <p className="mt-1 text-sm text-dark-secondary">{description}</p> : null}
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-warning">Admin</p>
+          <h2 className="mt-1 text-lg font-semibold text-fg">{title}</h2>
+          {description ? <p className="mt-1 text-sm text-fg-secondary">{description}</p> : null}
         </div>
         {children}
-        {error ? <p className="text-sm text-red-400">{error}</p> : null}
+        {error ? <p className="text-sm text-danger">{error}</p> : null}
         <div className="flex justify-end gap-3">
           <button type="button" onClick={onClose} className="btn-secondary !px-4 !py-2 text-sm">
             Cancel
@@ -80,7 +80,7 @@ function Dialog({
           <button
             type="submit"
             disabled={pending}
-            className={`${danger ? "rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500" : "btn-primary !px-4 !py-2 text-sm"} disabled:opacity-60`}
+            className={`${danger ? "rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-accent-fg hover:bg-red-500" : "btn-primary !px-4 !py-2 text-sm"} disabled:opacity-60`}
           >
             {pending ? "Working..." : submitLabel}
           </button>
@@ -103,7 +103,7 @@ function ReasonField({
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-dark-secondary">{label}</span>
+      <span className="text-sm font-medium text-fg-secondary">{label}</span>
       <textarea className={fieldClass} rows={3} maxLength={1000} required={required} value={value} onChange={(e) => onChange(e.target.value)} />
     </label>
   );
@@ -142,15 +142,15 @@ export function AdminUserActions({
 
   return (
     <>
-      <button type="button" onClick={() => setDialog("warn")} className={`${barButton} border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10`}>
+      <button type="button" onClick={() => setDialog("warn")} className={`${barButton} border-warning/40 text-warning hover:bg-warning-bg`}>
         Warn
       </button>
       {banned ? (
-        <button type="button" onClick={() => setDialog("unban")} className={`${barButton} border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10`}>
+        <button type="button" onClick={() => setDialog("unban")} className={`${barButton} border-success/40 text-success hover:bg-success-bg`}>
           Unban
         </button>
       ) : (
-        <button type="button" onClick={() => setDialog("ban")} className={`${barButton} border-red-500/60 text-red-400 hover:bg-red-500/10`}>
+        <button type="button" onClick={() => setDialog("ban")} className={`${barButton} border-danger/40 text-danger hover:bg-danger-bg`}>
           Ban
         </button>
       )}
@@ -195,10 +195,10 @@ export function AdminUserActions({
 
 function Bar({ children, note }: { children: ReactNode; note?: string }) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-yellow-500/30 bg-yellow-500/5 px-4 py-3">
-      <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-yellow-400">Admin</span>
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-warning/40 bg-warning-bg px-4 py-3">
+      <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-warning">Admin</span>
       {children}
-      {note ? <span className="ml-auto text-xs font-semibold text-red-400">{note}</span> : null}
+      {note ? <span className="ml-auto text-xs font-semibold text-danger">{note}</span> : null}
     </div>
   );
 }
@@ -232,10 +232,10 @@ export function AdminProjectBar({
 
   return (
     <Bar note={project.ownerBanned ? "Owner is banned: hidden from users" : undefined}>
-      <button type="button" onClick={openEdit} className={`${barButton} border-dark-subtle text-dark-primary hover:bg-dark-tertiary`}>
+      <button type="button" onClick={openEdit} className={`${barButton} border-dark-subtle text-fg hover:bg-dark-tertiary`}>
         Edit
       </button>
-      <button type="button" onClick={() => setDialog("delete")} className={`${barButton} border-red-500/60 text-red-400 hover:bg-red-500/10`}>
+      <button type="button" onClick={() => setDialog("delete")} className={`${barButton} border-danger/40 text-danger hover:bg-danger-bg`}>
         Delete
       </button>
       <span className="mx-1 h-4 w-px bg-dark-subtle" aria-hidden="true" />
@@ -255,16 +255,16 @@ export function AdminProjectBar({
           submitLabel="Save changes"
         >
           <label className="block">
-            <span className="text-sm font-medium text-dark-secondary">Name *</span>
+            <span className="text-sm font-medium text-fg-secondary">Name *</span>
             <input className={fieldClass} value={name} onChange={(e) => setName(e.target.value)} required maxLength={256} />
           </label>
           <label className="block">
-            <span className="text-sm font-medium text-dark-secondary">Description</span>
+            <span className="text-sm font-medium text-fg-secondary">Description</span>
             <textarea className={fieldClass} rows={5} value={description} onChange={(e) => setDescription(e.target.value)} />
           </label>
           <label className="flex items-center gap-2.5">
-            <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} className="h-4 w-4 accent-[oklch(68%_0.18_240)]" />
-            <span className="text-sm text-dark-primary">Public (visible to everyone)</span>
+            <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} className="h-4 w-4 accent-accent-blue" />
+            <span className="text-sm text-fg">Public (visible to everyone)</span>
           </label>
           <ReasonField label="Reason (optional, shown to the owner)" value={reason} onChange={setReason} />
         </Dialog>

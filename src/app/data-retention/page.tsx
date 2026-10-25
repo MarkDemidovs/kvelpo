@@ -11,14 +11,14 @@ export default function DataRetentionPage() {
   return (
     <LegalPageShell title="Data Retention Policy">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 26, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: September 26, 2026</h2>
             <p className="text-sm">
               This Data Retention Policy explains how long kvelpo retains your personal information and the criteria we use for deletion.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">1. Data Retention Principles</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">1. Data Retention Principles</h2>
             <div className="space-y-3 text-sm">
               <p>We follow these principles for data retention:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -31,39 +31,39 @@ export default function DataRetentionPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">2. Retention Periods by Data Type</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">2. Retention Periods by Data Type</h2>
             <div className="space-y-4 text-sm">
               
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Account and Profile Information</h3>
+                <h3 className="font-semibold text-fg mb-2">Account and Profile Information</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> While your account is active</p>
                 <p><strong>Purpose:</strong> Account management and service provision</p>
                 <p><strong>Deletion:</strong> Permanently and immediately deleted the moment you delete your account. There is no grace period</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Project Data</h3>
+                <h3 className="font-semibold text-fg mb-2">Project Data</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> While the project exists</p>
                 <p><strong>Purpose:</strong> Project collaboration and management</p>
                 <p><strong>Deletion:</strong> Deleted immediately when you delete the project or your account</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Messages and Applications</h3>
+                <h3 className="font-semibold text-fg mb-2">Messages and Applications</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> Until account deletion, then indefinitely in anonymized form</p>
                 <p><strong>Purpose:</strong> Preserving the other party's conversation or application history</p>
                 <p><strong>Deletion:</strong> Immediately disassociated from your identity when you delete your account. The message or application text remains, but is no longer linked to you</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Payment and Billing Data</h3>
+                <h3 className="font-semibold text-fg mb-2">Payment and Billing Data</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> 7 years (financial regulations)</p>
                 <p><strong>Purpose:</strong> Payment processing, fraud prevention, legal compliance</p>
                 <p><strong>Deletion:</strong> Held by our payment processor, Stripe, as required by financial regulations; we do not store your card details ourselves</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Consent Records</h3>
+                <h3 className="font-semibold text-fg mb-2">Consent Records</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> While your account exists</p>
                 <p><strong>Purpose:</strong> GDPR compliance and consent management</p>
                 <p><strong>Deletion:</strong> Deleted immediately when you delete your account</p>
@@ -76,7 +76,7 @@ export default function DataRetentionPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">3. Early Deletion Criteria</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">3. Early Deletion Criteria</h2>
             <div className="space-y-3 text-sm">
               <p>We may delete data earlier than the stated retention periods when:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -91,7 +91,7 @@ export default function DataRetentionPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">4. Data Deletion Process</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">4. Data Deletion Process</h2>
             <div className="space-y-3 text-sm">
               <p>When data is deleted, we:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -105,7 +105,7 @@ export default function DataRetentionPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">5. Your Right to Deletion</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">5. Your Right to Deletion</h2>
             <div className="space-y-3 text-sm">
               <p>Under GDPR, you have the right to request deletion of your personal data ("Right to be Forgotten"). You can:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -118,7 +118,7 @@ export default function DataRetentionPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">6. Exceptions to Deletion</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">6. Exceptions to Deletion</h2>
             <div className="space-y-3 text-sm">
               <p>We may retain data beyond the stated periods when:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -132,7 +132,7 @@ export default function DataRetentionPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">7. Data Anonymization</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">7. Data Anonymization</h2>
             <div className="space-y-3 text-sm">
               <p>Where possible, we anonymize or pseudonymize data before long-term retention. This means:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -145,14 +145,14 @@ export default function DataRetentionPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">8. Updates to This Policy</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">8. Updates to This Policy</h2>
             <p className="text-sm">
               We may update this Data Retention Policy from time to time. We will notify you of any material changes by posting the updated policy on this page and updating the "Last Updated" date.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">9. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">9. Contact Information</h2>
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
               <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> privacy@kvelpo.com</p>

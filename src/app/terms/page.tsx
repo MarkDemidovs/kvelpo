@@ -11,7 +11,7 @@ export default function TermsPage() {
   return (
     <LegalPageShell title="Terms of Service">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 27, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: September 27, 2026</h2>
             <p className="text-sm">
               These Terms of Service ("Terms") govern your use of the kvelpo platform ("Service," "Platform," or "App"), operated by Kvelpo SIA, a company registered in Latvia. 
               By accessing or using kvelpo, you agree to be bound by these Terms. If you disagree with any part of these terms, 
@@ -20,7 +20,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">1. Acceptance of Terms</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">1. Acceptance of Terms</h2>
             <div className="space-y-3 text-sm">
               <p>By creating an account or using kvelpo, you acknowledge that you have read, understood, and agree to be bound by these Terms.</p>
               <p>You must be at least 16 years old to use this Service. By using this Service, you represent that you are at least 16 years old.</p>
@@ -28,7 +28,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">2. Account Responsibilities</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">2. Account Responsibilities</h2>
             <div className="space-y-3 text-sm">
               <p>You are responsible for:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -42,12 +42,12 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">3. Acceptable Use</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">3. Acceptable Use</h2>
             <div className="space-y-4 text-sm">
               <p>You agree to use the Service only for lawful purposes and in accordance with these Terms.</p>
               
               <div>
-                <h3 className="font-semibold text-dark-primary mb-2">Permitted Activities:</h3>
+                <h3 className="font-semibold text-fg mb-2">Permitted Activities:</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Create and manage projects for legitimate collaboration purposes</li>
                   <li>Apply for project roles that match your skills and interests</li>
@@ -57,7 +57,7 @@ export default function TermsPage() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-dark-primary mb-2">Prohibited Activities:</h3>
+                <h3 className="font-semibold text-fg mb-2">Prohibited Activities:</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Using the Service for any illegal or unauthorized purpose</li>
                   <li>Creating projects or content that is harmful, threatening, abusive, or discriminatory</li>
@@ -73,7 +73,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">4. User Content</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">4. User Content</h2>
             <div className="space-y-3 text-sm">
               <p>You retain ownership of any content you post on kvelpo, but you grant us the following rights:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -86,7 +86,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">5. Intellectual Property</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">5. Intellectual Property</h2>
             <div className="space-y-3 text-sm">
               <p>The Service and its original content, features, and functionality are owned by kvelpo and are protected by international copyright, trademark, and other intellectual property laws.</p>
               <p>You may not modify, reproduce, distribute, create derivative works of, publicly display, or perform any part of the Service without our prior written consent.</p>
@@ -94,7 +94,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">6. Privacy and Data Protection</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">6. Privacy and Data Protection</h2>
             <p className="text-sm">
               Your use of the Service is also governed by our Privacy Policy, which explains how we collect, use, and protect your personal information. 
               By using kvelpo, you agree to the collection and use of your information as described in our Privacy Policy.
@@ -102,7 +102,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">7. Paid Services and Subscriptions</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">7. Paid Services and Subscriptions</h2>
             <div className="space-y-3 text-sm">
               <p>kvelpo offers subscription plans with enhanced features. By subscribing to a paid plan, you agree to:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -116,7 +116,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">8. Termination</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">8. Termination</h2>
             <div className="space-y-3 text-sm">
               <p>We reserve the right to suspend or terminate your access to the Service at any time, with or without cause, with or without notice.</p>
               <p>For violations of these Terms we may first send you a warning through the in-app notifications. Serious or repeated violations can lead to suspension of your account (a &quot;ban&quot;): you are signed out, can no longer sign in, and your profile and projects are hidden from other users. We may lift a suspension at our discretion.</p>
@@ -126,7 +126,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">9. Disclaimers and Warranties</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">9. Disclaimers and Warranties</h2>
             <div className="space-y-3 text-sm">
               <p>The Service is provided "as is" and "as available" without warranties of any kind, either express or implied.</p>
               <p>We do not warrant that:</p>
@@ -139,7 +139,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">10. Limitation of Liability</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">10. Limitation of Liability</h2>
             <div className="space-y-3 text-sm">
               <p>To the maximum extent permitted by law, kvelpo shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -152,7 +152,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">11. Indemnification</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">11. Indemnification</h2>
             <p className="text-sm">
               You agree to indemnify and hold harmless kvelpo and its affiliates, officers, directors, employees, agents, and licensors 
               from any claims, damages, obligations, losses, liabilities, costs, or debt, and expenses (including but not limited to attorney's fees), 
@@ -162,7 +162,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">12. Governing Law and Jurisdiction</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">12. Governing Law and Jurisdiction</h2>
             <p className="text-sm">
               These Terms shall be governed by and construed in accordance with the laws of Latvia, without regard to its conflict of law provisions.
               Any dispute arising under these Terms shall be resolved in the courts of Latvia.
@@ -170,7 +170,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">13. Changes to Terms</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">13. Changes to Terms</h2>
             <p className="text-sm">
               We reserve the right to modify these Terms at any time. We will notify users of material changes by posting the updated Terms on this page. 
               Your continued use of the Service after such modifications constitutes your acceptance of the updated Terms.
@@ -178,7 +178,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">14. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">14. Contact Information</h2>
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
               <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> legal@kvelpo.com</p>

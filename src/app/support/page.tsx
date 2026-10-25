@@ -14,8 +14,8 @@ export default function SupportPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <p className="label-eyebrow">Support</p>
-      <h1 className="mt-3 text-3xl font-bold tracking-tight text-dark-primary">How can we help?</h1>
-      <p className="mt-3 text-[15px] leading-relaxed text-dark-secondary">
+      <h1 className="mt-3 text-3xl font-bold tracking-tight text-fg">How can we help?</h1>
+      <p className="mt-3 text-[15px] leading-relaxed text-fg-secondary">
         Questions, something not working, or an idea for kvelpo? Send us a message. It goes straight to the two of us who
         build kvelpo, and we&apos;ll reply to your email, usually within a day or two.
       </p>
@@ -23,8 +23,8 @@ export default function SupportPage() {
       <SupportForm />
 
       <div className="card-raised mt-6 p-6">
-        <p className="text-sm font-medium text-dark-primary">Prefer email?</p>
-        <p className="mt-1 text-sm text-dark-secondary">
+        <p className="text-sm font-medium text-fg">Prefer email?</p>
+        <p className="mt-1 text-sm text-fg-secondary">
           Write to{" "}
           {SUPPORT_EMAILS.map((email, i) => (
             <span key={email}>

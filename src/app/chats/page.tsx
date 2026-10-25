@@ -50,20 +50,20 @@ export default function ChatsPage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 bg-dark-primary">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Chats</h1>
-        <p className="mt-2 text-dark-secondary">Every project you own or belong to gets a chat here.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-fg">Chats</h1>
+        <p className="mt-2 text-fg-secondary">Every project you own or belong to gets a chat here.</p>
       </div>
 
       {loading ? (
         <ConversationCardSkeletonGrid />
       ) : error ? (
-        <div className="card-raised p-10 text-center text-red-400">
+        <div className="card-raised p-10 text-center text-danger">
           {error}
         </div>
       ) : conversations.length === 0 ? (
-        <div className="card-raised p-10 text-center text-dark-secondary">
-          <h2 className="text-xl font-semibold text-dark-primary mb-2">No conversations yet</h2>
-          <p className="text-dark-secondary">Join projects or create your own to start conversations.</p>
+        <div className="card-raised p-10 text-center text-fg-secondary">
+          <h2 className="text-xl font-semibold text-fg mb-2">No conversations yet</h2>
+          <p className="text-fg-secondary">Join projects or create your own to start conversations.</p>
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -75,11 +75,11 @@ export default function ChatsPage() {
               className="card-raised block p-5 text-left"
             >
               <p className="label-eyebrow">Project</p>
-              <h3 className="mt-2 truncate text-[17px] font-semibold text-dark-primary">
+              <h3 className="mt-2 truncate text-[17px] font-semibold text-fg">
                 {project.name ?? 'Untitled Project'}
               </h3>
               <div className="mt-4 flex items-center justify-between">
-                <span className="text-sm text-dark-secondary">Open conversation</span>
+                <span className="text-sm text-fg-secondary">Open conversation</span>
                 <svg className="h-4 w-4 text-accent-blue" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                   <line x1="5" y1="12" x2="19" y2="12" strokeLinecap="round" />
                   <polyline points="12 5 19 12 12 19" strokeLinecap="round" strokeLinejoin="round" />

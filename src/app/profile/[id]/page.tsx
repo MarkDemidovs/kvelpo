@@ -75,7 +75,7 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
     <main className="relative mx-auto max-w-4xl overflow-hidden px-4 py-8">
       <div
         className="pointer-events-none absolute -top-40 left-1/2 h-[640px] w-[640px] -translate-x-1/2 rounded-full opacity-60 blur-2xl"
-        style={{ background: "radial-gradient(circle, oklch(68% 0.18 240 / 0.1), transparent 68%)" }}
+        style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent) 10%, transparent), transparent 68%)" }}
       />
       {viewerIsAdmin && !isOwner ? (
         <div className="relative mb-4">
@@ -98,15 +98,15 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="flex h-full w-full items-center justify-center text-xl font-semibold uppercase text-dark-secondary">
+                      <span className="flex h-full w-full items-center justify-center text-xl font-semibold uppercase text-fg-secondary">
                         {initials}
                       </span>
                     )}
                   </div>
                   <div>
                     <p className="label-eyebrow">Public profile</p>
-                    <h1 className="mt-2 text-[26px] font-bold tracking-tight text-dark-primary">{displayName}</h1>
-                    <p className="mt-1 text-sm text-dark-secondary">{profile.membership === "pro" ? "Pro member" : profile.membership === "team" ? "Team member" : "Free member"}</p>
+                    <h1 className="mt-2 text-[26px] font-bold tracking-tight text-fg">{displayName}</h1>
+                    <p className="mt-1 text-sm text-fg-secondary">{profile.membership === "pro" ? "Pro member" : profile.membership === "team" ? "Team member" : "Free member"}</p>
                   </div>
                 </div>
                 {isOwner ? (
@@ -119,7 +119,7 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
               <div className="mt-8 grid gap-6 sm:grid-cols-2">
                 <div>
                   <p className="label-eyebrow">Bio</p>
-                  <p className="mt-3 text-[15px] leading-relaxed text-dark-secondary">{profile.bio ?? "No bio provided."}</p>
+                  <p className="mt-3 text-[15px] leading-relaxed text-fg-secondary">{profile.bio ?? "No bio provided."}</p>
                 </div>
                 <div>
                   <p className="label-eyebrow">Links</p>
@@ -140,7 +140,7 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
                       </a>
                     ) : null}
                     {![profile.link1, profile.link2, profile.link3].some(isHttpUrl) ? (
-                      <p className="text-sm text-dark-secondary">No links added.</p>
+                      <p className="text-sm text-fg-secondary">No links added.</p>
                     ) : null}
                   </div>
                 </div>
@@ -151,7 +151,7 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
                 {experienceItems.length > 0 ? (
                   <ExperienceTimeline items={experienceItems} />
                 ) : (
-                  <p className="mt-3 text-sm text-dark-secondary">No experience added yet.</p>
+                  <p className="mt-3 text-sm text-fg-secondary">No experience added yet.</p>
                 )}
               </div>
 
@@ -160,28 +160,28 @@ export default async function ProfileDetailPage({ params }: ProfilePageProps) {
                 {profile.skills && profile.skills.length > 0 ? (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {profile.skills.map((skill) => (
-                      <span key={skill} className="rounded-full bg-dark-tertiary px-3 py-1 text-xs font-medium text-dark-secondary">
+                      <span key={skill} className="rounded-full bg-dark-tertiary px-3 py-1 text-xs font-medium text-fg-secondary">
                         {skill}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-3 text-sm text-dark-secondary">No skills added.</p>
+                  <p className="mt-3 text-sm text-fg-secondary">No skills added.</p>
                 )}
               </div>
             </>
           ) : (
             <div>
-              <p className="text-xl font-semibold text-dark-primary">Profile unavailable</p>
-              <p className="mt-3 text-sm leading-7 text-dark-secondary">
+              <p className="text-xl font-semibold text-fg">Profile unavailable</p>
+              <p className="mt-3 text-sm leading-7 text-fg-secondary">
                 {isBanned ? "This account has been suspended." : "This profile is private and can only be viewed by the owner."}
               </p>
             </div>
           )
         ) : (
           <div>
-            <p className="text-xl font-semibold text-dark-primary">Profile not found</p>
-            <p className="mt-3 text-sm leading-7 text-dark-secondary">We couldn&apos;t find a profile for this user.</p>
+            <p className="text-xl font-semibold text-fg">Profile not found</p>
+            <p className="mt-3 text-sm leading-7 text-fg-secondary">We couldn&apos;t find a profile for this user.</p>
           </div>
         )}
       </div>

@@ -98,16 +98,16 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim backdrop-blur-sm p-4">
       <div
-        className="flex flex-col w-full max-w-full sm:max-w-md max-h-[90vh] rounded-3xl border border-dark-subtle bg-dark-card shadow-[0_40px_80px_-20px_rgba(0,0,0,0.9)] overflow-hidden"
+        className="flex flex-col w-full max-w-full sm:max-w-md max-h-[90vh] rounded-3xl border border-dark-subtle bg-dark-card shadow-[var(--shadow-card-hover)] overflow-hidden"
         style={{ maxWidth: "calc(100vw - 2rem)" }}
       >
         <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between border-b border-dark-subtle">
-          <h2 className="text-lg font-bold tracking-tight text-dark-primary">Create a project</h2>
+          <h2 className="text-lg font-bold tracking-tight text-fg">Create a project</h2>
           <button
             onClick={handleClose}
-            className="rounded-full p-1 text-dark-secondary hover:bg-dark-tertiary hover:text-dark-primary"
+            className="rounded-full p-1 text-fg-secondary hover:bg-dark-tertiary hover:text-fg"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -117,7 +117,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
 
         <form id="project-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {error && (
-            <div className="rounded-md bg-red-900/30 p-3 text-sm text-red-400">
+            <div className="rounded-md bg-danger-bg p-3 text-sm text-danger">
               <p>{error}</p>
               {limitReached && (
                 <Link
@@ -131,7 +131,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
           )}
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-dark-primary">
+            <label htmlFor="name" className="block text-sm font-medium text-fg">
               Project Name *
             </label>
             <input
@@ -140,13 +140,13 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
+              className="mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-fg placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
               placeholder="Enter project name"
             />
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-dark-primary">
+            <label htmlFor="description" className="block text-sm font-medium text-fg">
               Description
             </label>
             <textarea
@@ -154,7 +154,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-dark-primary placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
+              className="mt-1.5 block w-full rounded-xl border border-dark-subtle bg-dark-tertiary px-3.5 py-2.5 text-fg placeholder-dark-muted focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
               placeholder="Optional project description"
             />
           </div>
@@ -162,15 +162,15 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
           <div className="space-y-4 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4.5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-dark-primary">Project tags</p>
-                <p className="text-xs text-dark-secondary">Pick from shared skill roles. Up to 3.</p>
+                <p className="text-sm font-semibold text-fg">Project tags</p>
+                <p className="text-xs text-fg-secondary">Pick from shared skill roles. Up to 3.</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-dark-secondary">{tags.length}/3</span>
+                <span className="text-sm text-fg-secondary">{tags.length}/3</span>
                 <button
                   type="button"
                   onClick={() => setExpanded(!expanded)}
-                  className="text-xs text-dark-secondary hover:text-accent-blue underline"
+                  className="text-xs text-fg-secondary hover:text-accent-blue underline"
                 >
                   {expanded ? "Collapse" : "Expand"}
                 </button>
@@ -202,8 +202,8 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                           isSelected ? "bg-dark-card font-bold border-2" : "bg-dark-card"
                         } ${disabled ? "cursor-not-allowed opacity-50" : "hover:bg-dark-tertiary"}`}
                         style={{
-                          borderColor: isSelected ? skill.color : "#333",
-                          color: isSelected ? skill.color : "#aaa",
+                          borderColor: isSelected ? skill.color : "var(--line)",
+                          color: isSelected ? skill.color : "var(--text-2)",
                         }}
                       >
                         {skill.name}
@@ -223,12 +223,12 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
             {rolesNeeded.map((role, index) => (
               <div key={index} className="space-y-3 rounded-2xl border border-dark-subtle bg-dark-tertiary p-4">
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-sm font-semibold text-dark-primary">Role {index + 1}</span>
+                  <span className="text-sm font-semibold text-fg">Role {index + 1}</span>
                   {rolesNeeded.length > 1 && (
                     <button
                       type="button"
                       onClick={() => setRolesNeeded((prev) => prev.filter((_, i) => i !== index))}
-                      className="text-xs font-semibold text-red-400"
+                      className="text-xs font-semibold text-danger"
                     >
                       Remove
                     </button>
@@ -236,7 +236,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                 </div>
                 <div className="grid gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-dark-secondary">Title</label>
+                    <label className="block text-xs font-medium text-fg-secondary">Title</label>
                     <input
                       type="text"
                       value={role.title}
@@ -247,12 +247,12 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                           )
                         )
                       }
-                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-dark-primary focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
+                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-fg focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
                       placeholder="e.g. Designer"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-dark-secondary">Description</label>
+                    <label className="block text-xs font-medium text-fg-secondary">Description</label>
                     <input
                       type="text"
                       value={role.description}
@@ -263,12 +263,12 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                           )
                         )
                       }
-                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-dark-primary focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
+                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-fg focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue"
                       placeholder="Details"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-dark-secondary">Slots</label>
+                    <label className="block text-xs font-medium text-fg-secondary">Slots</label>
                     <input
                       type="number"
                       min={1}
@@ -282,7 +282,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
                           )
                         )
                       }
-                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-dark-primary"
+                      className="mt-1 block w-full rounded-lg border border-dark-subtle bg-dark-card px-3 py-2 text-sm text-fg"
                     />
                   </div>
                 </div>

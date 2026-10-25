@@ -12,7 +12,7 @@ export default function CookiesPage() {
   return (
     <LegalPageShell title="Cookie Policy">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 26, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: September 26, 2026</h2>
             <p className="text-sm">
               This Cookie Policy explains how kvelpo uses cookies and similar technologies to collect, store, and process your information. 
               This policy is designed to comply with the General Data Protection Regulation (GDPR) and ePrivacy Directive.
@@ -20,7 +20,7 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">1. What Are Cookies?</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">1. What Are Cookies?</h2>
             <div className="space-y-3 text-sm">
               <p>Cookies are small text files that are stored on your device when you visit websites. They are widely used to make websites work more efficiently and to provide information to website owners.</p>
               <p>Similar technologies we use include:</p>
@@ -32,12 +32,12 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">2. How We Use Cookies</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">2. How We Use Cookies</h2>
             <div className="space-y-4 text-sm">
               <p>We use cookies for the following purposes:</p>
               
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Essential Cookies (Required)</h3>
+                <h3 className="font-semibold text-fg mb-2">Essential Cookies (Required)</h3>
                 <p className="mb-2">These cookies are necessary for the website to function properly. They enable:</p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>User authentication and session management (via Clerk)</li>
@@ -49,7 +49,7 @@ export default function CookiesPage() {
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Functional Cookies</h3>
+                <h3 className="font-semibold text-fg mb-2">Functional Cookies</h3>
                 <p className="mb-2">These cookies enable enhanced functionality and personalization:</p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Remembering your preferences and settings</li>
@@ -66,7 +66,7 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">3. Third-Party Cookies</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">3. Third-Party Cookies</h2>
             <div className="space-y-3 text-sm">
               <p>We allow certain third parties to place cookies on your device:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -79,7 +79,7 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">4. Cookie Duration</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">4. Cookie Duration</h2>
             <div className="space-y-3 text-sm">
               <p>Our cookies have different durations depending on their purpose:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -92,17 +92,17 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">5. Managing Your Cookie Preferences</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">5. Managing Your Cookie Preferences</h2>
             <div className="space-y-3 text-sm">
               <p>You have several options to manage cookies:</p>
               
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Through Our Consent Banner</h3>
+                <h3 className="font-semibold text-fg mb-2">Through Our Consent Banner</h3>
                 <p>You can accept or reject non-essential cookies when you first visit our site (for EU users). You can change your preferences anytime in our <Link href="/consent" className="text-accent-blue hover:underline">Consent Center</Link>.</p>
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Through Browser Settings</h3>
+                <h3 className="font-semibold text-fg mb-2">Through Browser Settings</h3>
                 <p>Most web browsers allow you to control cookies through their settings. You can:</p>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Block all cookies</li>
@@ -114,14 +114,14 @@ export default function CookiesPage() {
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
-                <h3 className="font-semibold text-dark-primary mb-2">Through Device Settings</h3>
+                <h3 className="font-semibold text-fg mb-2">Through Device Settings</h3>
                 <p>Mobile devices also have cookie management options in their browser settings.</p>
               </div>
             </div>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">6. Your Rights Under GDPR</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">6. Your Rights Under GDPR</h2>
             <div className="space-y-3 text-sm">
               <p>Under the GDPR, you have the right to:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -135,7 +135,7 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">7. Updates to This Policy</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">7. Updates to This Policy</h2>
             <p className="text-sm">
               We may update this Cookie Policy from time to time to reflect changes in our practices, technology, or legal requirements. 
               We will notify you of any material changes by posting the updated policy on this page and updating the "Last Updated" date.
@@ -143,7 +143,7 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">8. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">8. Contact Information</h2>
             <div className="mt-4 p-4 bg-dark-tertiary rounded-lg">
               <p className="text-sm"><strong>Company:</strong> Kvelpo SIA</p>
               <p className="text-sm"><strong>Email:</strong> privacy@kvelpo.com</p>
@@ -152,7 +152,7 @@ export default function CookiesPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">9. Additional Resources</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">9. Additional Resources</h2>
             <div className="flex flex-wrap gap-4">
               <Link href="/privacy" className="btn-secondary !px-4 !py-2 text-sm">
                 Privacy Policy

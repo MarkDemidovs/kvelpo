@@ -36,23 +36,23 @@ export default function TermsGateDialog() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="terms-gate-title"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-scrim p-4 backdrop-blur-sm"
     >
       <div className="card-raised w-full max-w-md p-7">
         <p className="label-eyebrow">One last step</p>
-        <h2 id="terms-gate-title" className="mt-3 text-2xl font-bold tracking-tight text-dark-primary">
+        <h2 id="terms-gate-title" className="mt-3 text-2xl font-bold tracking-tight text-fg">
           Accept our terms to continue
         </h2>
-        <p className="mt-3 text-sm leading-relaxed text-dark-secondary">
+        <p className="mt-3 text-sm leading-relaxed text-fg-secondary">
           To use kvelpo you need to accept our Terms of Service and Privacy Policy. You only have to do this once.
         </p>
 
-        <label className="mt-5 flex items-start gap-3 text-sm text-dark-secondary">
+        <label className="mt-5 flex items-start gap-3 text-sm text-fg-secondary">
           <input
             type="checkbox"
             checked={agreed}
             onChange={(event) => setAgreed(event.target.checked)}
-            className="mt-0.5 h-4 w-4 shrink-0 accent-[oklch(68%_0.18_240)]"
+            className="mt-0.5 h-4 w-4 shrink-0 accent-accent-blue"
           />
           <span>
             I have read and agree to the{" "}
@@ -67,7 +67,7 @@ export default function TermsGateDialog() {
           </span>
         </label>
 
-        {error ? <p className="mt-4 rounded-md bg-red-900/30 p-3 text-sm text-red-400">{error}</p> : null}
+        {error ? <p className="mt-4 rounded-md bg-danger-bg p-3 text-sm text-danger">{error}</p> : null}
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <button

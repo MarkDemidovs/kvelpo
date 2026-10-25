@@ -59,9 +59,9 @@ export default async function AdminSupportPage() {
             </span>
             <span className="text-xs text-dark-muted">{formatDate(msg.createdAt)}</span>
           </div>
-          <p className="text-sm text-dark-primary">
+          <p className="text-sm text-fg">
             <span className="font-semibold">{msg.name ?? "No name given"}</span>{" "}
-            <a href={`mailto:${msg.email}`} className="text-dark-secondary hover:text-accent-blue">
+            <a href={`mailto:${msg.email}`} className="text-fg-secondary hover:text-accent-blue">
               &lt;{msg.email}&gt;
             </a>
             {msg.clerkUserId ? (
@@ -75,7 +75,7 @@ export default async function AdminSupportPage() {
               <span className="text-xs text-dark-muted"> · not signed in</span>
             )}
           </p>
-          <p className="whitespace-pre-line break-words text-sm leading-relaxed text-dark-secondary">{msg.message}</p>
+          <p className="whitespace-pre-line break-words text-sm leading-relaxed text-fg-secondary">{msg.message}</p>
           {msg.resolvedAt ? <p className="text-xs text-dark-muted">Resolved {formatDate(msg.resolvedAt)}</p> : null}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
@@ -90,8 +90,8 @@ export default async function AdminSupportPage() {
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Support inbox</h1>
-      <p className="mt-2 text-dark-secondary">
+      <h1 className="text-3xl font-bold tracking-tight text-fg">Support inbox</h1>
+      <p className="mt-2 text-fg-secondary">
         Messages from the contact form. &quot;Reply by email&quot; opens a reply to the customer with both of you CC&apos;d; mark
         the message resolved once it&apos;s handled.
       </p>
@@ -99,7 +99,7 @@ export default async function AdminSupportPage() {
       <section className="mt-8">
         <p className="label-eyebrow">Open ({openMessages.length})</p>
         {openMessages.length === 0 ? (
-          <div className="card-raised mt-4 p-8 text-center text-dark-secondary">Inbox zero. 🎉</div>
+          <div className="card-raised mt-4 p-8 text-center text-fg-secondary">Inbox zero. 🎉</div>
         ) : (
           <ul className="mt-4 space-y-3">{openMessages.map(renderMessage)}</ul>
         )}

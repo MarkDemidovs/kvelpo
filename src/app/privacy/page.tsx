@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <LegalPageShell title="Privacy Policy">
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">Last Updated: September 27, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: September 27, 2026</h2>
             <p className="text-sm">
               This Privacy Policy explains how kvelpo ("we," "our," or "us") collects, uses, and protects your personal information. 
               This policy applies to our service and complies with the General Data Protection Regulation (GDPR) and other applicable privacy laws.
@@ -19,7 +19,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">1. Data Controller</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">1. Data Controller</h2>
             <p className="text-sm">
               <strong>Kvelpo SIA</strong>, registered in Latvia at "Melnāji", Suntažu pagasts, Ogres novads, LV-5060, Latvia, operates kvelpo and is the data controller responsible for your personal information.
               For privacy-related inquiries, please contact us at privacy@kvelpo.com.
@@ -27,10 +27,10 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">2. Information We Collect</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">2. Information We Collect</h2>
             <div className="space-y-4 text-sm">
               <div>
-                <h3 className="font-semibold text-dark-primary mb-2">2.1 Account Information</h3>
+                <h3 className="font-semibold text-fg mb-2">2.1 Account Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Email address and user identifier (via Clerk authentication)</li>
                   <li>Profile information: full name, profile picture (from your sign-in account), bio, skills, links, and work experience (job titles, organizations, locations, dates, and descriptions you add)</li>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-dark-primary mb-2">2.2 Project Information</h3>
+                <h3 className="font-semibold text-fg mb-2">2.2 Project Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Project names, descriptions, and tags</li>
                   <li>Role requirements and applications</li>
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-dark-primary mb-2">2.3 Safety and Moderation Information</h3>
+                <h3 className="font-semibold text-fg mb-2">2.3 Safety and Moderation Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Reports you submit about projects or profiles, and reports other users submit about your projects or profile</li>
                   <li>Warnings sent to you and whether your account is suspended, with the reason</li>
@@ -55,7 +55,7 @@ export default function PrivacyPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-dark-primary mb-2">2.4 Technical Information</h3>
+                <h3 className="font-semibold text-fg mb-2">2.4 Technical Information</h3>
                 <ul className="list-disc pl-5 space-y-1">
                   <li>IP address and location data (for EU compliance detection)</li>
                   <li>Device and browser information</li>
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">3. Legal Basis for Processing (GDPR Article 6)</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">3. Legal Basis for Processing (GDPR Article 6)</h2>
             <div className="space-y-3 text-sm">
               <p><strong>Contract Performance:</strong> We process your data to provide the services you've requested.</p>
               <p><strong>Legitimate Interests:</strong> We process data for platform security, fraud prevention, and service improvement.</p>
@@ -76,7 +76,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">4. How We Use Your Information</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">4. How We Use Your Information</h2>
             <ul className="list-disc pl-5 space-y-2 text-sm">
               <li>Provide and maintain our platform services</li>
               <li>Process payments and manage subscriptions (via Stripe)</li>
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">5. Data Sharing and Third Parties</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">5. Data Sharing and Third Parties</h2>
             <div className="space-y-4 text-sm">
               <p>We share your data only with the following trusted third parties:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -103,7 +103,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">6. International Data Transfers</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">6. International Data Transfers</h2>
             <p className="text-sm">
               Your data may be transferred to and processed in countries outside the European Economic Area (EEA). 
               We ensure adequate protection through appropriate safeguards, including Standard Contractual Clauses (SCCs) 
@@ -112,7 +112,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">7. Data Retention</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">7. Data Retention</h2>
             <div className="space-y-3 text-sm">
               <p>We retain your personal information only as long as necessary for the purposes outlined in this policy:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">8. Your GDPR Rights</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">8. Your GDPR Rights</h2>
             <div className="space-y-3 text-sm">
               <p>Under the GDPR, you have the following rights:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -144,7 +144,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">9. Cookies and Tracking</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">9. Cookies and Tracking</h2>
             <div className="space-y-3 text-sm">
               <p>We use cookies and similar technologies for:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -157,7 +157,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">10. Data Security</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">10. Data Security</h2>
             <p className="text-sm">
               We implement appropriate technical and organizational measures to protect your personal data, including:
               encryption, secure authentication protocols, regular security assessments, and access controls. 
@@ -166,7 +166,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">11. Children's Privacy</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">11. Children's Privacy</h2>
             <p className="text-sm">
               Our service is not intended for children under 16. We do not knowingly collect personal information from children under 16. 
               If we become aware of such collection, we will take immediate steps to delete it.
@@ -174,7 +174,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">12. Changes to This Policy</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">12. Changes to This Policy</h2>
             <p className="text-sm">
               We may update this privacy policy from time to time. We will notify you of any material changes by posting the new policy 
               on this page and updating the "Last Updated" date. Continued use of our services after such changes constitutes acceptance of the updated policy.
@@ -182,7 +182,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-dark-primary mb-4">13. Contact Information</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">13. Contact Information</h2>
             <p className="text-sm">
               For any privacy-related questions or to exercise your GDPR rights, please contact us at:
             </p>

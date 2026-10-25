@@ -70,14 +70,14 @@ export default function ProjectsPage() {
 
   const tabClass = (active: boolean) =>
     `rounded-full px-4 py-2 text-sm font-semibold transition ${
-      active ? 'bg-accent-blue text-white' : 'bg-dark-tertiary text-dark-secondary hover:bg-dark-card'
+      active ? 'bg-accent-blue text-accent-fg' : 'bg-dark-tertiary text-fg-secondary hover:bg-dark-card'
     }`;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 bg-dark-primary">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Projects</h1>
-        <p className="mt-2 text-dark-secondary">Browse and discover projects to collaborate on.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-fg">Projects</h1>
+        <p className="mt-2 text-fg-secondary">Browse and discover projects to collaborate on.</p>
       </div>
 
       {/* Filter Tabs */}
@@ -100,13 +100,13 @@ export default function ProjectsPage() {
       {loading ? (
         <ProjectCardSkeletonGrid />
       ) : error ? (
-        <div className="card-raised p-10 text-center text-red-400">
+        <div className="card-raised p-10 text-center text-danger">
           {error}
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div className="card-raised p-10 text-center text-dark-secondary">
-          <h2 className="text-xl font-semibold text-dark-primary mb-2">No projects found</h2>
-          <p className="text-dark-secondary">
+        <div className="card-raised p-10 text-center text-fg-secondary">
+          <h2 className="text-xl font-semibold text-fg mb-2">No projects found</h2>
+          <p className="text-fg-secondary">
             {filter === 'my' ? 'You haven\'t created any projects yet.' : 'No projects available.'}
           </p>
         </div>
@@ -119,17 +119,17 @@ export default function ProjectsPage() {
               className="card-raised block min-w-0 p-5"
             >
               <p className="label-eyebrow">Project</p>
-              <h3 className="mt-2 truncate text-[17px] font-semibold text-dark-primary">
+              <h3 className="mt-2 truncate text-[17px] font-semibold text-fg">
                 {project.name}
               </h3>
               {project.description ? (
-                <p className="mt-2.5 text-sm leading-6 text-dark-secondary line-clamp-2 break-words">
+                <p className="mt-2.5 text-sm leading-6 text-fg-secondary line-clamp-2 break-words">
                   {project.description}
                 </p>
               ) : (
                 <p className="mt-2.5 text-sm leading-6 text-dark-muted">No description provided.</p>
               )}
-              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-dark-secondary">
+              <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-fg-secondary">
                 <span className="text-xs text-dark-muted">{new Date(project.createdAt).toLocaleDateString()}</span>
                 <span className="h-1 w-1 rounded-full bg-dark-subtle" />
                 <div className="flex min-w-0 items-center gap-2">
@@ -143,7 +143,7 @@ export default function ProjectsPage() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="flex h-full w-full items-center justify-center bg-dark-subtle text-xs font-semibold uppercase text-dark-primary">
+                      <span className="flex h-full w-full items-center justify-center bg-dark-subtle text-xs font-semibold uppercase text-fg">
                         {(project.userFullName ?? project.clerkUserId).slice(0, 2)}
                       </span>
                     )}

@@ -38,7 +38,7 @@ export default function StatusButton({ endpoint, status }: { endpoint: string; s
       >
         {pending ? "Saving..." : status === "open" ? "Mark resolved" : "Reopen"}
       </button>
-      {error ? <span className="text-xs text-red-400">{error}</span> : null}
+      {error ? <span className="text-xs text-danger">{error}</span> : null}
     </div>
   );
 }

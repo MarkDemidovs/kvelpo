@@ -84,14 +84,14 @@ export default function InboxPage() {
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Inbox</h1>
-        <p className="mt-2 text-dark-secondary">Notifications and your application statuses, in one place.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-fg">Inbox</h1>
+        <p className="mt-2 text-fg-secondary">Notifications and your application statuses, in one place.</p>
       </div>
 
       {loading ? (
         <InboxSkeleton />
       ) : error ? (
-        <div className="card-raised p-10 text-center text-red-400">
+        <div className="card-raised p-10 text-center text-danger">
           {error}
         </div>
       ) : (
@@ -100,7 +100,7 @@ export default function InboxPage() {
           <section>
             <p className="label-eyebrow">Notifications</p>
             {notifications.length === 0 ? (
-              <div className="card-raised mt-4 p-6 text-center text-dark-secondary">
+              <div className="card-raised mt-4 p-6 text-center text-fg-secondary">
                 No notifications yet.
               </div>
             ) : (
@@ -112,7 +112,7 @@ export default function InboxPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <p className="text-sm text-dark-primary">{notification.message}</p>
+                        <p className="text-sm text-fg">{notification.message}</p>
                         <p className="mt-1.5 text-xs text-dark-muted">
                           {new Date(notification.createdAt).toLocaleDateString()}
                         </p>
@@ -144,7 +144,7 @@ export default function InboxPage() {
           <section>
             <p className="label-eyebrow">Your applications</p>
             {applications.length === 0 ? (
-              <div className="card-raised mt-4 p-6 text-center text-dark-secondary">
+              <div className="card-raised mt-4 p-6 text-center text-fg-secondary">
                 No applications yet. Apply to projects to see your request statuses here.
               </div>
             ) : (
@@ -153,7 +153,7 @@ export default function InboxPage() {
                   <div key={application.id} className="card-raised p-4.5">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-dark-primary">
+                        <p className="text-sm font-semibold text-fg">
                           {application.projectName ?? 'Unknown project'}
                         </p>
                         <p className="mt-1 text-xs text-dark-muted">
@@ -163,17 +163,17 @@ export default function InboxPage() {
                       <span
                         className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
                           application.status === 'pending'
-                            ? 'bg-yellow-900/50 text-yellow-400'
+                            ? 'bg-warning-bg text-warning'
                             : application.status === 'accepted'
-                              ? 'bg-emerald-900/50 text-emerald-400'
-                              : 'bg-dark-tertiary text-dark-secondary'
+                              ? 'bg-success-bg text-success'
+                              : 'bg-dark-tertiary text-fg-secondary'
                         }`}
                       >
                         {application.status}
                       </span>
                     </div>
                     {application.message && (
-                      <p className="mt-2.5 text-sm text-dark-secondary">{application.message}</p>
+                      <p className="mt-2.5 text-sm text-fg-secondary">{application.message}</p>
                     )}
                     <p className="mt-2.5 text-xs text-dark-muted">
                       Applied {new Date(application.appliedAt).toLocaleDateString()}

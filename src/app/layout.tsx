@@ -9,6 +9,7 @@ import { siteDescription, siteName, siteTagline, siteUrl } from "~/lib/site";
 import ChatPopup from "./_components/ChatPopup";
 import ConsentBanner from "./_components/ConsentBanner";
 import TermsGate from "./_components/TermsGate";
+import { ThemeProvider, themeInitScript } from "./_components/ThemeProvider";
 import { ChatProvider } from "./_components/ChatContext";
 
 export const metadata: Metadata = {
@@ -44,8 +45,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
-      <html lang="en" suppressHydrationWarning className={`${geist.variable}`}>
+      <html lang="en" suppressHydrationWarning className={`${geist.variable} dark`}>
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        </head>
         <body suppressHydrationWarning>
+          <ThemeProvider>
           <ChatProvider>
             <TopNav />
             <ConsentBanner />
@@ -53,20 +58,21 @@ export default function RootLayout({
             <main className="pt-16">
               {children}
             </main>
-            <footer className="border-t border-dark-subtle bg-dark-tertiary px-6 py-6 text-sm text-dark-secondary">
+            <footer className="border-t border-dark-subtle bg-dark-tertiary px-6 py-6 text-sm text-fg-secondary">
               <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
                 <p>© 2026 kvelpo</p>
                 <div className="flex flex-wrap gap-4">
-                  <Link href="/terms" className="hover:text-dark-primary">Terms</Link>
-                  <Link href="/privacy" className="hover:text-dark-primary">Privacy</Link>
-                  <Link href="/cookies" className="hover:text-dark-primary">Cookies</Link>
-                  <Link href="/consent" className="hover:text-dark-primary">Consent</Link>
-                  <Link href="/support" className="hover:text-dark-primary">Support</Link>
+                  <Link href="/terms" className="hover:text-fg">Terms</Link>
+                  <Link href="/privacy" className="hover:text-fg">Privacy</Link>
+                  <Link href="/cookies" className="hover:text-fg">Cookies</Link>
+                  <Link href="/consent" className="hover:text-fg">Consent</Link>
+                  <Link href="/support" className="hover:text-fg">Support</Link>
                 </div>
               </div>
             </footer>
             <ChatPopup />
           </ChatProvider>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

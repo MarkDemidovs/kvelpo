@@ -1,83 +1,155 @@
 @import "tailwindcss";
 
-@theme {
+/*
+ * Theming
+ * -------
+ * Colours are CSS variables, switched by a class on <html>:
+ *   (none) / .dark  -> dark palette   (the default)
+ *   .light          -> light palette
+ *   .system         -> follows prefers-color-scheme
+ * The class is set before first paint by the inline script in layout.tsx and
+ * changed at runtime by ThemeProvider.
+ *
+ * The utility names keep their historical "dark-*" prefix (bg-dark-primary,
+ * text-dark-secondary, ...) but are theme-aware: "primary" is the main page
+ * surface / main text colour in whichever theme is active.
+ */
+:root {
+  color-scheme: dark;
+
+  --bg: #09090a;
+  --bg-2: #111113;
+  --bg-3: #1c1c1f;
+  --card: #131315;
+  --line: #3a3a40;
+  --line-subtle: #26262a;
+  --text: #fafafa;
+  --text-2: #a1a1aa;
+  --text-muted: #7c7c85;
+  --accent: oklch(68% 0.18 255);
+  --accent-fg: #ffffff;
+  --btn-primary-bg: #ffffff;
+  --btn-primary-fg: #09090a;
+  --card-top-line: rgba(255, 255, 255, 0.08);
+  --shadow-card: 0 20px 40px -28px rgba(0, 0, 0, 0.9);
+  --shadow-card-hover: 0 28px 52px -24px rgba(0, 0, 0, 0.95);
+  --scrim: rgba(0, 0, 0, 0.8);
+  --danger: #f87171;
+  --danger-bg: rgba(248, 113, 113, 0.12);
+  --success: #34d399;
+  --success-bg: rgba(52, 211, 153, 0.12);
+  --warning: #fbbf24;
+  --warning-bg: rgba(251, 191, 36, 0.12);
+}
+
+:root.light {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --bg-2: #f6f6f7;
+  --bg-3: #ececef;
+  --card: #f6f6f7;
+  --line: #d4d4d8;
+  --line-subtle: #e4e4e7;
+  --text: #0b0b0c;
+  --text-2: #52525b;
+  --text-muted: #71717a;
+  --accent: oklch(52% 0.21 262);
+  --accent-fg: #ffffff;
+  --btn-primary-bg: #111113;
+  --btn-primary-fg: #ffffff;
+  --card-top-line: transparent;
+  --shadow-card: 0 1px 2px rgba(15, 15, 20, 0.04), 0 14px 30px -20px rgba(15, 15, 20, 0.2);
+  --shadow-card-hover: 0 1px 2px rgba(15, 15, 20, 0.05), 0 22px 40px -22px rgba(15, 15, 20, 0.28);
+  --scrim: rgba(10, 10, 12, 0.55);
+  --danger: #dc2626;
+  --danger-bg: rgba(220, 38, 38, 0.08);
+  --success: #15803d;
+  --success-bg: rgba(21, 128, 61, 0.1);
+  --warning: #b45309;
+  --warning-bg: rgba(180, 83, 9, 0.1);
+}
+
+@media (prefers-color-scheme: light) {
+  :root.system {
+    color-scheme: light;
+
+    --bg: #ffffff;
+    --bg-2: #f6f6f7;
+    --bg-3: #ececef;
+    --card: #f6f6f7;
+    --line: #d4d4d8;
+    --line-subtle: #e4e4e7;
+    --text: #0b0b0c;
+    --text-2: #52525b;
+    --text-muted: #71717a;
+    --accent: oklch(52% 0.21 262);
+    --accent-fg: #ffffff;
+    --btn-primary-bg: #111113;
+    --btn-primary-fg: #ffffff;
+    --card-top-line: transparent;
+    --shadow-card: 0 1px 2px rgba(15, 15, 20, 0.04), 0 14px 30px -20px rgba(15, 15, 20, 0.2);
+    --shadow-card-hover: 0 1px 2px rgba(15, 15, 20, 0.05), 0 22px 40px -22px rgba(15, 15, 20, 0.28);
+    --scrim: rgba(10, 10, 12, 0.55);
+    --danger: #dc2626;
+    --danger-bg: rgba(220, 38, 38, 0.08);
+    --success: #15803d;
+    --success-bg: rgba(21, 128, 61, 0.1);
+    --warning: #b45309;
+    --warning-bg: rgba(180, 83, 9, 0.1);
+  }
+}
+
+/*
+ * Registered with `inline` so utilities reference the variables directly,
+ * which makes every variant and opacity modifier work (hover:bg-dark-tertiary,
+ * focus:border-accent-blue, bg-dark-primary/90, ...) and lets the variables
+ * change per theme.
+ */
+@theme inline {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-dark-primary: var(--bg);
+  --color-dark-secondary: var(--bg-2);
+  --color-dark-tertiary: var(--bg-3);
+  --color-fg: var(--text);
+  --color-fg-secondary: var(--text-2);
+  --color-dark-card: var(--card);
+  --color-dark: var(--line);
+  --color-dark-subtle: var(--line-subtle);
+  --color-dark-muted: var(--text-muted);
+  --color-accent-blue: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-scrim: var(--scrim);
 }
 
 html, body {
   overflow-x: hidden;
-  background-color: #000000;
-  color: #ffffff;
-}
-
-/* Dark theme utility classes */
-.bg-dark-primary {
-  background-color: #000000;
-}
-
-.bg-dark-secondary {
-  background-color: #111111;
-}
-
-.bg-dark-tertiary {
-  background-color: #1a1a1a;
-}
-
-.bg-dark-card {
-  background-color: #0a0a0a;
-}
-
-.border-dark {
-  border-color: #333333;
-}
-
-.border-dark-subtle {
-  border-color: #222222;
-}
-
-.text-dark-primary {
-  color: #ffffff;
-}
-
-.text-dark-secondary {
-  color: #aaaaaa;
-}
-
-.text-dark-muted {
-  color: #7a7a7a;
-}
-
-.text-accent-blue {
-  color: oklch(68% 0.18 240);
-}
-
-.bg-accent-blue {
-  background-color: oklch(68% 0.18 240);
-}
-
-.border-accent-blue {
-  border-color: oklch(68% 0.18 240);
-}
-
-.hover-bg-accent-blue:hover {
-  background-color: oklch(68% 0.18 240);
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 /* Raised card: the app's default card treatment (border, soft shadow, hover lift) */
 .card-raised {
-  border: 1px solid #222222;
-  border-top-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line-subtle);
+  border-top-color: var(--card-top-line, var(--line-subtle));
   border-radius: 1rem;
-  background-color: #0a0a0a;
-  box-shadow: 0 20px 40px -28px rgba(0, 0, 0, 0.9);
+  background-color: var(--card);
+  box-shadow: var(--shadow-card);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .card-raised:hover {
   transform: translateY(-4px);
-  box-shadow: 0 28px 52px -24px rgba(0, 0, 0, 0.95);
-  border-color: #333333;
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--line);
 }
 
 /* Eyebrow label: small uppercase tracked text with a glowing accent dot */
@@ -89,7 +161,7 @@ html, body {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #7a7a7a;
+  color: var(--text-muted);
 }
 
 .label-eyebrow::before {
@@ -97,12 +169,12 @@ html, body {
   width: 5px;
   height: 5px;
   border-radius: 9999px;
-  background: oklch(68% 0.18 240);
-  box-shadow: 0 0 8px 2px oklch(68% 0.18 240 / 0.55);
+  background: var(--accent);
+  box-shadow: 0 0 8px 2px color-mix(in oklab, var(--accent) 55%, transparent);
   flex-shrink: 0;
 }
 
-/* Buttons: solid-white primary, ghost secondary, both pill-shaped with a hover lift */
+/* Buttons: inverted-surface primary, ghost secondary, both pill-shaped with a hover lift */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -110,8 +182,8 @@ html, body {
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
-  background-color: #ffffff;
-  color: #000000;
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-fg);
   font-size: 0.9375rem;
   font-weight: 600;
   transition: transform 0.2s ease, opacity 0.2s ease;
@@ -130,8 +202,8 @@ html, body {
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
   background-color: transparent;
-  border: 1px solid #333333;
-  color: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--text);
   font-size: 0.9375rem;
   font-weight: 600;
   transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
@@ -139,7 +211,14 @@ html, body {
 
 .btn-secondary:hover {
   transform: translateY(-2px);
-  border-color: #7a7a7a;
+  border-color: var(--text-muted);
+}
+
+/* Inputs: readable placeholder in both themes */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
 }
 
 /* Scroll-reveal: paired with the Reveal component */
@@ -152,4 +231,18 @@ html, body {
 .reveal-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .card-raised:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: none;
+  }
 }

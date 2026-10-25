@@ -24,8 +24,8 @@ export default function SignInRequired({ title, message }: SignInRequiredProps) 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
       <div className="card-raised p-10 text-center">
-        <h1 className="text-2xl font-semibold text-dark-primary mb-4">{title}</h1>
-        <p className="text-dark-secondary">{message}</p>
+        <h1 className="text-2xl font-semibold text-fg mb-4">{title}</h1>
+        <p className="text-fg-secondary">{message}</p>
         <button
           type="button"
           onClick={() => openSignIn({ forceRedirectUrl: window.location.href })}

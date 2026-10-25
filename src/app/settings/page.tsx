@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { deleteAccountAction } from '~/app/actions/delete-account';
 import { useState } from 'react';
 import SignInRequired from "~/app/_components/SignInRequired";
+import ThemeToggle from "~/app/_components/ThemeToggle";
 
 const rowLinkClass =
-  "flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-dark-primary transition hover:bg-dark-tertiary";
+  "flex items-center justify-between gap-3 rounded-xl px-4 py-3.5 text-fg transition hover:bg-dark-tertiary";
 
 const ChevronIcon = () => (
   <svg className="h-4 w-4 shrink-0 text-dark-muted" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -42,11 +43,19 @@ export default function SettingsPage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 bg-dark-primary">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Settings</h1>
-        <p className="mt-2 text-dark-secondary">Manage your account, membership, and legal preferences.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-fg">Settings</h1>
+        <p className="mt-2 text-fg-secondary">Manage your account, membership, and legal preferences.</p>
       </div>
 
       <div className="space-y-4">
+        <div className="card-raised flex flex-wrap items-center justify-between gap-3 px-6 py-4">
+          <div>
+            <p className="text-[15px] font-semibold">Appearance</p>
+            <p className="mt-0.5 text-[13px] text-dark-muted">Light, dark, or match your device</p>
+          </div>
+          <ThemeToggle />
+        </div>
+
         <div className="card-raised p-2">
           <Link href="/profile" className={rowLinkClass}>
             <div>
@@ -87,16 +96,16 @@ export default function SettingsPage() {
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-red-900/40 bg-red-950/20 p-6">
-          <p className="text-[15px] font-semibold text-red-400">Danger zone</p>
-          <p className="mt-2 text-sm text-dark-secondary">
+        <div className="rounded-2xl border border-danger/40 bg-danger-bg p-6">
+          <p className="text-[15px] font-semibold text-danger">Danger zone</p>
+          <p className="mt-2 text-sm text-fg-secondary">
             Once you delete your account, there is no going back.
           </p>
           <button
             type="button"
             onClick={() => void handleDeleteAccount()}
             disabled={deletePending}
-            className="mt-4 inline-flex items-center justify-center rounded-full border border-red-900/50 px-5 py-2.5 text-sm font-semibold text-red-400 transition hover:bg-red-900/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-4 inline-flex items-center justify-center rounded-full border border-danger/40 px-5 py-2.5 text-sm font-semibold text-danger transition hover:bg-danger-bg disabled:cursor-not-allowed disabled:opacity-50"
           >
             {deletePending ? 'Deleting account...' : 'Delete account'}
           </button>

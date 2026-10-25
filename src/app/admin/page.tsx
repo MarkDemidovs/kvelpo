@@ -18,11 +18,11 @@ const formatDate = (date: Date) =>
   date.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Riga" });
 
 const ACTION_LABELS: Record<string, { label: string; className: string }> = {
-  edit: { label: "Edited project", className: "text-dark-primary" },
-  delete: { label: "Deleted project", className: "text-red-400" },
-  warn: { label: "Warned", className: "text-yellow-400" },
-  ban: { label: "Banned", className: "text-red-400" },
-  unban: { label: "Unbanned", className: "text-emerald-400" },
+  edit: { label: "Edited project", className: "text-fg" },
+  delete: { label: "Deleted project", className: "text-danger" },
+  warn: { label: "Warned", className: "text-warning" },
+  ban: { label: "Banned", className: "text-danger" },
+  unban: { label: "Unbanned", className: "text-success" },
 };
 
 export default async function AdminPanelPage() {
@@ -51,15 +51,15 @@ export default async function AdminPanelPage() {
   const nameOf = (id: string) => names.get(id) ?? `${id.slice(0, 14)}…`;
 
   const tiles = [
-    { href: "/admin/reports", label: "Open reports", count: openReports?.count ?? 0, accent: "text-red-400" },
+    { href: "/admin/reports", label: "Open reports", count: openReports?.count ?? 0, accent: "text-danger" },
     { href: "/admin/support", label: "Open support messages", count: openSupport?.count ?? 0, accent: "text-accent-blue" },
-    { href: "#banned", label: "Banned users", count: bannedUsers.length, accent: "text-dark-primary" },
+    { href: "#banned", label: "Banned users", count: bannedUsers.length, accent: "text-fg" },
   ];
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <h1 className="text-3xl font-bold tracking-tight text-dark-primary">Admin panel</h1>
-      <p className="mt-2 text-dark-secondary">
+      <h1 className="text-3xl font-bold tracking-tight text-fg">Admin panel</h1>
+      <p className="mt-2 text-fg-secondary">
         Moderate from any project or profile using the yellow Admin bar (edit, delete, warn, ban). Everything done there is
         logged below.
       </p>
@@ -68,7 +68,7 @@ export default async function AdminPanelPage() {
         {tiles.map((tile) => (
           <Link key={tile.label} href={tile.href} className="card-raised p-5 transition hover:border-accent-blue">
             <p className={`text-3xl font-bold ${tile.accent}`}>{tile.count}</p>
-            <p className="mt-1 text-sm text-dark-secondary">{tile.label}</p>
+            <p className="mt-1 text-sm text-fg-secondary">{tile.label}</p>
           </Link>
         ))}
       </div>
@@ -76,7 +76,7 @@ export default async function AdminPanelPage() {
       <section id="banned" className="mt-10 scroll-mt-24">
         <p className="label-eyebrow">Banned users</p>
         {bannedUsers.length === 0 ? (
-          <div className="card-raised mt-4 p-6 text-sm text-dark-secondary">Nobody is banned.</div>
+          <div className="card-raised mt-4 p-6 text-sm text-fg-secondary">Nobody is banned.</div>
         ) : (
           <ul className="mt-4 space-y-3">
             {bannedUsers.map((user) => {
@@ -84,11 +84,11 @@ export default async function AdminPanelPage() {
               return (
                 <li key={user.clerkUserId} className="card-raised flex flex-wrap items-start justify-between gap-4 p-5">
                   <div className="min-w-0 space-y-1">
-                    <Link href={`/profile/${encodeURIComponent(user.clerkUserId)}`} className="font-semibold text-dark-primary hover:text-accent-blue">
+                    <Link href={`/profile/${encodeURIComponent(user.clerkUserId)}`} className="font-semibold text-fg hover:text-accent-blue">
                       {label}
                     </Link>
                     <p className="text-xs text-dark-muted">Banned {user.bannedAt ? formatDate(user.bannedAt) : ""}</p>
-                    {user.bannedReason ? <p className="text-sm text-dark-secondary">{user.bannedReason}</p> : null}
+                    {user.bannedReason ? <p className="text-sm text-fg-secondary">{user.bannedReason}</p> : null}
                   </div>
                   <div className="flex items-center gap-2">
                     <AdminUserActions userId={user.clerkUserId} userLabel={label} banned />
@@ -103,23 +103,23 @@ export default async function AdminPanelPage() {
       <section className="mt-10">
         <p className="label-eyebrow">Moderation log (last 100)</p>
         {log.length === 0 ? (
-          <div className="card-raised mt-4 p-6 text-sm text-dark-secondary">No admin actions yet.</div>
+          <div className="card-raised mt-4 p-6 text-sm text-fg-secondary">No admin actions yet.</div>
         ) : (
-          <ul className="card-raised mt-4 divide-y divide-[#222]">
+          <ul className="card-raised mt-4 divide-y divide-dark-subtle">
             {log.map((entry) => {
-              const meta = ACTION_LABELS[entry.action] ?? { label: entry.action, className: "text-dark-primary" };
+              const meta = ACTION_LABELS[entry.action] ?? { label: entry.action, className: "text-fg" };
               return (
                 <li key={entry.id} className="px-5 py-3.5 text-sm">
                   <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                    <span className="text-dark-primary">{nameOf(entry.adminClerkUserId)}</span>
+                    <span className="text-fg">{nameOf(entry.adminClerkUserId)}</span>
                     <span className={`font-semibold ${meta.className}`}>{meta.label.toLowerCase()}</span>
                     {entry.targetClerkUserId ? (
-                      <Link href={`/profile/${encodeURIComponent(entry.targetClerkUserId)}`} className="text-dark-primary hover:text-accent-blue">
+                      <Link href={`/profile/${encodeURIComponent(entry.targetClerkUserId)}`} className="text-fg hover:text-accent-blue">
                         {nameOf(entry.targetClerkUserId)}
                       </Link>
                     ) : null}
                     {entry.projectName ? (
-                      <span className="text-dark-secondary">
+                      <span className="text-fg-secondary">
                         {entry.action === "delete" ? `"${entry.projectName}"` : (
                           <Link href={`/projects/${entry.projectId}`} className="hover:text-accent-blue">&quot;{entry.projectName}&quot;</Link>
                         )}
@@ -127,7 +127,7 @@ export default async function AdminPanelPage() {
                     ) : null}
                     <span className="ml-auto text-xs text-dark-muted">{formatDate(entry.createdAt)}</span>
                   </div>
-                  {entry.reason ? <p className="mt-1 text-dark-secondary">{entry.reason}</p> : null}
+                  {entry.reason ? <p className="mt-1 text-fg-secondary">{entry.reason}</p> : null}
                 </li>
               );
             })}
