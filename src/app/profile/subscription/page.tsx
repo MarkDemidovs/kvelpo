@@ -46,7 +46,8 @@ type OwnProject = {
   featured?: boolean;
 };
 
-const PRICE_PRO_MONTHLY = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY;
+// NEXT_PUBLIC_STRIPE_PRICE_PRO is the original name of the monthly price, still set in production.
+const PRICE_PRO_MONTHLY = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY ?? process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO;
 const PRICE_PRO_YEARLY = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY;
 const BOOST_AVAILABLE = Boolean(process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST);
 

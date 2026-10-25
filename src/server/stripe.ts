@@ -13,18 +13,23 @@ export function getStripe() {
 
 export default getStripe;
 
-export type PaidMembership = "pro";
+export type PaidMembership = "pro" | "team";
 
 /**
  * Maps a Stripe price ID to the membership it grants. Both Pro prices (monthly
  * and yearly) grant "pro". Built from the public price env vars so the client
  * and server stay in sync; the membership is derived on the server so the
- * client can never tamper with what a checkout grants.
+ * client can never tamper with what a checkout grants. The original PRO and
+ * TEAM variables stay mapped so existing subscribers keep their membership.
  */
 export function getPriceMembershipMap(): Record<string, PaidMembership> {
   const map: Record<string, PaidMembership> = {};
+  const legacyPro = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO;
+  const legacyTeam = process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM;
   const monthly = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY;
   const yearly = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY;
+  if (legacyPro) map[legacyPro] = "pro";
+  if (legacyTeam) map[legacyTeam] = "team";
   if (monthly) map[monthly] = "pro";
   if (yearly) map[yearly] = "pro";
   return map;

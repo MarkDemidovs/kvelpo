@@ -24,6 +24,8 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+    NEXT_PUBLIC_STRIPE_PRICE_PRO: z.string().optional(),
+    NEXT_PUBLIC_STRIPE_PRICE_TEAM: z.string().optional(),
     NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
     NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY: z.string().optional(),
     NEXT_PUBLIC_STRIPE_PRICE_BOOST: z.string().optional(),
@@ -43,6 +45,8 @@ export const env = createEnv({
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_STRIPE_PRICE_PRO: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO,
+    NEXT_PUBLIC_STRIPE_PRICE_TEAM: process.env.NEXT_PUBLIC_STRIPE_PRICE_TEAM,
     NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY,
     NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_YEARLY,
     NEXT_PUBLIC_STRIPE_PRICE_BOOST: process.env.NEXT_PUBLIC_STRIPE_PRICE_BOOST,
