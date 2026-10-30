@@ -7,6 +7,7 @@ import { deleteAccountAction } from "~/app/actions/delete-account";
 import skillsConfig from "~/data/skills.json";
 import { ProfileFormSkeleton } from "~/app/_components/Skeleton";
 import ExperienceSection from "./ExperienceSection";
+import { ProfilePreviewCard, ProfilePreviewFull, type PreviewProfile } from "./ProfilePreview";
 
 type MembershipType = "free" | "pro" | "team";
 
@@ -44,6 +45,8 @@ export default function ProfileForm() {
   const [link2, setLink2] = useState("");
   const [link3, setLink3] = useState("");
   const [deletePending, setDeletePending] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
+  const [ownProjects, setOwnProjects] = useState<{ id: number; name: string }[]>([]);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -70,6 +73,14 @@ export default function ProfileForm() {
     };
 
     void loadProfile();
+
+    // Public projects shown in the preview.
+    fetch("/api/projects?mode=own&limit=100")
+      .then((res) => (res.ok ? (res.json() as Promise<{ id: number; name: string; isPublic: boolean; isDraft?: boolean }[]>) : []))
+      .then((rows) =>
+        setOwnProjects(Array.isArray(rows) ? rows.filter((row) => row.isPublic && !row.isDraft).map((row) => ({ id: row.id, name: row.name })) : []),
+      )
+      .catch(() => undefined);
   }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -141,15 +152,40 @@ export default function ProfileForm() {
       .slice(0, 2)
       .toUpperCase() || "?";
 
+  const previewProfile: PreviewProfile = {
+    name: displayName,
+    bio,
+    skills,
+    links: [
+      { label: "Website", url: link1 },
+      { label: "Portfolio", url: link2 },
+      { label: "Another link", url: link3 },
+    ],
+    imageUrl: user?.imageUrl,
+    projects: ownProjects,
+    isPublic,
+    memberSince: user?.createdAt ?? null,
+  };
+
+  if (previewing) {
+    return <ProfilePreviewFull profile={previewProfile} onBack={() => setPreviewing(false)} />;
+  }
+
   return (
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-10">
     <div className="space-y-6 text-fg">
       <div className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-[30px]">Edit profile</h1>
           <p className="mt-1 text-[15px] text-fg-secondary">This is what shows up when someone views your profile.</p>
         </div>
-        <div className="hidden md:block">
-          <UserButton />
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={() => setPreviewing(true)} className="btn-secondary !px-4 !py-2 text-sm lg:hidden">
+            Preview
+          </button>
+          <div className="hidden md:block">
+            <UserButton />
+          </div>
         </div>
       </div>
 
@@ -366,6 +402,10 @@ export default function ProfileForm() {
           {deletePending ? "Deleting account..." : "Delete my account"}
         </button>
       </div>
+    </div>
+    <aside className="hidden lg:sticky lg:top-20 lg:block">
+      <ProfilePreviewCard profile={previewProfile} onOpenFull={() => setPreviewing(true)} />
+    </aside>
     </div>
   );
 }

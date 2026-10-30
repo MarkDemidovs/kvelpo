@@ -10,7 +10,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 bg-dark-primary">
+    <main className="mx-auto max-w-6xl px-4 py-8 bg-dark-primary">
       <ProfileForm />
     </main>
   );
