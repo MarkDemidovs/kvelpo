@@ -11,7 +11,7 @@ export default function DataRetentionPage() {
   return (
     <LegalPageShell title="Data Retention Policy">
           <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: October 28, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: November 13, 2026</h2>
             <p className="text-sm">
               This Data Retention Policy explains how long kvelpo retains your personal information and the criteria we use for deletion.
             </p>
@@ -70,6 +70,13 @@ export default function DataRetentionPage() {
               </div>
 
               <div className="p-4 bg-dark-tertiary rounded-lg">
+                <h3 className="font-semibold text-fg mb-2">Anonymous Page-View Counts</h3>
+                <p className="mb-2"><strong>Retention Period:</strong> Kept as daily totals</p>
+                <p><strong>Purpose:</strong> Understanding how the service is used</p>
+                <p><strong>Deletion:</strong> These counts contain no personal data and are not linked to any account, so there is nothing to delete when you delete your account</p>
+              </div>
+
+              <div className="p-4 bg-dark-tertiary rounded-lg">
                 <h3 className="font-semibold text-fg mb-2">Boost Purchase Records</h3>
                 <p className="mb-2"><strong>Retention Period:</strong> Up to 7 years (accounting requirements)</p>
                 <p><strong>Purpose:</strong> Applying the Boost to the right project and keeping accounting records</p>
@@ -92,7 +99,7 @@ export default function DataRetentionPage() {
             </div>
 
             <p className="mt-4 text-sm">
-              Apart from the project view records described above, we do not collect analytics or usage-tracking data, so no separate analytics retention period applies. If that changes, we will update this policy first.
+              Apart from the project view records and the anonymous page-view counts described above, we do not collect analytics or usage-tracking data. If that changes, we will update this policy first.
             </p>
           </section>
 

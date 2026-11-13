@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <LegalPageShell title="Privacy Policy">
           <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: October 28, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: November 13, 2026</h2>
             <p className="text-sm">
               This Privacy Policy explains how kvelpo ("we," "our," or "us") collects, uses, and protects your personal information. 
               This policy applies to our service and complies with the General Data Protection Regulation (GDPR) and other applicable privacy laws.
@@ -54,6 +54,7 @@ export default function PrivacyPage() {
                   <li>Messages you send in project team chats and direct messages you send to other members</li>
                   <li>Project views: when you are signed in and open another person&apos;s public project, we record one entry per project per day, containing the project, your account, the date, your first listed skill, and whether you were browsing privately. We do not record views by signed-out visitors, and we do not record owners viewing their own projects</li>
                   <li>In-app notifications about applications, decisions on your applications, and a weekly summary for project owners</li>
+                  <li>Anonymous page-view counts: each time a page is opened we add one to a daily counter for that page and, if there was one, the website the visitor came from. The counter is not linked to you: we do not store your IP address, your account, a cookie, or your browser details with it. Visitors who send Do Not Track or Global Privacy Control are not counted, and neither are the admin pages</li>
                 </ul>
               </div>
               <div>
@@ -93,6 +94,7 @@ export default function PrivacyPage() {
               <li>Show project owners how many people viewed their project and, for owners on Pro, who viewed it</li>
               <li>Order and label projects in Explore, including boosted projects and the first 30 days of Pro members&apos; projects</li>
               <li>Send owners a weekly in-app summary of the views and applications their projects received</li>
+              <li>Understand how the service is used, through anonymous page-view counts that our team can see</li>
               <li>Authenticate users and secure accounts (via Clerk)</li>
               <li>Facilitate project collaboration and communication</li>
               <li>Send service-related notifications and updates</li>
@@ -175,7 +177,7 @@ export default function PrivacyPage() {
                 <li>Authentication and session management</li>
                 <li>Remembering your preferences and consent choices</li>
               </ul>
-              <p>We do not currently use analytics, advertising, or tracking cookies. See our <strong>Cookie Policy</strong> for full details.</p>
+              <p>We do not use analytics, advertising, or tracking cookies. We count page views anonymously on our own servers, without cookies or browser storage (see Section 2.3). See our <strong>Cookie Policy</strong> for full details.</p>
               <p>You can manage cookie preferences through our consent banner or browser settings.</p>
             </div>
           </section>

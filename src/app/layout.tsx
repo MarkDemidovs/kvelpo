@@ -11,6 +11,7 @@ import TermsGate from "./_components/TermsGate";
 import { ThemeProvider, themeInitScript } from "./_components/ThemeProvider";
 import { InboxProvider } from "./_components/InboxContext";
 import BottomTabBar from "./_components/BottomTabBar";
+import AnalyticsBeacon from "./_components/AnalyticsBeacon";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -78,6 +79,7 @@ export default function RootLayout({
               </div>
             </footer>
             <BottomTabBar />
+            <AnalyticsBeacon />
           </InboxProvider>
           </ThemeProvider>
         </body>

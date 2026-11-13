@@ -12,7 +12,7 @@ export default function CookiesPage() {
   return (
     <LegalPageShell title="Cookie Policy">
           <section>
-            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: October 28, 2026</h2>
+            <h2 className="text-xl font-semibold text-fg mb-4">Last Updated: November 13, 2026</h2>
             <p className="text-sm">
               This Cookie Policy explains how kvelpo uses cookies and similar technologies to collect, store, and process your information. 
               This policy is designed to comply with the General Data Protection Regulation (GDPR) and ePrivacy Directive.
@@ -61,7 +61,7 @@ export default function CookiesPage() {
             </div>
 
             <p className="mt-4 text-sm">
-              We do not currently use analytics, advertising, or marketing cookies, and we do not use device fingerprinting or cross-site tracking. If that changes, we will update this policy and, where required, ask for your consent first.
+              We do not use analytics, advertising, or marketing cookies, and we do not use device fingerprinting or cross-site tracking. We do count page views anonymously on our own servers, without cookies or browser storage and without storing anything that identifies you (see our Privacy Policy). If that changes, we will update this policy and, where required, ask for your consent first.
             </p>
           </section>
 

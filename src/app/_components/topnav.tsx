@@ -238,6 +238,9 @@ export default function TopNav() {
                     <>
                       <div className="my-1 h-px bg-dark-subtle" />
                       <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-dark-muted">Admin</p>
+                      <MenuLink href="/admin/analytics" onClick={closeMenu} icon={<svg {...iconProps}><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>}>
+                        Analytics
+                      </MenuLink>
                       <MenuLink href="/admin" onClick={closeMenu} icon={<svg {...iconProps}><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6l8-3z" /></svg>}>
                         Admin panel
                       </MenuLink>

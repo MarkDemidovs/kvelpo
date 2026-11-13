@@ -279,6 +279,19 @@ export const projectViews = createTable("project_view", (d) => ({
   index("project_view_viewer_idx").on(t.viewerClerkUserId),
 ]);
 
+/** Anonymous page-view counters for the admin analytics page. No user id, IP or cookie is stored. */
+export const pageviewDaily = createTable("pageview_daily", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  day: d.date().notNull(),
+  path: d.varchar({ length: 256 }).notNull(),
+  // Host of the referring site; empty for direct visits and links within kvelpo.
+  referrer: d.varchar({ length: 128 }).notNull().default(""),
+  views: d.integer().notNull().default(0),
+}), (t) => [
+  uniqueIndex("pageview_daily_unique_idx").on(t.day, t.path, t.referrer),
+  index("pageview_daily_day_idx").on(t.day),
+]);
+
 /** One row per paid Boost Checkout session: makes the webhook idempotent and keeps a purchase history. */
 export const boostPurchases = createTable("boost_purchase", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),

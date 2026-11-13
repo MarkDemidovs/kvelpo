@@ -73,6 +73,14 @@ export default async function AdminPanelPage() {
         ))}
       </div>
 
+      <Link href="/admin/analytics" className="card-raised mt-4 flex items-center justify-between p-5 transition hover:border-accent-blue">
+        <div>
+          <p className="text-[15px] font-semibold text-fg">Analytics</p>
+          <p className="mt-1 text-sm text-fg-secondary">Members, projects, page views, top pages and more.</p>
+        </div>
+        <span className="text-sm font-semibold text-accent-blue">Open &rarr;</span>
+      </Link>
+
       <section id="banned" className="mt-10 scroll-mt-24">
         <p className="label-eyebrow">Banned users</p>
         {bannedUsers.length === 0 ? (
